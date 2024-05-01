@@ -17,7 +17,7 @@ body, html {
 
 /* Main game container */
 #game-board {
-    width: 90vmin; /* Use vmin for responsive square size */
+    width: 90vmin;  /* Use vmin for responsive square size */
     height: 90vmin; /* Equal to width to maintain square aspect ratio */
     background-color: #bbada0;
     display: grid;
@@ -39,77 +39,28 @@ body, html {
     border-radius: 5px;
     width: 100%;
     height: 100%;
-    transition: transform 150ms ease-in-out; /* Add transition for smooth movement */
 }
 
 .tile[content="0"] {
     visibility: hidden;
 }
-
 /* Tile specific colors */
-.tile-2 {
-    background-color: #eee4da;
-}
-
-.tile-4 {
-    background-color: #ede0c8;
-}
-
-.tile-8 {
-    background-color: #f2b179;
-    color: #f9f6f2;
-}
-
-.tile-16 {
-    background-color: #f59563;
-    color: #f9f6f2;
-}
-
-.tile-32 {
-    background-color: #f67c5f;
-    color: #f9f6f2;
-}
-
-.tile-64 {
-    background-color: #f65e3b;
-    color: #f9f6f2;
-}
-
-.tile-128 {
-    background-color: #edcf72;
-    color: #f9f6f2;
-}
-
-.tile-256 {
-    background-color: #edcc61;
-    color: #f9f6f2;
-}
-
-.tile-512 {
-    background-color: #edc850;
-    color: #f9f6f2;
-}
-
-.tile-1024 {
-    background-color: #edc53f;
-    color: #f9f6f2;
-}
-
-.tile-2048 {
-    background-color: #edc22e;
-    color: #f9f6f2;
-}
+.tile-2 { background-color: #eee4da; }
+.tile-4 { background-color: #ede0c8; }
+.tile-8 { background-color: #f2b179; color: #f9f6f2; }
+.tile-16 { background-color: #f59563; color: #f9f6f2; }
+.tile-32 { background-color: #f67c5f; color: #f9f6f2; }
+.tile-64 { background-color: #f65e3b; color: #f9f6f2; }
+.tile-128 { background-color: #edcf72; color: #f9f6f2; }
+.tile-256 { background-color: #edcc61; color: #f9f6f2; }
+.tile-512 { background-color: #edc850; color: #f9f6f2; }
+.tile-1024 { background-color: #edc53f; color: #f9f6f2; }
+.tile-2048 { background-color: #edc22e; color: #f9f6f2; }
 
 /* Animations for moving and merging tiles */
 @keyframes appear {
-    from {
-        transform: scale(0.5);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }
 
 .tile.new {
@@ -117,12 +68,8 @@ body, html {
 }
 
 @keyframes merge {
-    from {
-        transform: scale(1);
-    }
-    to {
-        transform: scale(1.1);
-    }
+    from { transform: scale(1); }
+    to { transform: scale(1.1); }
 }
 
 .tile.merged {
@@ -163,7 +110,7 @@ body, html {
 
 /* Restart button styling */
 #new-game-button {
-    margin-top: 20px;
+   margin-top: 20px;
     padding: 10px 20px;
     font-size: 18px;
     background-color: #8f7a66;
@@ -182,20 +129,4 @@ body, html {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-}
-
-.tile.move-up {
-    transform: translateY(-100%);
-}
-
-.tile.move-down {
-    transform: translateY(100%);
-}
-
-.tile.move-left {
-    transform: translateX(-100%);
-}
-
-.tile.move-right {
-    transform: translateX(100%);
 }
