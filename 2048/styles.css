@@ -1,0 +1,132 @@
+/* Basic reset for margin and padding */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #faf8ef;
+}
+
+/* Main game container */
+#game-board {
+    width: 90vmin;  /* Use vmin for responsive square size */
+    height: 90vmin; /* Equal to width to maintain square aspect ratio */
+    background-color: #bbada0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    position: relative;
+}
+
+.tile {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #cdc1b4;
+    font-size: 10vmin;
+    font-weight: bold;
+    color: #776e65;
+    border-radius: 5px;
+    width: 100%;
+    height: 100%;
+}
+
+.tile[content="0"] {
+    visibility: hidden;
+}
+/* Tile specific colors */
+.tile-2 { background-color: #eee4da; }
+.tile-4 { background-color: #ede0c8; }
+.tile-8 { background-color: #f2b179; color: #f9f6f2; }
+.tile-16 { background-color: #f59563; color: #f9f6f2; }
+.tile-32 { background-color: #f67c5f; color: #f9f6f2; }
+.tile-64 { background-color: #f65e3b; color: #f9f6f2; }
+.tile-128 { background-color: #edcf72; color: #f9f6f2; }
+.tile-256 { background-color: #edcc61; color: #f9f6f2; }
+.tile-512 { background-color: #edc850; color: #f9f6f2; }
+.tile-1024 { background-color: #edc53f; color: #f9f6f2; }
+.tile-2048 { background-color: #edc22e; color: #f9f6f2; }
+
+/* Animations for moving and merging tiles */
+@keyframes appear {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.tile.new {
+    animation: appear 200ms ease-out;
+}
+
+@keyframes merge {
+    from { transform: scale(1); }
+    to { transform: scale(1.1); }
+}
+
+.tile.merged {
+    animation: merge 200ms ease-out;
+}
+
+/* Score display styling */
+#score-container {
+    position: absolute;
+    top: -50px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 24px;
+    color: #776e65;
+}
+
+/* Game over overlay */
+#game-over-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(238, 228, 218, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 48px;
+    color: #776e65;
+    border-radius: 10px;
+    visibility: hidden;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+/* Restart button styling */
+#new-game-button {
+   margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #8f7a66;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#back-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #8f7a66;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}

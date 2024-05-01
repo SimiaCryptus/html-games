@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048 Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body style="flex-flow: column">
+<div class="game-container" style="width: 90%;">
+    <h1>2048</h1>
+    <div class="score-container">
+        Score: <span id="score">0</span>
+    </div>
+    <div class="game-message" id="game-over-message"></div>
+    <div id="game-board" class="grid-container">
+        <!-- The 4x4 grid will be dynamically filled with tiles by JavaScript -->
+    </div>
+</div>
+<button id="new-game-button">New Game</button>
+<button id="back-button">Back</button>
+<script src="script.js"></script>
+</body>
+</html>
