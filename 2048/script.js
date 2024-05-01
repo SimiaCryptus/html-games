@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isNaN(score)) {
         score = 0;
     }
-    let touchStartPos = { x: 0, y: 0 };
-    let touchEndPos = { x: 0, y: 0 };
+    let touchStartPos = {x: 0, y: 0};
+    let touchEndPos = {x: 0, y: 0};
 
     function saveGameState() {
         const state = {
@@ -91,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('No previous state found');  // Log if no previous state exists
             tile.innerHTML = ' '; // Use empty string for zero value
         }
+        tile.style.transform = 'translate(0, 0)'; // Reset position after animation
     }
 
     // Create a playing board
@@ -146,10 +147,20 @@ document.addEventListener('DOMContentLoaded', () => {
         return combined;
     }
 
+    function moveTiles(direction, tiles) {
+        tiles.forEach(tile => {
+            tile.classList.add(`move-${direction}`);
+            setTimeout(() => {
+                tile.classList.remove(`move-${direction}`);
+            }, 150); // Match the duration of the CSS transition
+        });
+    }
+
     function keyLeft() {
         if (moveLeft() || combineRow()) {
             combineRow();
-            moveLeft();
+            movedTiles = moveLeft();
+            moveTiles('left', movedTiles);
             generate();
         }
     }
@@ -157,7 +168,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function keyUp() {
         if (moveUp() || combineColumn()) {
             combineColumn();
-            moveUp();
+            movedTiles = moveUp();
+            moveTiles('up', movedTiles);
             generate();
         }
     }
@@ -165,7 +177,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function keyDown() {
         if (moveDown() || combineColumn()) {
             combineColumn();
-            moveDown();
+            movedTiles = moveDown();
+            moveTiles('down', movedTiles);
             generate();
         }
     }
@@ -298,14 +311,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.addEventListener('keyup', control);
-    gridDisplay.addEventListener('touchstart', handleTouchStart, { passive: false });
-    gridDisplay.addEventListener('touchmove', handleTouchMove, { passive: false });
+    gridDisplay.addEventListener('touchstart', handleTouchStart, {passive: false});
+    gridDisplay.addEventListener('touchmove', handleTouchMove, {passive: false});
     gridDisplay.addEventListener('touchend', handleTouchEnd);
 
     function keyRight() {
         if (moveRight() || combineRow()) {
             combineRow();
-            moveRight();
+            movedTiles = moveRight();
+            moveTiles('up', movedTiles);
             generate();
         }
     }
