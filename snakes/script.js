@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function generateFood() {
-        food.x = Math.floor(Math.random() * (gameWidth / snakeSize)) * snakeSize;
+    food.x = Math.floor(Math.random() * (gameWidth / snakeSize - 1) + 1) * snakeSize;
         food.y = Math.floor(Math.random() * (gameHeight / snakeSize)) * snakeSize;
     }
 

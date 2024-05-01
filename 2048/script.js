@@ -125,7 +125,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Combine rows
     function combineRow() {
         let combined = false;
-        for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 16; i++) {
+      if (i % 4 !== 3) {
             if (squares[i].innerHTML === squares[i + 1].innerHTML) {
                 let combinedTotal = parseInt(squares[i].innerHTML) + parseInt(squares[i + 1].innerHTML);
                 squares[i].innerHTML = combinedTotal;
@@ -141,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 scoreDisplay.innerHTML = score;
                 combined = true;
             }
+      }
         }
         checkForWin();
         return combined;

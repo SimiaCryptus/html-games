@@ -1,0 +1,51 @@
+/* General body styling to center the game container */
+#gameContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #282c34; /* Dark background for better contrast */
+    color: white; /* White text color for better readability */
+    font-family: Arial, sans-serif; /* Clean, simple font */
+    margin: 0; /* Remove default margin */
+    flex-flow: column;
+}
+
+/* Styling for the game container to align its child elements */
+#gameContainer {
+    text-align: center;
+}
+
+/* Specific styles for the game canvas */
+#gameCanvas {
+    background-color: #000; /* Black background for the canvas */
+    display: block; /* Block display to handle margins correctly */
+    margin: 0 auto; /* Center the canvas horizontally */
+    width: 95%;
+    height: 80vmin;
+    border: 1px solid #fff; /* White border for visibility */
+}
+
+/* Styling for the scoreboard for clear visibility */
+#scoreBoard {
+    font-size: 20px; /* Larger font size for easy reading */
+    margin: 10px; /* Margin around the scoreboard */
+}
+
+/* Styles for the start button to make it interactive and visible */
+button {
+    padding: 10px 20px; /* Padding for a larger clickable area */
+    font-size: 16px; /* Font size that is easy to read */
+    cursor: pointer; /* Cursor pointer to indicate it's clickable */
+    background-color: #4CAF50; /* Green background for visibility */
+    color: white; /* White text for contrast */
+    border: none; /* No border for a cleaner look */
+    border-radius: 5px; /* Rounded corners for a modern look */
+    outline: none; /* Remove outline to prevent focus border */
+    transition: background-color 0.3s; /* Smooth transition for hover effect */
+}
+
+/* Hover effect for the button to indicate interactivity */
+button:hover {
+    background-color: #45a049; /* Darker shade of green on hover */
+}
