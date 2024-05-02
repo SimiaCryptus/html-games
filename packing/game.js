@@ -7,6 +7,7 @@ const LINES_PER_LEVEL = 10;
 
         console.log('Rotation complete. Current shape:', this.shape);
 
+
 canvas.width = COLS * BLOCK_SIZE;
 canvas.height = ROWS * BLOCK_SIZE;
 
@@ -271,4 +272,44 @@ document.addEventListener('keydown', (event) => {
 });
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('startButton').addEventListener('click', startGame);
+    canvas.addEventListener('touchstart', handleTouchStart);
+    canvas.addEventListener('touchmove', handleTouchMove);
+    canvas.addEventListener('touchend', handleTouchEnd);
 });
+
+function handleTouchStart(event) {
+    const touch = event.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+}
+function handleTouchMove(event) {
+    event.preventDefault();
+    const touch = event.touches[0];
+    const deltaX = touch.clientX - startX;
+    const deltaY = touch.clientY - startY;
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        if (deltaX > 0) {
+            // Swipe right
+            if (currentPiece.isValidMove(currentPiece.x + 1, currentPiece.y, currentPiece.shape)) {
+                currentPiece.x += 1;
+            }
+        } else {
+            // Swipe left
+            if (currentPiece.isValidMove(currentPiece.x - 1, currentPiece.y, currentPiece.shape)) {
+                currentPiece.x -= 1;
+            }
+        }
+    } else {
+        if (deltaY > 0) {
+            // Swipe down
+            currentPiece.moveDown();
+        } else {
+            // Swipe up
+            currentPiece.rotate(1);
+        }
+    }
+    drawBoard();
+}
+function handleTouchEnd(event) {
+    // No-op for now
+}
