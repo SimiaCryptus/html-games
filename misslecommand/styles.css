@@ -1,0 +1,122 @@
+/* Basic reset for styling */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background: #000; /* Dark background for better game visibility */
+    color: white;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Game canvas styling */
+#gameCanvas {
+    width: 800px;
+    height: 600px;
+    background: #111; /* Dark grey for the game background */
+    display: block;
+    margin: 0 auto; /* Center the canvas horizontally */
+    position: relative;
+    border: 1px solid #333; /* Subtle border for the canvas */
+    overflow: hidden; /* Prevents children from overflowing */
+}
+
+/* Score display styling */
+#score {
+    color: #fff;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 20px;
+    z-index: 10;
+}
+
+/* Start/Restart button styling */
+#startButton {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #444;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    outline: none;
+}
+
+#city, .city, .battery {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background-color: #888; /* Light grey for visibility */
+    bottom: 10px; /* Correctly position at the bottom of the container */
+}
+
+.city {
+    background-color: #0f0; /* Green for cities */
+}
+
+.battery {
+    background-color: #00f; /* Blue for batteries */
+}
+
+#startButton:hover {
+    background-color: #555;
+}
+
+#gameGuide {
+    margin: 20px auto;
+    width: 80%;
+    max-width: 600px;
+    padding: 10px;
+    background-color: #222;
+    color: #ccc;
+    border-radius: 8px;
+    text-align: center;
+}
+
+#gameGuide h2 {
+    color: #fff;
+}
+
+#gameGuide p {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Explosion animations */
+@keyframes explode {
+    from {
+        opacity: 1;
+        transform: scale(0.5);
+    }
+    to {
+        opacity: 0;
+        transform: scale(2.5);
+    }
+}
+
+.explosion {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background: radial-gradient(circle, rgba(255, 69, 0, 1) 0%, rgba(255, 0, 0, 1) 35%, rgba(0, 0, 0, 0) 70%);
+    animation: explode 0.5s ease-out forwards;
+    pointer-events: none; /* Ensures clicks pass through the explosion */
+}
+
+.missile {
+    width: 5px;
+    height: 20px;
+    background-color: red;
+    position: absolute;
+}
+
+.interceptor {
+    width: 5px;
+    height: 20px;
+    background-color: blue;
+    position: absolute;
+}

@@ -1,0 +1,53 @@
+/* General styles for the chessboard */
+#chessboard {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    width: 640px; /* 8 x 80px */
+    height: 640px; /* 8 x 80px */
+    border: 2px solid #333;
+    margin: 20px auto;
+}
+
+/* Styling individual squares */
+.square {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Alternating colors for squares */
+.square.odd {
+    background-color: #f0d9b5;
+}
+
+.square.even {
+    background-color: #b58863;
+}
+
+/* Highlighting possible moves */
+.square.highlight {
+    background-color: #aaffaa;
+    border: 1px solid #00ff00;
+}
+
+/* Chess piece images */
+.chess-piece {
+    width: 60px;
+    height: 60px;
+    user-select: none; /* Prevents the image from being draggable */
+}
+
+/* Adjusting the grid rows for proper display */
+ .captured-pieces {
+     display: flex;
+     justify-content: space-around;
+     margin-top: 20px;
+ }
+
+ #captured-pieces-white, #captured-pieces-black {
+     display: flex;
+     flex-direction: column;
+ }
