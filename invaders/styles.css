@@ -1,0 +1,84 @@
+/* General body and game area styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #000;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+#gameArea {
+    width: 800px;
+    height: 600px;
+    position: relative;
+    overflow: hidden;
+    background-color: #111;
+    border: 2px solid #fff;
+}
+
+/* Player spaceship styling */
+.player {
+    width: 50px;
+    height: 30px;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-image: url('img/player-spaceship-image.png');
+    background-size: cover;
+}
+
+/* Invader styling */
+.invader {
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    background-image: url('img/invader-image.png');
+    background-size: cover;
+}
+
+/* Missile styling */
+.bullet {
+    width: 5px;
+    height: 20px;
+    position: absolute;
+    background-color: #f00;
+}
+
+/* Score and lives display styling */
+#score, #lives {
+    position: absolute;
+    top: 10px;
+    font-size: 20px;
+    color: #0f0;
+}
+
+#score {
+    left: 20px;
+}
+
+#lives {
+    right: 20px;
+}
+
+/* Start button styling */
+#startButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #008000;
+    border: none;
+    cursor: pointer;
+    outline: none;
+}
+
+#startButton:hover {
+    background-color: #00c000;
+}
