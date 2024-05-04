@@ -62,7 +62,7 @@ class ChessGame {
     }
 
     isValidMove(from, to) {
-       const piece = this.board[from][to];
+        const piece = this.board[from][to];
         const possibleMoves = getPossibleMoves(piece, from.row, from.col);
         return possibleMoves.some(move => move.row === to.row && move.col === to.col);
     }
