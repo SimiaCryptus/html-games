@@ -1,0 +1,121 @@
+/* General body styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Main game container */
+#game-container {
+    width: 100%;
+    max-width: 600px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Game board styles */
+#game-board {
+    margin: 20px 0;
+}
+
+.guessRow {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    min-height: 50px; /* Ensure that rows have a minimum height */
+}
+
+.colorOption {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.colorOption:hover {
+    border-color: #aaa;
+}
+
+.colorOption {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    cursor: pointer;
+    transition: border-color 0.3s;
+    display: inline-block;
+    margin: 5px;
+}
+
+/* Selected color style */
+.colorOption.selected {
+    border: 4px solid #333;
+}
+
+/* Feedback area styles */
+#feedback {
+    margin-top: 20px;
+}
+
+.peg {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 5px;
+    display: inline-block;
+}
+
+.feedbackDot {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.correctPosition {
+    background-color: green;
+}
+
+.wrongPosition {
+    background-color: yellow;
+}
+
+/* Button styles */
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    background-color: #007BFF;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .colorOption {
+        width: 35px;
+        height: 35px;
+    }
+
+    .feedbackDot {
+        width: 15px;
+        height: 15px;
+    }
+}
