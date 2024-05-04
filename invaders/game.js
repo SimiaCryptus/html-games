@@ -25,6 +25,8 @@ let reverse = false;
 const playerSpeed = 10;
 const bulletSpeed = 5;
 
+gameArea.addEventListener('touchmove', handleTouchMove, false);
+
 function createInvaders() {
     for (let i = 0; i < 24; i++) {
         let invader = document.createElement('div');
@@ -150,6 +152,19 @@ gameArea.addEventListener('touchstart', (e) => {
     console.log(`Touch start: ${touchstartX}`); // Log touch start position
    e.preventDefault(); // Prevent default browser behavior
 }, false);
+
+function handleTouchMove(e) {
+    let touchX = e.changedTouches[0].screenX;
+    let gameAreaRect = gameArea.getBoundingClientRect();
+    let targetX = touchX - gameAreaRect.left - player.offsetWidth / 2;
+    let currentLeft = parseInt(window.getComputedStyle(player).getPropertyValue('left'));
+    let newPlayerLeft = currentLeft + (targetX > currentLeft ? playerSpeed : -playerSpeed);
+    if (Math.abs(targetX - currentLeft) > playerSpeed) {
+        newPlayerLeft = Math.max(0, Math.min(gameArea.clientWidth - player.offsetWidth, newPlayerLeft));
+        player.style.left = `${newPlayerLeft}px`;
+    }
+    e.preventDefault(); // Prevent default browser behavior
+}
 
 // Removed duplicated touchend event listener
 
