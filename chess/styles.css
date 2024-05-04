@@ -27,8 +27,19 @@
     background-color: #b58863;
 }
 
+ /* Highlighting possible moves */
+ .square.highlight {
+     background-color: #aaffaa;
+     border: 1px solid #00ff00;
+ }
+ 
 /* Highlighting possible moves */
 .square.highlight {
+    background-color: #aaffaa;
+    border: 1px solid #00ff00;
+}
+
+.highlight {
     background-color: #aaffaa;
     border: 1px solid #00ff00;
 }

@@ -61,10 +61,10 @@ class ChessGame {
         return true;
     }
 
-    isValidMove(startRow, startCol, endRow, endCol) {
-        // Placeholder for move validation logic
-        // This should check for valid moves based on the piece type and game rules
-        return true; // Simplified for demonstration
+    isValidMove(from, to) {
+       const piece = this.board[from][to];
+        const possibleMoves = getPossibleMoves(piece, from.row, from.col);
+        return possibleMoves.some(move => move.row === to.row && move.col === to.col);
     }
 
     isCheck() {
@@ -86,6 +86,4 @@ class ChessGame {
 }
 
 // Example usage
-const game = new ChessGame();
-console.log(game.movePiece('a2', 'a4')); // Move a pawn
-console.log(game.status);
+// Removed the example usage to prevent redeclaration of 'game' in global scope

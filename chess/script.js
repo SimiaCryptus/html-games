@@ -9,10 +9,43 @@ const initialState = [
     ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
     ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
 ];
+// Create an instance of ChessGame
+const game = new ChessGame();
+
+function showPossibleMoves(row, col) {
+    const piece = chessboard[row][col];
+    const possibleMoves = getPossibleMoves(piece, row, col);
+    possibleMoves.forEach(move => {
+        console.log(`Possible move to [${move.row}, ${move.col}]`);
+        const square = document.getElementById(`${move.row}-${move.col}`);
+        if (square) {
+            square.classList.add('highlight');
+        }
+    });
+}
+
+// Function to handle piece clicks
+function handlePieceClick(row, col) {
+    console.log(`Piece clicked: ${row}, ${col}`);
+    if (selectedPiece) {
+        selectedPiece = null;
+        removeHighlights();
+    } else {
+        selectedPiece = {row, col};
+        highlightPossibleMoves(row, col);
+    }
+}
 
 let chessboard = [...initialState];
 let currentPlayer = 'white';
 let selectedPiece = null; // Variable to track the currently selected piece
+// Removed the declaration of 'game' here to avoid conflict with gameLogic.js
+
+// Function to clear highlighted squares
+function clearHighlights() {
+    const squares = document.querySelectorAll('.square');
+    squares.forEach(square => square.classList.remove('highlight'));
+}
 
 // Function to initialize the game
 function initializeGame() {
@@ -23,6 +56,8 @@ function initializeGame() {
             const square = document.createElement('div');
             square.className = `square ${(rowIndex + colIndex) % 2 === 0 ? 'even' : 'odd'}`;
             square.id = `${rowIndex}-${colIndex}`;
+            square.dataset.row = rowIndex;
+            square.dataset.col = colIndex;
             if (piece) {
                 const pieceElement = document.createElement('div');
                 pieceElement.className = `chess-piece ${getPieceColor(piece)} ${getPieceType(piece)}`;
@@ -42,11 +77,38 @@ function initializeGame() {
 function handleSquareClick(row, col) {
     console.log(`Square clicked: ${row}, ${col}`);
     if (selectedPiece) {
-        movePiece(selectedPiece, {row, col});
-        selectedPiece = null;
+        console.log(`Selected piece: ${selectedPiece.row}, ${selectedPiece.col}`);
+        const piece = getPieceType(chessboard[selectedPiece.row][selectedPiece.col]);
+        if (piece === '') return;
+        // Remove highlights only if a different piece is selected or the same piece is reselected
+        if (selectedPiece.row !== row || selectedPiece.col !== col) {
+            removeHighlights();
+        }
     } else {
-        selectedPiece = {row, col};
-        showPossibleMoves(row, col);
+        console.log('No piece selected');
+    }
+    if (selectedPiece && (selectedPiece.row === row && selectedPiece.col === col)) {
+        // Deselect the piece if the same square is clicked again
+        selectedPiece = null;
+    } else if (selectedPiece) {
+        const from = { row: selectedPiece.row, col: selectedPiece.col };
+        const to = { row, col };
+        const startPos = `${String.fromCharCode(97 + selectedPiece.col)}${8 - selectedPiece.row}`;
+        const endPos = `${String.fromCharCode(97 + col)}${8 - row}`;
+        console.log(`Attempting to move from ${startPos} to ${endPos}`);
+        console.log(`Moving piece ${chessboard[selectedPiece.row][selectedPiece.col]} from [${selectedPiece.row}, ${selectedPiece.col}] to [${row}, ${col}]`);
+        if (isValidMove(selectedPiece, to)) {
+            movePiece(from, to);
+            game.movePiece(startPos, endPos);
+            selectedPiece = null;
+            // Highlights are removed after the move is made
+            removeHighlights();
+        }
+    } else {
+        // Select the piece and highlight possible moves
+        selectedPiece = {row, col};  // Set the selected piece
+        highlightPossibleMoves(row, col);
+        console.log(`Selected piece: ${selectedPiece.row}, ${selectedPiece.col}`);
     }
     updateBoard();
 }
@@ -54,21 +116,147 @@ function handleSquareClick(row, col) {
 // Function to move a piece
 function movePiece(from, to) {
     const piece = chessboard[from.row][from.col];
+    console.log(`Moving piece ${piece} from [${from.row}, ${from.col}] to [${to.row}, ${to.col}]`);
     chessboard[from.row][from.col] = '';
     chessboard[to.row][to.col] = piece;
-    updateStatus(`${currentPlayer === 'white' ? 'Black' : 'White'}'s turn`);
+    // currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
+    updateStatus(`${currentPlayer === 'white' ? 'White' : 'Black'}'s turn`);
     currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
 }
+ // Function to highlight possible moves
+ function highlightPossibleMoves(row, col) {
+     const piece = chessboard[row][col];
+    console.log(`Highlighting possible moves for ${piece} at [${row}, ${col}]`);
+     const possibleMoves = getPossibleMoves(piece, row, col);
+    console.log(`Possible moves for ${piece} at [${row}, ${col}]:`, possibleMoves);
+    if (!possibleMoves || possibleMoves.length === 0) {
+        console.log('No moves')
+        return;
+    }
+     possibleMoves.forEach(move => {
+        const square = document.querySelector(`[data-row="${move.row}"][data-col="${move.col}"]`);
+        if (square) square.classList.add('highlight');
+     });
+ }
+ // Function to remove highlights from the board
+ function removeHighlights() {
+     const squares = document.querySelectorAll('.square');
+     squares.forEach(square => {
+         square.classList.remove('highlight');
+     });
+ }
+ // Function to get possible moves for a piece (placeholder)
+ function getPossibleMoves(piece, row, col) {
+    console.log(`Getting possible moves for ${piece} at [${row}, ${col}]`);
+     // Placeholder for getting possible moves based on piece type and position
+     // Return an array of {row, col} objects representing possible moves
+    const moves = [];
+    const pieceType = piece ? getPieceType(piece) : null;
+    if (!pieceType) return [];
+    const pieceColor = getPieceColor(piece);
+    const direction = pieceColor === 'white' ? -1 : 1;
 
-// Function to show possible moves
-function showPossibleMoves(row, col) {
-    // Placeholder for showing possible moves
-    console.log(`Possible moves for ${row},${col}`);
+    if (pieceType === 'pawn') {
+        const direction = pieceColor === 'white' ? -1 : 1;
+        const startRow = pieceColor === 'white' ? 6 : 1;
+        const oneStepRow = row + direction;
+        if (row === startRow) {
+            moves.push({row: row + direction * 2, col: col});
+        }
+        moves.push({row: row + direction, col: col});
+    }
+    else if (pieceType === 'rook') {
+        for (let i = 1; i < 8; i++) {
+            moves.push({row: row + i, col: col});
+            moves.push({row: row - i, col: col});
+            moves.push({row: row, col: col + i});
+            moves.push({row: row, col: col - i});
+        }
+    }
+    else if (pieceType === 'knight') {
+        moves.push({row: row + 2, col: col + 1});
+        moves.push({row: row + 2, col: col - 1});
+        moves.push({row: row - 2, col: col + 1});
+        moves.push({row: row - 2, col: col - 1});
+        moves.push({row: row + 1, col: col + 2});
+        moves.push({row: row + 1, col: col - 2});
+        moves.push({row: row - 1, col: col + 2});
+        moves.push({row: row - 1, col: col - 2});
+    }
+   else if (pieceType === 'bishop') {
+       for (let i = 1; i < 8; i++) {
+           moves.push({row: row + i, col: col + i});
+           moves.push({row: row + i, col: col - i});
+           moves.push({row: row - i, col: col + i});
+           moves.push({row: row - i, col: col - i});
+       }
+   }
+   else if (pieceType === 'queen') {
+       for (let i = 1; i < 8; i++) {
+           moves.push({row: row + i, col: col});
+           moves.push({row: row - i, col: col});
+           moves.push({row: row, col: col + i});
+           moves.push({row: row, col: col - i});
+           moves.push({row: row + i, col: col + i});
+           moves.push({row: row + i, col: col - i});
+           moves.push({row: row - i, col: col + i});
+           moves.push({row: row - i, col: col - i});
+       }
+   }
+   else if (pieceType === 'king') {
+       moves.push({row: row + 1, col: col});
+       moves.push({row: row - 1, col: col});
+       moves.push({row: row, col: col + 1});
+       moves.push({row: row, col: col - 1});
+       moves.push({row: row + 1, col: col + 1});
+       moves.push({row: row + 1, col: col - 1});
+       moves.push({row: row - 1, col: col + 1});
+       moves.push({row: row - 1, col: col - 1});
+   }
+     // Filter out moves that are off the board
+     return moves.filter(move => move.row >= 0 && move.row < 8 && move.col >= 0 && move.col < 8);
+}
+
+// Function to check if a move is valid
+function isValidMove(selectedPiece, to) {
+    const from = { row: selectedPiece.row, col: selectedPiece.col };
+    if (to.row < 0 || to.row >= 8 || to.col < 0 || to.col >= 8) {
+        return false;
+    }
+    const piece = chessboard[from.row][from.col];
+    const possibleMoves = getPossibleMoves(piece, selectedPiece.row, selectedPiece.col);
+    return possibleMoves.some(move => move.row === to.row && move.col === to.col);
 }
 
 // Function to update the board display after a move
 function updateBoard() {
-    initializeGame();
+    const boardElement = document.getElementById('chessboard');
+    boardElement.innerHTML = '';
+    chessboard.forEach((row, rowIndex) => {
+        row.forEach((piece, colIndex) => {
+            const square = document.createElement('div');
+            square.className = `square ${(rowIndex + colIndex) % 2 === 0 ? 'even' : 'odd'}`;
+            square.id = `${rowIndex}-${colIndex}`;
+            square.dataset.row = rowIndex;
+            square.dataset.col = colIndex;
+            if (piece) {
+                const pieceElement = document.createElement('div');
+                pieceElement.className = `chess-piece ${getPieceColor(piece)} ${getPieceType(piece)}`;
+                const img = document.createElement('img');
+                img.src = getPieceImageUrl(piece);
+                img.className = 'chess-piece';
+                pieceElement.appendChild(img);
+                square.appendChild(pieceElement);
+            } else {
+                square.innerHTML = '';
+            }
+            boardElement.appendChild(square);
+            square.addEventListener('click', () => handleSquareClick(rowIndex, colIndex));
+        });
+    });
+    if (selectedPiece) {
+        highlightPossibleMoves(selectedPiece.row, selectedPiece.col);
+    }
 }
 // Helper function to get piece color
 function getPieceColor(piece) {
