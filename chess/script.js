@@ -195,6 +195,17 @@ function getPossibleMoves(piece, row, col) {
             moves.push({row: row + direction * 2, col: col});
         }
         moves.push({row: row + direction, col: col});
+        // Diagonal capture moves
+        const leftDiagonal = col - 1;
+        const rightDiagonal = col + 1;
+        if (leftDiagonal >= 0 && chessboard[row + direction][leftDiagonal] &&
+            getPieceColor(chessboard[row + direction][leftDiagonal]) !== pieceColor) {
+            moves.push({row: row + direction, col: leftDiagonal});
+        }
+        if (rightDiagonal < 8 && chessboard[row + direction][rightDiagonal] &&
+            getPieceColor(chessboard[row + direction][rightDiagonal]) !== pieceColor) {
+            moves.push({row: row + direction, col: rightDiagonal});
+        }
     } else if (pieceType === 'rook') {
         for (let i = 1; i < 8; i++) {
             moves.push({row: row + i, col: col});
