@@ -1,0 +1,109 @@
+/* General body styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Main game container */
+#gameBoard {
+    width: 600px;
+    height: 400px;
+    max-width: 100%;
+    max-height: 100vh;
+    background-color: #000;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+}
+
+/* Styling for the frog character */
+#frog {
+    width: 50px;
+    height: 50px;
+    background-image: url('player.png');
+    background-size: cover;
+    position: absolute;
+    bottom: 0;
+}
+
+/* Obstacles styling */
+.obstacle {
+    position: absolute;
+    background-size: cover;
+}
+
+.car {
+    width: 60px;
+    height: 40px;
+    background-image: url('car.png');
+}
+
+.log {
+    width: 120px;
+    height: 50px;
+    background-image: url('log.png');
+}
+
+.water {
+    width: 100%;
+    height: 50px;
+    background-image: url('water.png');
+    background-repeat: repeat-x;
+}
+
+/* Scoreboard styling */
+#score {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-size: 20px;
+    z-index: 10;
+}
+
+/* Button styling */
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    margin-top: 20px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    outline: none;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #gameBoard {
+        width: 100%;
+        height: 300px;
+    }
+
+    #frog {
+        width: 40px;
+        height: 40px;
+    }
+
+    .car {
+        width: 50px;
+        height: 30px;
+    }
+
+    .log {
+        width: 100px;
+        height: 40px;
+    }
+}

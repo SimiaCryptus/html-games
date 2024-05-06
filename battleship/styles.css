@@ -1,0 +1,113 @@
+/* General body and background styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Main container for the game */
+.game-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    padding: 20px;
+    background: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Styles for each board */
+.board {
+    display: grid;
+    grid-template-columns: repeat(10, 30px);
+    grid-template-rows: repeat(10, 30px);
+    gap: 2px;
+}
+
+/* Styles for the grid container within each board */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(10, 30px);
+    grid-gap: 2px;
+}
+
+/* Common cell styles */
+.cell {
+    width: 30px;
+    height: 30px;
+    background-color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+/* Hover effect for cells */
+.cell:hover {
+    background-color: #bdbdbd;
+}
+
+/* Styles for different cell states */
+.cell.hit {
+    background-color: #ff5722;
+    background-image: url('hit.png');
+    background-size: cover;
+}
+
+.cell.miss {
+    background-color: #2196f3;
+    background-image: url('miss.png');
+    background-size: cover;
+}
+
+.cell.ship {
+    background-color: #795548;
+}
+
+/* Status message styling */
+#status-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1.2em;
+    color: #555;
+}
+
+.grid-cell {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ccc;
+    float: left;
+}
+
+.hit {
+    background-color: red;
+}
+
+.miss {
+    background-color: blue;
+}
+
+/* Responsive design adjustments */
+@media (max-width: 768px) {
+    .game-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .board {
+        grid-template-columns: repeat(10, 20px);
+        grid-template-rows: repeat(10, 20px);
+    }
+
+    .cell {
+        width: 20px;
+        height: 20px;
+    }
+}
