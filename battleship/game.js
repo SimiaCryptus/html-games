@@ -18,6 +18,10 @@ document.addEventListener('DOMContentLoaded', function () {
             row.forEach((cell, colIndex) => {
                 const cellElement = document.createElement('div');
                 cellElement.className = 'cell';
+                if (cell === 1 && boardId === 'playerBoard') {
+                    cellElement.classList.add('ship');
+                }
+                cellElement.className = 'cell';
                 cellElement.id = `grid-cell-${boardId}-${rowIndex}-${colIndex}`;
                 if (boardId === 'opponentBoard') {
                     cellElement.addEventListener('click', () => playerAttack(rowIndex, colIndex));
@@ -122,8 +126,8 @@ document.addEventListener('DOMContentLoaded', function () {
 // Check game over
     function checkGameOver() {
         console.log("Checking if game is over");
-        let playerAllShipsSunk = computerShots.every(row => row.every(cell => cell !== 1));
-        let computerAllShipsSunk = playerShots.every(row => row.every(cell => cell !== 1));
+       let playerAllShipsSunk = playerBoard.every(row => row.every(cell => cell !== 1 || computerShots[row][col] === 'X'));
+       let computerAllShipsSunk = computerBoard.every(row => row.every(cell => cell !== 1 || playerShots[row][col] === 'X'));
         if (playerAllShipsSunk) {
             alert("Computer wins!");
             console.log("Game over: Computer wins!");
