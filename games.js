@@ -83,6 +83,11 @@ document.addEventListener('DOMContentLoaded', () => {
         title.textContent = game.title;
         gameCard.appendChild(title);
 
+        const thumbnail = document.createElement('img');
+        thumbnail.src = `${game.url.replace('index.html', '')}thumbnail.png`;
+        thumbnail.alt = `${game.title} Thumbnail`;
+        gameCard.appendChild(thumbnail);
+
         const playButton = document.createElement('a');
         playButton.href = game.url;
         playButton.classList.add('play-button');
