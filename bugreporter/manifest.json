@@ -1,0 +1,51 @@
+{
+  "manifest_version": 3,
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "normal_icon.png",
+      "48": "normal_icon.png",
+      "128": "normal_icon.png"
+    }
+  },
+  "name": "Markdown Error Reporter",
+  "version": "1.0",
+  "description": "Generates markdown error reports including detailed logs.",
+  "permissions": [
+    "tabs",
+    "storage",
+    "activeTab"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "commands": {
+    "generate-report": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y"
+      },
+      "description": "Generate error report"
+    }
+  },
+  "icons": {
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+    "run_at": "document_start",
+    "type": "module"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["captureConsole.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

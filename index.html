@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkyeNet AI-Generated Games</title>
@@ -21,119 +21,8 @@
         <h1>AI-Generated Browser Games in Hours</h1>
         <p>Experience unique games created by generative AI. New games added regularly!</p>
     </section>
-    <!--
-        <section class="featured-games">
-            <h2>Featured Games</h2>
-            <div class="game-grid">
-                <div class="game-card">
-                    <img src="game1_icon.png" alt="Featured Game 1">
-                    <h3>Featured Game 1</h3>
-                    <a href="game1/index.html" class="play-button">Play Now</a>
-                </div>
-                <div class="game-card">
-                    <img src="game2_icon.png" alt="Featured Game 2">
-                    <h3>Featured Game 2</h3>
-                    <a href="game2/index.html" class="play-button">Play Now</a>
-                </div>
-                <div class="game-card">
-                    <img src="game3_icon.png" alt="Featured Game 3">
-                    <h3>Featured Game 3</h3>
-                    <a href="game3/index.html" class="play-button">Play Now</a>
-                </div>
-                <div class="game-card">
-                    <img src="game4_icon.png" alt="Featured Game 4">
-                    <h3>Featured Game 4</h3>
-                    <a href="game4/index.html" class="play-button">Play Now</a>
-                </div>
-            </div>
-        </section>
-        -->
-
-    <section class="games-list">
-        <h2>All Games</h2>
-        <!--        <input type="text" id="searchInput" placeholder="Search games...">-->
-        <div class="game-grid">
-            <div class="game-card">
-                <!--                <img src="game1_icon.png" alt="Game 1">-->
-                <h3>2048</h3>
-                <a href="2048/index.html" class="play-button">Play Now</a>
-            </div>
-            <div class="game-card">
-                <!--                <img src="game2_icon.png" alt="Game 2">-->
-                <h3>Snakes</h3>
-                <a href="snakes/index.html" class="play-button">Play Now</a>
-            </div>
-            <div class="game-card">
-                <!--                <img src="game2_icon.png" alt="Game 2">-->
-                <h3>Tetris</h3>
-                <a href="packing/index.html" class="play-button">Play Now</a>
-            </div>
-            <div class="game-card">
-                <!--                <img src="wordsearch_icon.png" alt="Word Search">-->
-                <h3>Word Search</h3>
-                <a href="wordsearch/index.html" class="play-button">Play Now</a>
-            </div>
-            <div class="game-card">
-                <!--                <img src="breakout_icon.png" alt="Breakout">-->
-                <h3>Breakout</h3>
-                <a href="breakout/index.html" class="play-button">Play Now</a>
-            </div>
-            <div class="game-card">
-                <!--                <img src="breakout_icon.png" alt="Breakout">-->
-                <h3>Maze Runner</h3>
-                <a href="maze/index.html" class="play-button">Play Now</a>
-            </div>
-            <div class="game-card">
-                <!--                <img src="breakout_icon.png" alt="Breakout">-->
-                <h3>Chess</h3>
-                <a href="chess/index.html" class="play-button">Play Now</a>
-            </div>
-            <div class="game-card">
-                <!--                <img src="breakout_icon.png" alt="Breakout">-->
-                <h3>Othello</h3>
-                <a href="othello/index.html" class="play-button">Play Now</a>
-            </div>
-            <div class="game-card">
-                <!--                <img src="breakout_icon.png" alt="Breakout">-->
-                <h3>Pacman</h3>
-                <a href="pacman/index.html" class="play-button">Play Now</a>
-            </div>
-            <div class="game-card">
-                <!--                <img src="breakout_icon.png" alt="Breakout">-->
-                <h3>Missle Command</h3>
-                <a href="misslecommand/index.html" class="play-button">Play Now</a>
-            </div>
-            <div class="game-card">
-                <!--                <img src="breakout_icon.png" alt="Breakout">-->
-                <h3>Space Invaders</h3>
-                <a href="invaders/index.html" class="play-button">Play Now</a>
-            </div>
-
-            <div class="game-card">
-                <!--                <img src="breakout_icon.png" alt="Breakout">-->
-                <h3>Mastermind</h3>
-                <a href="mastermind/index.html" class="play-button">Play Now</a>
-            </div>
-            <div class="game-card">
-                <!--                <img src="breakout_icon.png" alt="Breakout">-->
-                <h3>Space Battle</h3>
-                <a href="spacebattle/index.html" class="play-button">Play Now</a>
-            </div>
-            <div class="game-card">
-                <!--                <img src="breakout_icon.png" alt="Breakout">-->
-                <h3>Frogger</h3>
-                <a href="frogger/index.html" class="play-button">Play Now</a>
-            </div>
-            <div class="game-card">
-                <!--                <img src="breakout_icon.png" alt="Breakout">-->
-                <h3>Battleship</h3>
-                <a href="battleship/index.html" class="play-button">Play Now</a>
-            </div>
-
-
-        </div>
-    </section>
-
+    <h2>All Games</h2>
+    <div id="gameGrid" class="game-grid"></div>
     <section class="about">
         <p>Check out the <a href="https://github.com/yourusername/skyenet-games">GitHub repository</a> to learn more
             about the technology behind the AI agents behind these games.</p>
@@ -149,6 +38,7 @@
     </nav>
 </footer>
 
+<script src="games.js"></script>
 <script src="script.js"></script>
 </body>
 </html>

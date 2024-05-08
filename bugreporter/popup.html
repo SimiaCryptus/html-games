@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Error Report Popup</title>
+    <link href="popup.css" rel="stylesheet">
+</head>
+<body>
+<div id="popup-content">
+    <button id="generate-report-btn">Generate Report</button>
+    <select id="report-format">
+        <option value="markdown">Markdown</option>
+        <option value="text">Plain Text</option>
+    </select>
+    <button id="copy-to-clipboard-btn">Copy to Clipboard</button>
+    <textarea cols="30" id="report-output" readonly rows="10"></textarea>
+</div>
+<script src="popup.js"></script>
+</body>
+</html>
