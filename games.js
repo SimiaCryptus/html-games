@@ -69,6 +69,10 @@ const games = [
     {
         title: "Pong",
         url: "pong/index.html"
+    },
+    {
+        title: "Laser Chess",
+        url: "laserchess/index.html"
     }
 ];
 
