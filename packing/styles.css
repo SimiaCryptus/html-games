@@ -27,6 +27,7 @@ body {
 /* Main container for the game */
 * #gameContainer {
     display: grid;
+   position: relative; /* Make the container positioned for absolute positioning of children */
     grid-template-columns: 1fr 300px; /* Adjust the second column width based on control panel width */
     align-items: center;
     gap: 20px;
@@ -48,6 +49,9 @@ body {
 
 /* Controls for score and start button */
 #scorePanel {
+   position: absolute; /* Position the score panel absolutely within the container */
+   top: 20px; /* Adjust top position as needed */
+   left: 20px; /* Adjust left position as needed */
     display: flex;
     flex-direction: row;
     align-items: center;

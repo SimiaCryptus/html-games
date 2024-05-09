@@ -235,6 +235,8 @@ function startGame() {
     updateScore(0);
     dropStart = Date.now();  // Ensure the drop timer is reset when the game starts
     drop();
+   // Hide the start button after the game starts
+   document.getElementById('startButton').style.display = 'none';
 }
 
 document.addEventListener('keydown', (event) => {
