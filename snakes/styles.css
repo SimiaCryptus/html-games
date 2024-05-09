@@ -6,6 +6,7 @@ body {
     height: 100vh;
     margin: 0;
     background-color: #282c34; /* Darker background for better contrast */
+    overflow: hidden; /* Prevent scrolling */
 }
 
 /* Main game container */
@@ -16,24 +17,25 @@ body {
     padding: 20px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); /* More prominent shadow */
     text-align: center;
+    height: calc(100vh - 40px); /* Adjust height considering padding */
+    box-sizing: border-box; /* Include padding in height calculation */
 }
 
 /* Canvas styles */
 #gameArea {
-    width: 90vw;
-    height: 90vh;
-    aspect-ratio: 1; /* Maintain a square aspect ratio */
+    width: 100vw;
+    height: 100vh; /* Adjust to fill the container instead of viewport */
     background-color: #121212; /* Slightly lighter black for the canvas */
-    border: 1px solid #fff; /* Add white border for visibility */
     display: block;
     margin: 0 auto;
 }
 
 /* Score display */
-#scoreDisplay {
+.scoreDisplay {
     margin-top: 10px;
     font-size: 18px;
     color: #61dafb; /* Bright blue for better visibility */
+    position: absolute;
 }
 
 /* Game status message */

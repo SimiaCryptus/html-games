@@ -42,7 +42,7 @@ function movePlayer(direction) {
     const currentLeft = parseInt(window.getComputedStyle(player).getPropertyValue('left'));
     if (direction === 'left' && currentLeft > 0) {
         player.style.left = `${currentLeft - playerSpeed}px`;
-    } else if (direction === 'right' && currentLeft < 450) {
+    } else if (direction === 'right' && currentLeft < gameArea.clientWidth - player.offsetWidth) {
         player.style.left = `${currentLeft + playerSpeed}px`;
     }
 }

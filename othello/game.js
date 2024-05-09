@@ -4,6 +4,43 @@ document.addEventListener('DOMContentLoaded', () => {
     let board = [];
     let currentPlayer = 'Black';
 
+   function indicatePossibleMoves() {
+      console.log('Indicating possible moves for', currentPlayer);
+       for (let i = 0; i < boardSize; i++) {
+           for (let j = 0; j < boardSize; j++) {
+               if (board[i][j] === '' && isMoveValid(i, j, currentPlayer.toLowerCase())) {
+                   const cell = gameBoard.children[i * boardSize + j];
+                   cell.classList.add('possible-move');
+                  console.log(`Possible move at ${i}, ${j}`);
+               }
+           }
+       }
+   }
+
+   function isMoveValid(row, col, color) {
+       if (board[row][col] !== '') return false;
+       let valid = false;
+       const directions = [
+           [-1, 0], [1, 0], [0, -1], [0, 1],
+           [-1, -1], [-1, 1], [1, -1], [1, 1]
+       ];
+       directions.forEach(([dx, dy]) => {
+           let x = row + dx;
+           let y = col + dy;
+           let cellsToFlip = [];
+           while (x >= 0 && x < boardSize && y >= 0 && y < boardSize && board[x][y] !== '' && board[x][y] !== color) {
+               cellsToFlip.push([x, y]);
+               x += dx;
+               y += dy;
+           }
+           if (x >= 0 && x < boardSize && y >= 0 && y < boardSize && board[x][y] === color && cellsToFlip.length > 0) {
+               valid = true;
+              console.log(`Move valid at ${row}, ${col} in direction ${dx}, ${dy}`);
+           }
+       });
+      if (!valid) console.log(`Move not valid at ${row}, ${col}`);
+       return valid;
+   }
     function initializeBoard() {
         gameBoard.innerHTML = '';
         board = [];
@@ -22,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         setInitialPieces();
         updateBoard();
+       indicatePossibleMoves();
         updateCurrentPlayerDisplay();
     }
 
@@ -40,6 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     cell.innerHTML = `<div class="disc ${board[i][j]}"></div>`;
                 } else {
                     cell.innerHTML = '';
+                cell.classList.remove('possible-move'); // Ensure all cells are reset before indicating new moves
+                   cell.classList.remove('possible-move'); // Remove indication from previous moves
                 }
             }
         }
@@ -48,10 +88,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleCellClick(event) {
         const row = parseInt(event.target.dataset.row);
         const col = parseInt(event.target.dataset.col);
+       console.log(`Cell clicked at ${row}, ${col}`);
         if (board[row][col] !== '') return;
         if (placeDisc(row, col, currentPlayer.toLowerCase())) {
             currentPlayer = currentPlayer === 'Black' ? 'White' : 'Black';
             updateBoard();
+           indicatePossibleMoves(); // Ensure possible moves are indicated after every move
             updateCurrentPlayerDisplay();
             checkGameOver();
         }
@@ -65,6 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function placeDisc(row, col, color) {
+       console.log(`Placing disc at ${row}, ${col} for ${color}`);
         let valid = false;
         const directions = [
             [-1, 0], [1, 0], [0, -1], [0, 1],
@@ -85,10 +128,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 board[row][col] = color;
                 cellsToFlip.forEach(([fx, fy]) => {
                     board[fx][fy] = color;
+                   console.log(`Flipping disc at ${fx}, ${fy}`);
                 });
             }
         });
 
+        if (!valid) console.log(`Placement not valid at ${row}, ${col}`);
         return valid;
     }
 

@@ -5,6 +5,107 @@ let playerImage, enemyImage;
 let projectiles = [];
 let gameInterval, score = 0, isGameOver = false;
 
+// Setup touch controls
+function setupTouchControls() {
+    let ongoingTouches = [];
+    let lastTouchX, lastTouchY;
+    let lastTouchTime = 0; // Initialize lastTouchTime
+    let playerControlledByTouch = false;
+
+    function handleStart(evt) {
+        evt.preventDefault();
+        let touches = evt.changedTouches;
+        let currentTime = new Date().getTime();  // Get the current time
+        if (currentTime - lastTouchTime < 300 && touches.length === 1) {  // Check if it's a single tap within 300 ms
+            // Trigger shooting
+            projectiles.push({
+                x: player.x + player.width / 2 - projectileWidth / 2,
+                y: player.y - projectileHeight,
+                width: projectileWidth,
+                height: projectileHeight,
+                direction: 'up'
+            });
+        }
+        lastTouchTime = currentTime;  // Update the last touch time
+
+        for (let i = 0; i < touches.length; i++) {
+            ongoingTouches.push(copyTouch(touches[i]));
+            playerControlledByTouch = true;
+            lastTouchX = touches[i].pageX;
+            lastTouchY = touches[i].pageY;
+        }
+    }
+
+    function handleMove(evt) {
+        evt.preventDefault();
+        let touches = evt.changedTouches;
+
+        for (let i = 0; i < touches.length; i++) {
+            let idx = ongoingTouchIndexById(touches[i].identifier);
+            if (idx >= 0 && playerControlledByTouch) {
+                let deltaX = touches[i].pageX - lastTouchX;
+                let deltaY = touches[i].pageY - lastTouchY;
+                player.x += deltaX;
+                player.y += deltaY;
+                lastTouchX = touches[i].pageX;
+                lastTouchY = touches[i].pageY;
+                ongoingTouches.splice(idx, 1, copyTouch(touches[i]));
+            }
+        }
+    }
+
+    function handleEnd(evt) {
+        evt.preventDefault();
+        let touches = evt.changedTouches;
+
+        for (let i = 0; i < touches.length; i++) {
+            let idx = ongoingTouchIndexById(touches[i].identifier);
+            if (idx >= 0) {
+                ongoingTouches.splice(idx, 1);
+                if (ongoingTouches.length === 0) {
+                    playerControlledByTouch = false;
+                }
+            }
+        }
+    }
+
+    function handleCancel(evt) {
+        evt.preventDefault();
+        let touches = evt.changedTouches;
+
+        for (let i = 0; i < touches.length; i++) {
+            let idx = ongoingTouchIndexById(touches[i].identifier);
+            if (idx >= 0) {
+                ongoingTouches.splice(idx, 1);
+                if (ongoingTouches.length === 0) {
+                    playerControlledByTouch = false;
+                }
+            }
+        }
+    }
+
+    function copyTouch({ identifier, pageX, pageY }) {
+        return { identifier, pageX, pageY };
+    }
+
+    function ongoingTouchIndexById(idToFind) {
+        for (let i = 0; i < ongoingTouches.length; i++) {
+            if (ongoingTouches[i].identifier === idToFind) {
+                return i;
+            }
+        }
+        return -1; // not found
+    }
+
+    canvas.addEventListener("touchstart", handleStart, false);
+    canvas.addEventListener("touchend", handleEnd, false);
+    canvas.addEventListener("touchcancel", handleCancel, false);
+    canvas.addEventListener("touchmove", handleMove, false);
+}
+function startGame() {
+    document.getElementById('startButton').style.display = 'none'; // Hide start button when game starts
+    gameInterval = setInterval(gameLoop, 33); // Start the game loop
+}
 // Spaceship and projectile dimensions
 const playerWidth = 50, playerHeight = 30;
 const enemyWidth = 50, enemyHeight = 30;
@@ -40,6 +141,7 @@ function setupGame() {
 
     // Start game loop
     gameInterval = setInterval(gameLoop, 33); // ~30 fps
+   setupTouchControls();
 }
 
 // Game loop
@@ -251,4 +353,5 @@ function gameOver() {
 window.onload = function () {
     setupGame();
     setupPlayerControls();
+    document.getElementById('startButton').style.display = 'block'; // Show start button initially
 };

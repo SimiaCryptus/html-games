@@ -1,8 +1,10 @@
 // Game constants
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-const canvasWidth = canvas.width;
-const canvasHeight = canvas.height;
+const canvasWidth = window.innerWidth;
+const canvasHeight = window.innerHeight;
+canvas.width = canvasWidth;
+canvas.height = canvasHeight;
 const frogWidth = 30;
 const frogHeight = 30;
 const carWidth = 50;
@@ -45,6 +47,28 @@ document.addEventListener('keydown', (event) => {
     event.preventDefault();
 });
 
+// Function to handle touch movements
+function handleTouchMove(event) {
+    const touchX = event.touches[0].clientX;
+    const touchY = event.touches[0].clientY;
+    const centerX = canvasWidth / 2;
+    const centerY = canvasHeight / 2;
+
+    if (touchY < centerY - frogHeight && Math.abs(centerX - touchX) < 4*frogWidth) {
+        frogY -= frogHeight; // Move up
+    } else if (touchY > centerY + frogHeight && Math.abs(centerX - touchX) < 2*frogWidth) {
+        frogY += frogHeight; // Move down
+    } else if (touchX < centerX - frogWidth) {
+        frogX -= frogWidth; // Move left
+    } else if (touchX > centerX + frogWidth) {
+        frogX += frogWidth; // Move right
+    }
+    event.preventDefault();
+}
+
+// Add touch event listeners
+canvas.addEventListener('touchstart', handleTouchMove, false);
+
 // Initialize game objects
 function initGame() {
     cars = [
@@ -57,6 +81,7 @@ function initGame() {
         { x: 250, y: 250, speed: -3 }
     ];
     score = 0;
+    document.getElementById('startButton').style.display = 'none';
     requestAnimationFrame(updateGame);
 }
 
@@ -112,6 +137,7 @@ function resetFrog() {
     frogX = canvasWidth / 2 - frogWidth / 2;
     frogY = canvasHeight - frogHeight;
     score = 0; // Reset score on collision
+    document.getElementById('startButton').style.display = 'block';
 }
 
 // Start the game

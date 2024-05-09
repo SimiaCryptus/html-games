@@ -2,23 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Space Invaders</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="gameContainer">
-        <header>
-            <h1>Space Invaders</h1>
-            <div id="score">Score: <span id="scoreValue">0</span></div>
-        </header>
-        <main>
-            <div id="gameArea"></div>
-        </main>
-        <footer>
-            <button id="startButton">Start Game</button>
-        </footer>
-    </div>
+    <div id="gameArea"></div>
+    <div id="score">Score: <span id="scoreValue">0</span></div>
+    <button id="startButton">Start Game</button>
     <script src="game.js"></script>
 </body>
 </html>

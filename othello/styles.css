@@ -8,7 +8,6 @@
     height: 100vh;
     margin: 0;
 }
-
 /* Main container for the game */
  #gameContainer {
     background: #fff;
@@ -38,6 +37,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
+   transition: background-color 0.3s; /* Smooth transition for color change */
+    transition: background-color 0.3s; /* Smooth transition for color change */
+    transition: background-color 0.3s; /* Smooth transition for color change */
 }
 
 /* Styling for the discs */
@@ -83,4 +85,10 @@ button:hover {
         width: 90vw;
         height: 90vw;
     }
+}
+
+
+/* Highlight possible moves */
+.possible-move {
+    background-color: #4caf50; /* A different color to indicate possible moves */
 }

@@ -1,19 +1,25 @@
 /* General body styling to center the game container */
+body, html {
+    height: 100%;
+    margin: 0;
+}
+
 #gameContainer {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 100%;
     background-color: #282c34; /* Dark background for better contrast */
     color: white; /* White text color for better readability */
     font-family: Arial, sans-serif; /* Clean, simple font */
-    margin: 0; /* Remove default margin */
     flex-flow: column;
 }
 
 /* Styling for the game container to align its child elements */
 #gameContainer {
     text-align: center;
+    box-sizing: border-box;
+    padding: 20px;
 }
 
 /* Specific styles for the game canvas */
@@ -21,8 +27,8 @@
     background-color: #000; /* Black background for the canvas */
     display: block; /* Block display to handle margins correctly */
     margin: 0 auto; /* Center the canvas horizontally */
-    width: 95%;
-    height: 80vmin;
+    width: 100%;
+    height: calc(100vh - 100px);
     border: 1px solid #fff; /* White border for visibility */
 }
 

@@ -8,9 +8,11 @@ body {
     margin: 0;
 }
 
-.king.Player2 {
-    background-color: blue;
-    border-radius: 50%;
+.king.Blue {
+    background-image: url('images/king.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 .laser-east {
@@ -23,25 +25,47 @@ body {
 
 .piece.selected {
     border: 2px solid red;
+
 }
 
+.defender.Red, .defender.Blue {
+    background-image: url('images/defender.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.deflector.Red, .deflector.Blue {
+    background-image: url('images/deflector.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.defender.Blue {
+    filter: hue-rotate(120deg); /* Rotate hue to differentiate Player 2 */
+}
+
+.deflector.Blue {
+    filter: hue-rotate(120deg); /* Rotate hue to differentiate Player 2 */
+}
 
 /* Additional styles for player-specific pieces */
-.king.Player1 {
-    border: 3px solid #fff; /* White border for Player1 */
+.king.Red {
+    border: 3px solid #fff; /* White border for Red */
     border-radius: 50%; /* Make the shape circular */
 }
 
-.king.Player2 {
-    border: 2px solid #3D9970; /* Olive border for Player2 */
+.king.Blue {
+    border: 2px solid #3D9970; /* Olive border for Blue */
 }
 
 /* Adding specific styles for player's kings to differentiate them */
-.king.Player1 {
+.king.Red {
     border-color: green;
 }
 
-.king.Player2 {
+.king.Blue {
     border-color: orange;
 }
 
@@ -54,11 +78,12 @@ body {
 
 /* Game board styles */
 #game-board {
-    width: 600px;
-    height: 600px;
-    display: grid;
-    grid-template-columns: repeat(8, 1fr);
+    width: 90vmin;
+/ / Adjust width for 10 columns height: 90 vmin;
+/ / Adjust height for 10 rows display: grid;
+    grid-template-columns: repeat(10, 1fr);
     grid-template-rows: repeat(8, 1fr);
+    display: grid;
     gap: 1px;
     margin: auto;
     background-color: black;
@@ -66,8 +91,8 @@ body {
 
 /* Individual cells in the game board */
 .gameCell {
-    width: 100%;
-    height: 100%;
+    width: 9vmin;
+    height: 9vmin;
     background-color: #ddd;
     position: relative;
     cursor: pointer;
@@ -76,8 +101,8 @@ body {
 
 /* Styling for different pieces */
 .piece {
-    width: 100%;
-    height: 100%;
+    width: 9vmin;
+    height: 9vmin;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -85,52 +110,81 @@ body {
     color: white;
 }
 
-.king.Player1 {
-    background-color: #FF4136; /* Brighter red for better visibility */
-    border: 3px solid #fff; /* Add white border to distinguish kings */
+.king.Red {
+    background-image: url('images/king.png');
+    filter: hue-rotate(120deg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
-.mirror {
+.switch {
     background-color: #0074D9; /* Brighter blue for better visibility */
-    opacity: 0.7; /* Make mirrors slightly transparent to differentiate from kings */
+    opacity: 1;
 }
 
-/* Orientation of mirrors */
-.mirror.orientation-45deg {
-    background-image: url('images/45deg-arrow.png'); /* Update to use image for clarity */
+.switch.Red {
+    filter: hue-rotate(120deg); /* Rotate the hue by 120 degrees to change blue to red */
+}
+
+.laser.Red {
+    background-image: url('images/laser.png');
+    filter: hue-rotate(120deg);
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
 }
 
-.mirror.orientation-135deg {
-    background-image: url('images/135deg-arrow.png'); /* Update to use image for clarity */
+.laser.Blue {
+    background-image: url('images/laser.png');
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
 }
 
-/* Additional orientations if needed */
-.mirror.orientation-225deg {
-    border-bottom: 2px solid yellow;
+.laser {
+    border-radius: 50%; /* Make the shape circular */
 }
 
-.mirror.orientation-315deg {
-    border-left: 2px solid yellow;
-    border-bottom: 2px solid yellow;
+/* Orientation of switchs */
+.switch.orientation-0deg {
+    background-image: url('images/switch.png'); /* Update to use image for clarity */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
-.mirror.west {
-    border-left: 2px solid yellow;
+.switch.orientation-90deg {
+    background-image: url('images/switch.png'); /* Use 90-degree rotated version of switch.png */
+    transform: rotate(90deg); /* Rotate the image by 90 degrees */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.switch.orientation-180deg {
+    background-image: url('images/switch.png'); /* Use 180-degree rotated version of switch.png */
+    transform: rotate(180deg); /* Rotate the image by 180 degrees */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.switch.orientation-270deg {
+    background-image: url('images/switch.png'); /* Use 270-degree rotated version of switch.png */
+    transform: rotate(270deg); /* Rotate the image by 270 degrees */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 /* Laser path styling */
 .laser-path {
     position: absolute;
-    width: 10px; /* Adjusted width */
-    height: 10px; /* Adjusted height */
+    width: 3vmin; /* Adjusted width */
+    height: 3vmin; /* Adjusted height */
     background-color: yellow;
-    //opacity: 0.5;
+/ / opacity: 0.5;
     z-index: 1;
 / / Ensure the laser path appears above the board but below the pieces top: 50 vh; /* Center vertically in the cell */
     left: 50vw; /* Center horizontally in the cell */
@@ -152,6 +206,11 @@ button {
 
 button:hover {
     background-color: #0056b3;
+}
+
+#rotate-button {
+    margin-left: 10px;
+    background-color: #28a745;
 }
 
 /* Status message styling */

@@ -18,9 +18,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Adjust canvas size on window resize
     window.addEventListener('resize', function() {
-        const newSize = Math.min(window.innerWidth, window.innerHeight);
-       const newWidth = Math.floor(window.innerWidth / snakeSize) * snakeSize;
-       const newHeight = Math.floor(window.innerHeight / snakeSize) * snakeSize;
+       const newWidth = window.innerWidth;
+       const newHeight = window.innerHeight;
        gameArea.width = newWidth;
        gameArea.height = newHeight;
         console.log(`Resized: width=${gameArea.width}, height=${gameArea.height}`);
