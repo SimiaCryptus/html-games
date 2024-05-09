@@ -194,7 +194,9 @@ function getPossibleMoves(piece, row, col) {
         if (row === startRow) {
             moves.push({row: row + direction * 2, col: col});
         }
-        moves.push({row: row + direction, col: col});
+        if (!chessboard[row + direction][col]) { // Check if the square in front is empty
+            moves.push({row: row + direction, col: col});
+        }
         // Diagonal capture moves
         const leftDiagonal = col - 1;
         const rightDiagonal = col + 1;
@@ -207,11 +209,33 @@ function getPossibleMoves(piece, row, col) {
             moves.push({row: row + direction, col: rightDiagonal});
         }
     } else if (pieceType === 'rook') {
-        for (let i = 1; i < 8; i++) {
-            moves.push({row: row + i, col: col});
-            moves.push({row: row - i, col: col});
-            moves.push({row: row, col: col + i});
-            moves.push({row: row, col: col - i});
+       for (let i = row + 1; i < 8; i++) {
+           if (chessboard[i][col]) {
+               if (getPieceColor(chessboard[i][col]) !== pieceColor) moves.push({row: i, col: col});
+               break;
+           }
+           moves.push({row: i, col: col});
+       }
+       for (let i = row - 1; i >= 0; i--) {
+           if (chessboard[i][col]) {
+               if (getPieceColor(chessboard[i][col]) !== pieceColor) moves.push({row: i, col: col});
+               break;
+           }
+           moves.push({row: i, col: col});
+       }
+       for (let i = col + 1; i < 8; i++) {
+           if (chessboard[row][i]) {
+               if (getPieceColor(chessboard[row][i]) !== pieceColor) moves.push({row: row, col: i});
+               break;
+           }
+           moves.push({row: row, col: i});
+       }
+       for (let i = col - 1; i >= 0; i--) {
+           if (chessboard[row][i]) {
+               if (getPieceColor(chessboard[row][i]) !== pieceColor) moves.push({row: row, col: i});
+               break;
+           }
+           moves.push({row: row, col: i});
         }
     } else if (pieceType === 'knight') {
         moves.push({row: row + 2, col: col + 1});
@@ -223,22 +247,95 @@ function getPossibleMoves(piece, row, col) {
         moves.push({row: row - 1, col: col + 2});
         moves.push({row: row - 1, col: col - 2});
     } else if (pieceType === 'bishop') {
-        for (let i = 1; i < 8; i++) {
-            moves.push({row: row + i, col: col + i});
+       for (let i = 1; row + i < 8 && col + i < 8; i++) {
+           if (chessboard[row + i][col + i]) {
+               if (getPieceColor(chessboard[row + i][col + i]) !== pieceColor) moves.push({row: row + i, col: col + i});
+               break;
+           }
+           moves.push({row: row + i, col: col + i});
+        }
+
+        for (let i = 1; row + i < 8 && col - i >= 0; i++) {
+            if (chessboard[row + i][col - i]) {
+                if (getPieceColor(chessboard[row + i][col - i]) !== pieceColor) moves.push({row: row + i, col: col - i});
+                break;
+            }
             moves.push({row: row + i, col: col - i});
+        }
+        for (let i = 1; row - i >= 0 && col + i < 8; i++) {
+            if (chessboard[row - i][col + i]) {
+                if (getPieceColor(chessboard[row - i][col + i]) !== pieceColor) moves.push({row: row - i, col: col + i});
+                break;
+            }
             moves.push({row: row - i, col: col + i});
+        }
+        for (let i = 1; row - i >= 0 && col - i >= 0; i++) {
+            if (chessboard[row - i][col - i]) {
+                if (getPieceColor(chessboard[row - i][col - i]) !== pieceColor) moves.push({row: row - i, col: col - i});
+                break;
+            }
             moves.push({row: row - i, col: col - i});
         }
     } else if (pieceType === 'queen') {
-        for (let i = 1; i < 8; i++) {
-            moves.push({row: row + i, col: col});
-            moves.push({row: row - i, col: col});
-            moves.push({row: row, col: col + i});
-            moves.push({row: row, col: col - i});
-            moves.push({row: row + i, col: col + i});
-            moves.push({row: row + i, col: col - i});
-            moves.push({row: row - i, col: col + i});
-            moves.push({row: row - i, col: col - i});
+       for (let i = row + 1; i < 8; i++) {
+           if (chessboard[i][col]) {
+               if (getPieceColor(chessboard[i][col]) !== pieceColor) moves.push({row: i, col: col});
+               break;
+           }
+           moves.push({row: i, col: col});
+       }
+       for (let i = row - 1; i >= 0; i--) {
+           if (chessboard[i][col]) {
+               if (getPieceColor(chessboard[i][col]) !== pieceColor) moves.push({row: i, col: col});
+               break;
+           }
+           moves.push({row: i, col: col});
+       }
+       for (let i = col + 1; i < 8; i++) {
+           if (chessboard[row][i]) {
+               if (getPieceColor(chessboard[row][i]) !== pieceColor) moves.push({row: row, col: i});
+               break;
+           }
+           moves.push({row: row, col: i});
+       }
+       for (let i = col - 1; i >= 0; i--) {
+           if (chessboard[row][i]) {
+               if (getPieceColor(chessboard[row][i]) !== pieceColor) moves.push({row: row, col: i});
+               break;
+           }
+           moves.push({row: row, col: i});
+       }
+       for (let i = 1; i < 8; i++) {
+           if (row + i >= 8 || col + i >= 8) break;
+           if (chessboard[row + i][col + i]) {
+               if (getPieceColor(chessboard[row + i][col + i]) !== pieceColor) moves.push({row: row + i, col: col + i});
+               break;
+           }
+           moves.push({row: row + i, col: col + i});
+       }
+       for (let i = 1; i < 8; i++) {
+           if (row + i >= 8 || col - i < 0) break;
+           if (chessboard[row + i][col - i]) {
+               if (getPieceColor(chessboard[row + i][col - i]) !== pieceColor) moves.push({row: row + i, col: col - i});
+               break;
+           }
+           moves.push({row: row + i, col: col - i});
+       }
+       for (let i = 1; i < 8; i++) {
+           if (row - i < 0 || col + i >= 8) break;
+           if (chessboard[row - i][col + i]) {
+               if (getPieceColor(chessboard[row - i][col + i]) !== pieceColor) moves.push({row: row - i, col: col + i});
+               break;
+           }
+           moves.push({row: row - i, col: col + i});
+       }
+       for (let i = 1; i < 8; i++) {
+           if (row - i < 0 || col - i < 0) break;
+           if (chessboard[row - i][col - i]) {
+               if (getPieceColor(chessboard[row - i][col - i]) !== pieceColor) moves.push({row: row - i, col: col - i});
+               break;
+           }
+           moves.push({row: row - i, col: col - i});
         }
     } else if (pieceType === 'king') {
         moves.push({row: row + 1, col: col});

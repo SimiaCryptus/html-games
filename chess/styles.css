@@ -3,16 +3,17 @@
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(8, 1fr);
-    width: 640px; /* 8 x 80px */
-    height: 640px; /* 8 x 80px */
+    width: 100vmin; /* Use 80% of the viewport's smaller dimension or 640px, whichever is smaller */
+    height: 100vmin; /* Use 80% of the viewport's smaller dimension or 640px, whichever is smaller */
     border: 2px solid #333;
-    margin: 20px auto;
+    margin: 0; /* Remove margin */
 }
 
 /* Styling individual squares */
 .square {
-    width: 80px;
-    height: 80px;
+    width: calc(100vmin / 8); /* Calculate square size based on chessboard width */
+    height: calc(100vmin / 8); /* Calculate square size based on chessboard height */
+    box-sizing: border-box; /* Include border and padding in the element's total width and height */
     display: flex;
     justify-content: center;
     align-items: center;

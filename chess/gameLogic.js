@@ -61,13 +61,14 @@ class ChessGame {
         return true;
     }
 
-    isValidMove(from, to) {
-        if (from.row < 0 || from.row >= 8 || from.col < 0 || from.col >= 8 ||
-            to.row < 0 || to.row >= 8 || to.col < 0 || to.col >= 8) {
+    isValidMove(startRow, startCol, endRow, endCol) {
+        if (startRow < 0 || startRow >= 8 || startCol < 0 || startCol >= 8 ||
+            endRow < 0 || endRow >= 8 || endCol < 0 || endCol >= 8) {
             return false;
         }
-        const piece = this.board[from][to];
-        const possibleMoves = getPossibleMoves(piece, from.row, from.col);
+        const piece = this.board[startRow][startCol];
+        if (!piece) return false; // No piece at the start position
+        const possibleMoves = getPossibleMoves(piece, startRow, startCol);
         return possibleMoves.some(move => move.row === to.row && move.col === to.col);
     }
 
