@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const gameArea = document.getElementById('gameArea');
     const startButton = document.getElementById('startButton');
     const scoreboard = document.getElementById('scoreBoard'); // Fix ID reference
-
     let cities = [];
     let batteries = [];
     let missiles = [];
@@ -176,17 +175,11 @@ document.addEventListener('DOMContentLoaded', function () {
             return (Math.abs(curr.offsetLeft - x) < Math.abs(prev.offsetLeft - x) ? curr : prev);
         });
 
-    if (!closestBattery || missiles.length === 0) {
-        console.log('No missiles to target or no battery available');
-        return;
-    } // Ensure there is a closest battery and missiles to target
+        if (!closestBattery) {
+            console.log('No battery available');
+            return;
+        } // Ensure there is a closest battery
 
-        // Find the nearest missile to target
-        let targetMissile = missiles.reduce((prev, curr) => {
-            let prevDistance = Math.sqrt(Math.pow(prev.x - x, 2) + Math.pow(prev.y - y, 2));
-            let currDistance = Math.sqrt(Math.pow(curr.x - x, 2) + Math.pow(curr.y - y, 2));
-        return currDistance < prevDistance ? curr : prev; // Choose the missile with the smallest distance to the click point
-        });
         let interceptor = document.createElement('div');
         interceptor.className = 'interceptor';
         interceptor.style.position = 'absolute'; // Ensure interceptor is positioned absolutely within gameArea
@@ -198,8 +191,8 @@ document.addEventListener('DOMContentLoaded', function () {
         gameArea.appendChild(interceptor);
         console.log('Interceptor launched'); // Log successful interceptor launch
 
-        let dx = targetMissile.x - (closestBattery.offsetLeft + closestBattery.offsetWidth / 2);
-        let dy = targetMissile.y - closestBattery.offsetTop;
+        let dx = x - (closestBattery.offsetLeft + closestBattery.offsetWidth / 2);
+        let dy = y - closestBattery.offsetTop;
         interceptors.push({
             element: interceptor,
             x: closestBattery.offsetLeft + closestBattery.offsetWidth / 2,
