@@ -282,34 +282,49 @@ function handleTouchStart(event) {
     startX = touch.clientX;
     startY = touch.clientY;
 }
+let lastSwipeTime = 0; // Initialize lastSwipeTime to control the frequency of swipe down
 function handleTouchMove(event) {
     event.preventDefault();
     const touch = event.touches[0];
     const deltaX = touch.clientX - startX;
     const deltaY = touch.clientY - startY;
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        if (deltaX > 0) {
-            // Swipe right
-            if (currentPiece.isValidMove(currentPiece.x + 1, currentPiece.y, currentPiece.shape)) {
-                currentPiece.x += 1;
-            }
-        } else {
-            // Swipe left
-            if (currentPiece.isValidMove(currentPiece.x - 1, currentPiece.y, currentPiece.shape)) {
-                currentPiece.x -= 1;
+    if (Math.abs(deltaX) > Math.abs(deltaY)) { // Check if horizontal movement is dominant
+        let targetX = Math.floor(touch.clientX / BLOCK_SIZE);
+        if (targetX < 0) targetX = 0;
+        else if (targetX + currentPiece.shape[0].length > COLS) targetX = COLS - currentPiece.shape[0].length;
+        while (currentPiece.x !== targetX) {
+            if (currentPiece.x < targetX) {
+                if (currentPiece.isValidMove(currentPiece.x + 1, currentPiece.y, currentPiece.shape)) {
+                    currentPiece.x++;
+                } else {
+                    break;
+                }
+            } else if (currentPiece.x > targetX) {
+                if (currentPiece.isValidMove(currentPiece.x - 1, currentPiece.y, currentPiece.shape)) {
+                    currentPiece.x--;
+                } else {
+                    break;
+                }
             }
         }
-    } else {
-        if (deltaY > 0) {
-            // Swipe down
+   } else if (Math.abs(deltaY) > 20) { // Increased threshold for vertical swipe for better control
+       if (deltaY > 30 && lastSwipeTime + 200 < Date.now()) { // Adding a delay to control the speed of swipe down
+            // Swipe down to move piece down
             currentPiece.moveDown();
-        } else {
-            // Swipe up
-            currentPiece.rotate(1);
+           lastSwipeTime = Date.now(); // Update the last swipe time
+        } else if (deltaY < -50) { // Increased threshold for swipe up to avoid accidental rotations
+            // Swipe up to rotate counter-clockwise
+            currentPiece.rotate(-1);
         }
     }
     drawBoard();
 }
 function handleTouchEnd(event) {
-    // No-op for now
+    const touch = event.changedTouches[0];
+    const endX = touch.clientX;
+    const endY = touch.clientY;
+    if (Math.abs(endX - startX) < 10 && Math.abs(endY - startY) < 10) { // Reduced sensitivity range for tap to avoid accidental rotations
+        // Rotate clockwise on tap
+        currentPiece.rotate(1);
+    }
 }

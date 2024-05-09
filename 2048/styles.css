@@ -4,6 +4,13 @@
     padding: 0;
     box-sizing: border-box;
 }
+ .tile::before {
+   content: ''; /* This provides a non-breaking space */
+   display: block; /* Make it a block to occupy space */
+   font-size: 10vmin; /* Maintain the font size to keep the square's size */
+   height: 100%; /* Ensure it takes full height */
+   height: 100%; /* Ensure it takes full height */
+ }
 
 body, html {
     width: 100%;
@@ -22,7 +29,7 @@ body, html {
     background-color: #bbada0;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    gap: 1vmin;
     padding: 10px;
     border-radius: 10px;
     position: relative;
@@ -37,12 +44,21 @@ body, html {
     font-weight: bold;
     color: #776e65;
     border-radius: 5px;
-    width: 100%;
-    height: 100%;
+    width: 20vmin;
+    height: 20vmin;
+   position: relative; /* Ensure the position context for pseudo-elements */
+   overflow: hidden; /* Prevent content from overflowing */
+   overflow: hidden; /* Prevent content from overflowing */
 }
 
 .tile[content="0"] {
     visibility: hidden;
+}
+/* Ensure empty tiles maintain the same dimensions */
+.tile::before {
+   content: ''; /* This provides a non-breaking space */
+   display: block; /* Make it a block to occupy space */
+   font-size: 10vmin; /* Maintain the font size to keep the square's size */
 }
 /* Tile specific colors */
 .tile-2 { background-color: #eee4da; }

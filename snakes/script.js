@@ -3,9 +3,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const scoreElement = document.getElementById('score');
     const gameOverMessage = document.getElementById('gameOverMessage');
 
-    const gameWidth = 500;
-    const gameHeight = 500;
+    const gameWidth = Math.min(window.innerWidth, window.innerHeight);
+    const gameHeight = Math.min(window.innerWidth, window.innerHeight);
     const snakeSize = 20;
+    const gridWidth = Math.floor(window.innerWidth / snakeSize) * snakeSize; // Ensure the grid width is a multiple of snakeSize
+    const gridHeight = Math.floor(window.innerHeight / snakeSize) * snakeSize; // Ensure the grid height is a multiple of snakeSize
     let score = 0;
     let gameRunning = false;
 
@@ -14,6 +16,15 @@ document.addEventListener('DOMContentLoaded', function () {
     let dx = snakeSize; // horizontal delta
     let dy = 0; // vertical delta
 
+    // Adjust canvas size on window resize
+    window.addEventListener('resize', function() {
+        const newSize = Math.min(window.innerWidth, window.innerHeight);
+       const newWidth = Math.floor(window.innerWidth / snakeSize) * snakeSize;
+       const newHeight = Math.floor(window.innerHeight / snakeSize) * snakeSize;
+       gameArea.width = newWidth;
+       gameArea.height = newHeight;
+        console.log(`Resized: width=${gameArea.width}, height=${gameArea.height}`);
+    });
     function main() {
         if (hasGameEnded()) {
             gameOverMessage.style.display = 'block';
@@ -31,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function clearCanvas() {
-        gameArea.getContext('2d').clearRect(0, 0, gameWidth, gameHeight);
+       gameArea.getContext('2d').clearRect(0, 0, gameArea.width, gameArea.height);
     }
 
     function drawSnake() {
@@ -44,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function moveSnake() {
         const head = {x: snake[0].x + dx, y: snake[0].y + dy};
-        snake.unshift({x: head.x % gameWidth, y: head.y % gameHeight}); // Wrap around modification
+        snake.unshift({x: (head.x + gridWidth) % gridWidth, y: (head.y + gridHeight) % gridHeight}); // Correct wrap around modification
 
         if (head.x === food.x && head.y === food.y) {
             score += 10;
@@ -56,8 +67,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function generateFood() {
-    food.x = Math.floor(Math.random() * (gameWidth / snakeSize - 1) + 1) * snakeSize;
-        food.y = Math.floor(Math.random() * (gameHeight / snakeSize)) * snakeSize;
+        food.x = Math.floor(Math.random() * (gridWidth / snakeSize - 1) + 1) * snakeSize;
+        food.y = Math.floor(Math.random() * (gridHeight / snakeSize)) * snakeSize;
     }
 
     function drawFood() {
@@ -70,17 +81,7 @@ document.addEventListener('DOMContentLoaded', function () {
         for (let i = 4; i < snake.length; i++) {
             if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) return true;
         }
-        if (snake[0].x < 0) {
-            snake[0].x = gameWidth - snakeSize;
-        } else if (snake[0].x >= gameWidth) {
-            snake[0].x = 0;
-        }
-
-        if (snake[0].y < 0) {
-            snake[0].y = gameHeight - snakeSize;
-        } else if (snake[0].y >= gameHeight) {
-            snake[0].y = 0;
-        }
+        // Removed game ending conditions related to wall hits as snake should wrap around
         return false; // Remove game ending conditions related to wall hits
     }
 
@@ -166,8 +167,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 // Initialize the game
-    gameArea.width = gameWidth;
-    gameArea.height = gameHeight;
+    gameArea.width = gridWidth;
+    gameArea.height = gridHeight;
 
     main();
     let restart = document.getElementById('restartButton');

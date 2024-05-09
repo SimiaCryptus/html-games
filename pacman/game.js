@@ -17,23 +17,35 @@ let pacman = {
     y: 9,
     direction: 'RIGHT'
 };
+let lastPacmanMoveTime = 0;
 let ghosts = [
-    {x: 3, y: 3, direction: 'LEFT'}
+    {x: 3, y: 3, direction: 'LEFT'},
+    {x: 3, y: 16, direction: 'RIGHT'},
 ];
 let board = [];
 
 function initBoard() {
-    board = Array(numRows).fill().map(() => Array(numCols).fill(0));
-    // Place walls (1) and dots (2)
-    // This is just a simple example; you'd set up the board based on your game design
-    for (let i = 0; i < numCols; i++) {
-        board[0][i] = 1;
-        board[numRows - 1][i] = 1;
-        if (i > 0 && i < numRows - 1) {
-            board[i][0] = 1;
-            board[i][numCols - 1] = 1;
-            for (let j = 1; j < numCols - 1; j++) {
-                board[i][j] = 2;
+    board = Array(numRows).fill().map(() => Array(numCols).fill(1));
+
+    // Generate symmetrical maze
+    for (let y = 0; y < numRows / 2; y++) {
+        for (let x = 0; x < numCols / 2; x++) {
+            // Randomly decide to place a wall, ensuring symmetry
+            const isWall = Math.random() < 0.2; // 30% chance to be a wall
+            board[y][x] = isWall ? 1 : 0;
+            board[y][numCols - x - 1] = isWall ? 1 : 0;
+            board[numRows - y - 1][x] = isWall ? 1 : 0;
+            board[numRows - y - 1][numCols - x - 1] = isWall ? 1 : 0;
+        }
+    }
+
+    // Generate walls
+
+    // Fill remaining spaces with dots
+    for (let y = 1; y < numRows - 1; y++) {
+        for (let x = 1; x < numCols - 1; x++) {
+            if (board[y][x] === 0) {
+                board[y][x] = 2;
             }
         }
     }
@@ -53,6 +65,7 @@ function drawBoard() {
             }
         }
     }
+    // console.log('Drawing Pacman at:', pacman.x, pacman.y);
 
     // Draw Pacman
     ctx.fillStyle = 'yellow';
@@ -83,26 +96,44 @@ function updateGame() {
 }
 
 function movePacman() {
+    const now = Date.now();
+    if (now - lastPacmanMoveTime < gameSpeed) return;
+    lastPacmanMoveTime = now;
     // Implement Pacman movement logic based on direction
     // This is a simplified placeholder logic
     switch (pacman.direction) {
         case 'LEFT':
-            if (pacman.x > 0 && board[pacman.y][pacman.x - 1] !== 1) pacman.x--;
+           if (board[pacman.y][(pacman.x - 1 + numCols) % numCols] !== 1) {
+               pacman.x = (pacman.x - 1 + numCols) % numCols;
+           }
+            // console.log('Moving LEFT to:', pacman.x, pacman.y);
             break;
         case 'RIGHT':
-            if (pacman.x < numCols - 1 && board[pacman.y][pacman.x + 1] !== 1) pacman.x++;
+           if (board[pacman.y][(pacman.x + 1) % numCols] !== 1) {
+               pacman.x = (pacman.x + 1) % numCols;
+           }
+            // console.log('Moving RIGHT to:', pacman.x, pacman.y);
             break;
         case 'UP':
-            if (pacman.y > 0 && board[pacman.y - 1][pacman.x] !== 1) pacman.y--;
+           if (board[(pacman.y - 1 + numRows) % numRows][pacman.x] !== 1) {
+               pacman.y = (pacman.y - 1 + numRows) % numRows;
+           }
+            // console.log('Moving UP to:', pacman.x, pacman.y);
             break;
         case 'DOWN':
-            if (pacman.y < numRows - 1 && board[pacman.y + 1][pacman.x] !== 1) pacman.y++;
+           if (board[(pacman.y + 1) % numRows][pacman.x] !== 1) {
+               pacman.y = (pacman.y + 1) % numRows;
+           }
+            // console.log('Moving DOWN to:', pacman.x, pacman.y);
             break;
     }
 }
 
 function moveGhosts() {
     // Improved random movement for ghosts
+    // Adding a delay to slow down ghost movement
+    if (!this.lastMoveTime || (Date.now() - this.lastMoveTime > 500)) {
+        this.lastMoveTime = Date.now();
     ghosts.forEach(ghost => {
         let possibleDirections = [];
         if (ghost.x > 0 && board[ghost.y][ghost.x - 1] !== 1) possibleDirections.push('LEFT');
@@ -129,6 +160,7 @@ function moveGhosts() {
             }
         }
     });
+    }
 }
 
 function checkCollisions() {
@@ -165,10 +197,12 @@ function startGame() {
 document.addEventListener('keydown', (event) => {
     switch (event.key) {
         case 'ArrowLeft':
-            pacman.direction = 'LEFT';
+            pacman.direction = 'LEFT'; // Corrected to set direction
+                if (pacman.x > 0 && board[pacman.y][pacman.x - 1] !== 1) pacman.x--;
             break;
         case 'ArrowRight':
             pacman.direction = 'RIGHT';
+            pacman.y += Math.round(tilesToMoveY); // Move Pacman based on finger movement
             break;
         case 'ArrowUp':
             pacman.direction = 'UP';
@@ -184,20 +218,20 @@ let touchStartX = 0;
 let touchStartY = 0;
 
 document.addEventListener('touchstart', (event) => {
+    if (event.target == canvas) {
+        event.preventDefault();
+        // Removed preventDefault here, will set listener as non-passive instead
+    }
     touchStartX = event.changedTouches[0].screenX;
     touchStartY = event.changedTouches[0].screenY;
-}, false);
+}, { passive: false }); // Set the listener as non-passive
 
 document.addEventListener('touchmove', (event) => {
-    event.preventDefault(); // Prevent scrolling when touching the canvas
-}, false);
-
-document.addEventListener('touchend', (event) => {
-    const touchEndX = event.changedTouches[0].screenX;
-    const touchEndY = event.changedTouches[0].screenY;
-    const dx = touchEndX - touchStartX;
-    const dy = touchEndY - touchStartY;
-
+    event.preventDefault();
+    const touchCurrentX = event.changedTouches[0].screenX;
+    const touchCurrentY = event.changedTouches[0].screenY;
+    const dx = touchCurrentX - touchStartX;
+    const dy = touchCurrentY - touchStartY;
     if (Math.abs(dx) > Math.abs(dy)) {
         // Horizontal movement
         if (dx > 0) {
@@ -213,6 +247,6 @@ document.addEventListener('touchend', (event) => {
             pacman.direction = 'UP';
         }
     }
-}, false);
+}, { passive: false }); // Set the listener as non-passive
 
 document.getElementById('start-button').addEventListener('click', startGame);
