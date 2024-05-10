@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let cardsChosen = [];
     let cardsChosenIds = [];
     let cardsWon = [];
+   let isChecking = false;  // Flag to prevent flipping more cards during check
 
     // Function to create the board
     function createBoard() {
@@ -70,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cardsWon.length === cardArray.length / 2) {
             resultDisplay.querySelector('#move-counter').textContent = 'Congratulations! You found them all!';
         }
+       isChecking = false;  // Reset flag after check
     }
 
     function displayMessage(message) {
@@ -82,11 +84,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Flip your card
     function flipCard() {
+       if (isChecking) return;  // Prevent flipping more cards if currently checking
         let cardId = this.getAttribute('data-id');
         cardsChosen.push(cardArray[cardId].name);
         cardsChosenIds.push(cardId);
         this.setAttribute('src', cardArray[cardId].img);
         if (cardsChosen.length === 2) {
+           isChecking = true;  // Set flag when two cards are flipped
             setTimeout(checkForMatch, 2500);
         }
     }

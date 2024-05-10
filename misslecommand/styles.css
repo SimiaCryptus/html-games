@@ -6,6 +6,7 @@ body, html {
     background: #000; /* Dark background for better game visibility */
     color: white;
     font-family: 'Arial', sans-serif;
+    overflow: hidden;
 }
 
 /* Game area styling */
