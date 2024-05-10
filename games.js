@@ -12,7 +12,7 @@ const games = [
     },
     {
         title: "Tetris",
-        url: "packing/index.html"
+        url: "tetris/index.html"
     },
     {
         title: "Word Search",
@@ -73,6 +73,14 @@ const games = [
     {
         title: "Laser Chess",
         url: "laserchess/index.html"
+    },
+    {
+        title: "Sudoku",
+        url: "sudoku/index.html"
+    },
+    {
+        title: "Jeopardy",
+        url: "jeopardy/index.html"
     }
 ];
 

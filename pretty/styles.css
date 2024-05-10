@@ -1,0 +1,64 @@
+/* General body styles */
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevents scrolling */
+  background: #000; /* Dark background for better contrast */
+  color: #fff; /* Light text color */
+  font-family: Arial, sans-serif; /* Modern, readable font */
+}
+
+/* Fullscreen canvas styles */
+canvas {
+  display: block; /* Removes extra space around the canvas */
+  width: 100vw; /* Full viewport width */
+  height: 100vh; /* Full viewport height */
+  background: #f00; /* Bright red background for visibility */
+}
+
+/* Control panel styles */
+.controls {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+  border-radius: 5px;
+  z-index: 10;
+}
+
+/* Individual control element styles */
+.speed-slider, .color-picker {
+  margin-bottom: 5px;
+  color: #fff; /* White color for text */
+}
+
+/* Button styles */
+button {
+  background: #333; /* Dark grey background */
+  color: #fff; /* White text */
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth transition for background color */
+}
+
+button:hover {
+  background-color: #555; /* Lighten background on hover */
+}
+
+/* Responsive design adjustments */
+@media (max-width: 600px) {
+  .control-panel {
+    width: 100%; /* Full width on smaller screens */
+    top: auto;
+    bottom: 0;
+    left: 0;
+    border-radius: 0; /* Remove border radius on smaller screens */
+  }
+
+  button {
+    width: 100%; /* Full width buttons on smaller screens */
+  }
+}

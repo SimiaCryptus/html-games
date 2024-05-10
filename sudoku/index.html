@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Sudoku Game</h1>
+        <img src="logo.png" alt="Sudoku Logo">
+    </header>
+    <main>
+        <div id="sudoku-board">
+    <!-- Sudoku grid will be dynamically generated here by JavaScript and corrected ID to sudoku-grid -->
+       <table id="sudoku-grid"></table>
+        </div>
+        <div class="controls">
+    <button id="new-game">New Game</button>
+    <button id="check-solution">Check Solution</button>
+            <button id="hint-button">Hint</button>
+        </div>
+    </main>
+    <footer>
+        <p>Created for Sudoku enthusiasts!</p>
+    </footer>
+    <script src="game.js"></script>
+</body>
+</html>

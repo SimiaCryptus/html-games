@@ -1,5 +1,20 @@
 // Game.js
 
+function invaderShoot() {
+    if (invaders.length > 0) {
+       // Adding a random chance for shooting
+       if (Math.random() < 0.3) { // 30% chance to shoot
+        let shootingInvader = invaders[Math.floor(Math.random() * invaders.length)];
+        let bullet = document.createElement('div');
+        bullet.className = 'invaderBullet';
+        bullet.style.left = `${parseInt(window.getComputedStyle(shootingInvader).getPropertyValue('left')) + 20}px`; // Center bullet on invader
+        bullet.style.top = `${parseInt(window.getComputedStyle(shootingInvader).getPropertyValue('top')) + 40}px`;
+        gameArea.appendChild(bullet);
+        bullets.push(bullet);
+        console.log('Invader shot fired!');
+       }
+    }
+}
 // Touch event handling
 let touchstartX = 0;
 let touchendX = 0;
@@ -23,7 +38,7 @@ let reverse = false;
 
 // Player setup
 const playerSpeed = 10;
-const bulletSpeed = 5;
+const bulletSpeed = 30; // Increased bullet speed for faster travel
 
 gameArea.addEventListener('touchmove', handleTouchMove, false);
 
@@ -36,6 +51,10 @@ function createInvaders() {
         gameArea.appendChild(invader);
         invaders.push(invader);
     }
+    setInterval(() => {
+        console.log('Attempting to shoot from invader...');
+        invaderShoot();
+    }, 2000); // Invaders shoot every 2 seconds with debug log
 }
 
 function movePlayer(direction) {
@@ -76,6 +95,7 @@ function moveInvaders() {
             invader.style.left = `${parseInt(window.getComputedStyle(invader).getPropertyValue('left')) - 10}px`; // Change direction
         });
     } else {
+           console.log('Random chance did not favor shooting.');
         invaders.forEach(invader => {
             invader.style.left = `${parseInt(window.getComputedStyle(invader).getPropertyValue('left')) + 10}px`;
         });
@@ -85,11 +105,14 @@ function moveInvaders() {
 function moveBullets() {
     for (let bullet of bullets) {
         let bulletBottom = parseInt(window.getComputedStyle(bullet).getPropertyValue('bottom'));
-        if (bulletBottom >= 600) {
+        if (bulletBottom >= window.innerHeight) {
             bullet.remove();
             bullets = bullets.filter(b => b !== bullet);
         } else {
+        console.log('No invaders left to shoot.');
             bullet.style.bottom = `${bulletBottom + bulletSpeed}px`;
+            // Change color to distinguish invader bullets
+            bullet.style.backgroundColor = bullet.classList.contains('invaderBullet') ? '#0f0' : '#f00';
             bullet.style.backgroundColor = '#f00'; // Ensuring bullet color
         }
     }
@@ -97,6 +120,7 @@ function moveBullets() {
 
 function checkCollisions() {
     for (let bullet of bullets) {
+       let bulletRect = bullet.getBoundingClientRect();
         for (let invader of invaders) {
             let bulletRect = bullet.getBoundingClientRect();
             let invaderRect = invader.getBoundingClientRect();
@@ -110,6 +134,22 @@ function checkCollisions() {
                 scoreBoard.innerText = `Score: ${score}`; // Update score immediately
                 invaders = invaders.filter(i => i !== invader);
                 bullets = bullets.filter(b => b !== bullet);
+            }
+        }
+        // Check collision between invader bullets and player
+        if (bullet.classList.contains('invaderBullet')) {
+            let playerRect = player.getBoundingClientRect();
+            if (bulletRect.left < playerRect.right &&
+                bulletRect.right > playerRect.left &&
+                bulletRect.top < playerRect.bottom &&
+                bulletRect.bottom > playerRect.top) {
+                bullet.remove();
+                bullets = bullets.filter(b => b !== bullet);
+                lives -= 1;
+                livesDisplay.innerText = `Lives: ${lives}`;
+                if (lives <= 0) {
+                    stopGame();
+                }
             }
         }
     }
