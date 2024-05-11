@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const startGameButton = document.querySelector('#start-game');
+    startGameButton.addEventListener('click', startGame);
     const resetButton = document.querySelector('#reset-button');
     resetButton.addEventListener('click', resetGame);
 
@@ -27,6 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
         cardsWon = [];
         resultDisplay.querySelector('#move-counter').textContent = '0';
         grid.innerHTML = '';
+        const width = document.querySelector('#board-width').value;
+        const height = document.querySelector('#board-height').value;
+        createBoard(width, height);
+    document.querySelector('#setup-area').style.display = 'block'; // Show setup area when game resets
+    document.querySelector('#start-game').style.display = 'block'; // Show start game button when game resets
         createBoard();
     }
 
@@ -35,10 +42,23 @@ document.addEventListener('DOMContentLoaded', () => {
     let cardsChosen = [];
     let cardsChosenIds = [];
     let cardsWon = [];
+    let playerScores = [];
+    let currentPlayer = 0;
    let isChecking = false;  // Flag to prevent flipping more cards during check
 
+    function startGame() {
+        const numPlayers = document.querySelector('#num-players').value;
+        const boardWidth = document.querySelector('#board-width').value;
+        const boardHeight = document.querySelector('#board-height').value;
+        initializeGame(numPlayers, boardWidth, boardHeight);
+    document.querySelector('#setup-area').style.display = 'none'; // Hide setup area when game starts
+    document.querySelector('#start-game').style.display = 'none'; // Hide start game button when game starts
+    }
     // Function to create the board
-    function createBoard() {
+    function createBoard(width, height) {
+        const numCards = width * height;
+        cardArray.sort(() => 0.5 - Math.random());
+        cardArray.length = numCards;  // Adjust array size based on board dimensions
         cardArray.sort(() => 0.5 - Math.random());
         for (let i = 0; i < cardArray.length; i++) {
             const card = document.createElement('img');
@@ -60,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cards[optionOneId].setAttribute('src', 'white.png');
             cards[optionTwoId].setAttribute('src', 'white.png');
             cardsWon.push(cardsChosen);
+            playerScores[currentPlayer]++;
         } else {
             cards[optionOneId].setAttribute('src', 'blank.png');
             cards[optionTwoId].setAttribute('src', 'blank.png');
@@ -73,7 +94,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
        isChecking = false;  // Reset flag after check
     }
+    function initializeGame(numPlayers, width, height) {
+        playerScores = new Array(parseInt(numPlayers)).fill(0);
+        currentPlayer = 0;
+        updatePlayerTurn();
+        createBoard(width, height);
+    }
 
+    function updatePlayerTurn() {
+        const playerTurnDisplay = document.querySelector('#player-turn');
+        playerTurnDisplay.textContent = `Player ${currentPlayer + 1}'s turn`;
+    }
     function displayMessage(message) {
         const messageElement = document.createElement('div');
         messageElement.textContent = message;

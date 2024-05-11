@@ -176,6 +176,7 @@ function checkCollisions() {
                 lives -= 1;
                 livesDisplay.innerText = `Lives: ${lives}`;
                 if (lives <= 0) {
+                    alert(`Game Over! Your score: ${score}`);
                     stopGame();
                 }
             }
@@ -208,7 +209,9 @@ function stopGame() {
     startButton.onclick = restartGame; // Set up restart game function
     livesDisplay.innerText = `Lives: ${lives}`;
     scoreBoard.innerText = `Score: ${score}`;
-    alert(`Game Over! Your score: ${score}`);
+    if (lives <= 0) {
+        alert(`Game Over! Your score: ${score}`);
+    }
 }
 
 startButton.addEventListener('click', startGame);
