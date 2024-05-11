@@ -125,7 +125,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function checkForHits(board, row, col) {
         console.log(`Checking for hits at [${row}, ${col}] on board:`, board);
-       return board[row][col] > 1; // Ensure only cells with ship parts (not just marked as '1') are considered hits
+       if (board[row][col] > 0) {
+           console.log(`Hit detected at [${row}, ${col}]`);
+           return true;
+       } else {
+           console.log(`No hit at [${row}, ${col}]`);
+           return false;
+       }
     }
 
     function updateBoard(board, row, col, hit) {
@@ -139,7 +145,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (hit) {
             // Determine which ship has been hit based on its starting position and size
            const board = boardId === 'playerBoard' ? playerBoard : computerBoard;
-           const shipIndex = board[row][col] - 1; // Subtract 1 to get the correct index
+           const shipSize = board[row][col];
+           const shipIndex = SHIP_SIZES.indexOf(shipSize); // Find the index based on ship size
         if (shipIndex === -1) {
             console.error(`No ship found at position [${row}, ${col}] on ${boardId}`);
             return;
@@ -152,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const hits = parseInt(shipElement.dataset.hits) + 1;
             shipElement.dataset.hits = hits;
            console.log(`Updating hits for ${SHIP_NAMES[shipIndex]}: ${hits}`);
-            if (hits === parseInt(shipElement.dataset.size)) {
+           if (hits === parseInt(shipElement.dataset.size)) { // Ensure hits must exactly match the ship size
                 shipElement.classList.add('sunk');
                 console.log(`${SHIP_NAMES[shipIndex]} has been sunk!`);
             }
@@ -211,8 +218,8 @@ document.addEventListener('DOMContentLoaded', function () {
 // Check game over
     function checkGameOver() {
         console.log("Checking if game is over");
-        let playerAllShipsSunk = playerBoard.every((row, rowIndex) => row.every((cell, colIndex) => cell !== 1 || computerShots[rowIndex][colIndex] === 'X'));
-        let computerAllShipsSunk = computerBoard.every((row, rowIndex) => row.every((cell, colIndex) => cell !== 1 || playerShots[rowIndex][colIndex] === 'X'));
+    let playerAllShipsSunk = playerBoard.every((row, rowIndex) => row.every((cell, colIndex) => cell < 2 || computerShots[rowIndex][colIndex] === 'X'));
+    let computerAllShipsSunk = computerBoard.every((row, rowIndex) => row.every((cell, colIndex) => cell < 2 || playerShots[rowIndex][colIndex] === 'X'));
         if (playerAllShipsSunk) {
             alert("Computer wins!");
             console.log("Game over: Computer wins!");
