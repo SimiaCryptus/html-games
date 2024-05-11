@@ -86,7 +86,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 let direction = Math.random() > 0.5 ? 'H' : 'V'; // Horizontal or Vertical
                 let row = Math.floor(Math.random() * GRID_SIZE);
                 let col = Math.floor(Math.random() * GRID_SIZE);
-                if (canPlaceShip(board, row, col, size, direction)) {
+               // Adjust starting position if the ship could go out of bounds
+               if (direction === 'H' && col + size > GRID_SIZE) col -= (col + size - GRID_SIZE);
+               if (direction === 'V' && row + size > GRID_SIZE) row -= (row + size - GRID_SIZE);
+                if (canPlaceShip(board, row, col, size, direction) && isValidPlacement(row, col, size, direction)) {
                     for (let i = 0; i < size; i++) {
                        board[row][col] = size; // Use size to uniquely identify ship parts
                         if (direction === 'H') col++; else row++;
@@ -100,11 +103,16 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    function isValidPlacement(row, col, size, direction) {
+        if (direction === 'H' && (col + size > GRID_SIZE)) return false;
+        if (direction === 'V' && (row + size > GRID_SIZE)) return false;
+        return true;
+    }
     function canPlaceShip(board, row, col, size, direction) {
        console.log(`Attempting to place ship of size ${size} at [${row}, ${col}] in ${direction} direction`);
         console.log(`Attempting to place ship of size ${size} at [${row}, ${col}] in ${direction} direction`);
         for (let i = 0; i < size; i++) {
-            if (row < 0 || row >= GRID_SIZE || col < 0 || col >= GRID_SIZE || board[row][col] === 1) {
+           if (row < 0 || row >= GRID_SIZE || col < 0 || col >= GRID_SIZE || board[row][col] > 0) {
                 return false;
             }
             // Check adjacent cells to ensure ships do not touch
