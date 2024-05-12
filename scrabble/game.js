@@ -1,5 +1,7 @@
+import { reinitializeDragAndDrop } from './dragdrop.js';
 // Constants for game settings
 const BOARD_SIZE = 15;
+const RACK_SIZE = 7;
 const LETTER_VALUES = {
   A: 1, B: 3, C: 3, D: 2, E: 1,
   F: 4, G: 2, H: 4, I: 1, J: 8,
@@ -13,6 +15,7 @@ const LETTER_VALUES = {
 let board = [];
 let currentPlayerTiles = [];
 let score = 0;
+let tilesRemaining = 100;
 
 // Initialize the game board
 function initBoard() {
@@ -21,12 +24,13 @@ function initBoard() {
   renderBoard();
   currentPlayerTiles = []; // Reset player tiles when initializing the board
   score = 0; // Reset score when initializing the board
+  tilesRemaining = 100; // Reset remaining tiles count
   document.getElementById('score-display').textContent = 'Score: 0'; // Update score display
+    console.log('Reinitializing drag and drop after initializing board');
 }
 
 // Render the game board
 function renderBoard() {
-  console.log('Rendering game board...');
   const boardElement = document.getElementById('game-board');
   boardElement.innerHTML = ''; // Clear previous board
 
@@ -38,8 +42,6 @@ function renderBoard() {
       cellElement.className = 'game-cell'; // Correct class name for consistency
       cellElement.setAttribute('data-row', rowIndex);
       cellElement.setAttribute('data-col', cellIndex);
-      cellElement.ondrop = (event) => dropTile(event);
-      cellElement.ondragover = (event) => allowDrop(event);
       if (cell) {
         const tileElement = document.createElement('span');
         tileElement.textContent = cell.letter;
@@ -50,26 +52,45 @@ function renderBoard() {
     });
     boardElement.appendChild(rowElement);
   });
+  reinitializeDragAndDrop(); // Ensure drag and drop is initialized after the board is rendered
 }
 
-// Allow dropping tiles
-function allowDrop(event) {
-  console.log('Allowing tile drop...');
-  event.preventDefault();
-}
+// Draw tiles for the player's rack
+function drawTiles() {
+  const tileRack = document.getElementById('tile-rack');
+  tileRack.innerHTML = ''; // Clear previous tiles
 
-// Handle dropping tiles on the board
-function dropTile(event) {
-  event.preventDefault();
-  const data = event.dataTransfer.getData("text");
-  const tile = document.getElementById(data);
-  const target = event.target;
-  console.log(`Dropping tile ${tile.textContent} at row ${target.getAttribute('data-row')}, col ${target.getAttribute('data-col')}`);
-
-  if (target.className === 'game-cell' && !target.firstChild) {
-    target.appendChild(tile);
-    updateGameState(tile, target);
+  for (let i = 0; i < RACK_SIZE; i++) {
+    if (tilesRemaining > 0) {
+      const letter = getRandomLetter();
+      const tileElement = createTileElement(letter);
+      currentPlayerTiles.push(tileElement);
+      tileRack.appendChild(tileElement);
+    console.log('Allowing tile drop...');
+      tilesRemaining--;
+    }
   }
+  // Ensure the DOM updates are completed before reinitializing drag and drop
+  requestAnimationFrame(() => {
+    reinitializeDragAndDrop(); // Ensure drag and drop is initialized after tiles are drawn
+  });
+}
+
+// Create a tile element
+function createTileElement(letter) {
+  const tileElement = document.createElement('div');
+  tileElement.textContent = letter;
+  tileElement.className = 'tile';
+  tileElement.id = `tile-${letter}-${Date.now()}`; // Unique id for each tile
+  tileElement.draggable = true;
+  return tileElement;
+}
+
+// Get a random letter from the pool of available tiles
+function getRandomLetter() {
+  const letters = Object.keys(LETTER_VALUES);
+  const randomIndex = Math.floor(Math.random() * letters.length);
+  return letters[randomIndex];
 }
 
 // Update game state after placing a tile
@@ -113,5 +134,8 @@ function updateScore() {
 document.getElementById('submit-word').addEventListener('click', validateWord);
 document.getElementById('reset-game').addEventListener('click', initBoard); // Reset game functionality
 
-// Initialize the game on load
-window.onload = initBoard;
+// Initialize the game and draw tiles on load
+window.onload = () => {
+  initBoard();
+  drawTiles();
+};
