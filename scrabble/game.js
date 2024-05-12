@@ -40,6 +40,7 @@ let validWords = new Set();
 let currentPlayerTiles = [];
 let score = 0;
 let tilesRemaining = 100;
+let lastPlacedTile = null; // Declare lastPlacedTile to keep track of the last placed tile globally
 
 // Helper function to determine if a position is special
 function isSpecialPosition(row, col) {
@@ -224,6 +225,7 @@ export function updateGameState(tile, target) {
     // Check if new words formed are valid
     validateWord(row, col, true); // Validate horizontally and vertically
     validateWord(row, col);
+    lastPlacedTile = target; // Keep track of the last placed tile
 }
 
 // Check if it's the first move
@@ -269,7 +271,7 @@ function isAdjacentToExistingTiles(row, col) {
 // Validate words formed on the board
 function validateWord(row, col, isHorizontal = true) { // Default to horizontal if not specified
     console.log('Validating word...');
-    const word = getWord(row, col, isHorizontal);
+    const word = getWord(row, col, isHorizontal); // This function needs to correctly extract the word considering both directions
     console.log(`Word to validate: ${word} at position (${row}, ${col}) horizontally: ${isHorizontal}`);
     if (word && word.length > 1) {
         console.log(`Validating word of length ${word.length}: ${word}`);
@@ -336,7 +338,16 @@ function reinitializeDragAndDrop() {
     });
 }
 // Event listeners for game controls
-document.getElementById('submit-word').addEventListener('click', () => validateWord(7, 7, true)); // Assuming the center position and horizontal direction as default for demonstration
+document.getElementById('submit-word').addEventListener('click', () => {
+    if (lastPlacedTile && lastPlacedTile.firstChild) {
+        const row = parseInt(lastPlacedTile.getAttribute('data-row'), 10);
+        const col = parseInt(lastPlacedTile.getAttribute('data-col'), 10);
+        validateWord(row, col, true); // Validate horizontally
+        validateWord(row, col, false); // Validate vertically
+    } else {
+        console.error('No tile has been placed to validate.');
+    }
+}); // Validate the last placed word dynamically
 document.getElementById('reset-game').addEventListener('click', initBoard); // Reset game functionality
 
 // Initialize the game and draw tiles on load
