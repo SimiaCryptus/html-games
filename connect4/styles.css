@@ -1,0 +1,97 @@
+/* General body and font styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Main game container */
+.game-container, #gameContainer { /* Correcting the class name for consistency */
+    width: 100%;
+    max-width: 600px;
+    margin: auto;
+    text-align: center;
+}
+
+/* Game grid styles */
+#gameBoard {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    background-color: #007BFF;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.cell {
+    width: 50px;
+    height: 50px;
+    background-color: #fff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Disc styles */
+.disc {
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    transition: transform 0.5s ease;
+}
+
+.red-disc {
+    background-color: #FF4136;
+}
+
+.yellow-disc {
+    background-color: #FFDC00;
+}
+
+/* Button styles */
+button {
+    background-color: #28A745;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 20px;
+    outline: none;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+/* Text display styles */
+#turn-indicator, #game-message {
+    font-size: 20px;
+    margin: 20px 0;
+}
+
+/* Responsive design adjustments */
+@media (max-width: 768px) {
+    #gameBoard { /* Correcting the selector to target the game board specifically */
+        gap: 5px;
+        padding: 5px;
+    }
+
+    .cell {
+        width: 40px;
+        height: 40px;
+    }
+
+    button {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+}

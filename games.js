@@ -81,6 +81,14 @@ const games = [
     {
         title: "Jeopardy",
         url: "jeopardy/index.html"
+    },
+    {
+        title: "Connect Four",
+        url: "connect4/index.html"
+    },
+    {
+        title: "Scrabble",
+        url: "scrabble/index.html"
     }
 ];
 
