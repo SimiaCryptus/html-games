@@ -45,6 +45,10 @@ let score = 0;
 let tilesRemaining = 100;
 let lastPlacedTile = null; // Declare lastPlacedTile to keep track of the last placed tile globally
 
+function logFunctionCall(functionName, ...args) {
+    console.log(`Function called: ${functionName} with arguments:`, args);
+}
+
 // Helper function to determine if a position is special
 function isSpecialPosition(row, col) {
     console.log(`Called isSpecialPosition with row: ${row}, col: ${col}`);
@@ -71,16 +75,32 @@ function getSpecialType(row, col) {
     return '';
 }
 
-export function revertTilePlacement(row, col) {
-    console.log(`Called revertTilePlacement with row: ${row}, col: ${col}`);
+export function updateStatusDisplay(message) {
+    console.log(`Called updateStatusDisplay with message: ${message}`);
+    const statusDisplay = document.getElementById('status-display');
+    if (statusDisplay) {
+        statusDisplay.textContent = message;
+    } else {
+        console.error('Status display element not found.');
+    }
+}
+
+export function revertTilePlacement() {
+    console.log('Called revertTilePlacement');
+    console.log('Board state before revert:', JSON.stringify(board));
+    console.log('Player tiles before revert:', JSON.stringify(currentPlayerTiles));
     board = JSON.parse(JSON.stringify(boardBackup)); // Restore the board from the backup
-    renderBoard(); // Re-render the board to reflect the reverted state
-    drawTiles(); // Re-draw the tiles to reflect the reverted state
     currentPlayerTiles = JSON.parse(JSON.stringify(currentPlayerTilesBackup)); // Restore the player's tiles from the backup
+    console.log('Re-rendering board...');
+    renderBoard(); // Re-render the board to reflect the reverted state
+    console.log('Re-drawing tiles...');
+    drawTiles(); // Re-draw the tiles to reflect the reverted state
+    console.log('Board state after revert:', JSON.stringify(board));
+    console.log('Player tiles after revert:', JSON.stringify(currentPlayerTiles));
 }
 
 // Extract a word from the board given a starting position and direction
-function getWord(row, col, isHorizontal) {
+export function getWord(row, col, isHorizontal) {
     console.log(`Called getWord with row: ${row}, col: ${col}, isHorizontal: ${isHorizontal}`);
     console.log(`Extracting word starting at (${row}, ${col}) horizontally: ${isHorizontal}`);
     let word = '';
@@ -103,7 +123,7 @@ function getWord(row, col, isHorizontal) {
         }
     }
     console.log(`Extracted word: ${word}`);
-    return { word, row, col: start, isHorizontal };
+    return {word, row, col: start, isHorizontal};
     return word;
 }
 
@@ -113,7 +133,7 @@ function loadDictionary() {
     fetch(DICTIONARY_URL)
         .then(response => response.text())
         .then(text => {
-            validWords = new Set(text.split('\n'));
+            validWords = new Set(text.split('\n').map(word => word.trim().toUpperCase()));
             console.log('Dictionary loaded successfully');
         })
         .catch(error => {
@@ -132,6 +152,7 @@ function initBoard() {
     document.getElementById('score-display').textContent = 'Score: 0'; // Update score display
     drawTiles(); // Ensure tiles are drawn before initializing drag and drop
     loadDictionary(); // Load the dictionary when the game initializes
+    backupState(); // Backup the initial state of the board
 }
 
 // Render the game board
@@ -234,7 +255,7 @@ export function updateGameState(tile, target) {
     if (isFirstMove() && !(parseInt(row, 10) === 7 && parseInt(col, 10) === 7)) {
         console.error('The first tile must be placed at the center of the board.');
         console.log('Reverting tile placement due to incorrect starting position.');
-        revertTilePlacement(row, col);
+        revertTilePlacement();
         return;
     }
     board[row][col] = {letter: tile.textContent, value: LETTER_VALUES[tile.textContent.toUpperCase()]};
@@ -243,30 +264,37 @@ export function updateGameState(tile, target) {
     if (tileIndex > -1) currentPlayerTiles.splice(tileIndex, 1); // Ensure valid index
     if (tileIndex > -1) {
         currentPlayerTiles.splice(tileIndex, 1);
+        console.log(`Tile ${tile.textContent} removed from player's rack.`);
     }
     // Check if new words formed are valid
     lastPlacedTile = target; // Keep track of the last placed tile
-    backupBoardState(); // Backup the board state at the start of the turn
-    backupPlayerTiles(); // Backup the player's tiles at the start of the turn
+}
+
+export function getBoardState() {
+    const boardState = [];
+    for (let row = 0; row < BOARD_SIZE; row++) {
+        const rowState = [];
+        for (let col = 0; col < BOARD_SIZE; col++) {
+            const cell = document.querySelector(`.game-cell[data-row="${row}"][data-col="${col}"] .tile`);
+            rowState.push(cell ? cell.textContent : null);
+        }
+        boardState.push(rowState);
+    }
+    return boardState;
 }
 
 // Backup the current board state
-function backupBoardState() {
-    console.log('Called backupBoardState');
-    boardBackup = JSON.parse(JSON.stringify(board));
-}
-
-// Backup the current player's tiles
-function backupPlayerTiles() {
-    console.log('Called backupPlayerTiles');
+export function backupState() {
+    console.log('Called backupState');
+    boardBackup = getBoardState();
     currentPlayerTilesBackup = JSON.parse(JSON.stringify(currentPlayerTiles));
 }
+
 // Check if it's the first move
 function isFirstMove() {
     console.log('Called isFirstMove');
     // Ensure board is initialized before checking if it's the first move
     // Ensure board is always initialized at the start of the game
-    backupPlayerTiles(); // Backup the player's tiles at the start of the game
     if (typeof board === 'undefined' || board === null) {
         console.error('Board not initialized or incorrectly defined.');
         initBoard(); // Initialize the board if it's not already done
@@ -315,14 +343,20 @@ export function validateWord(word, row, col, isHorizontal) { // Adjust parameter
         if (!validWords.has(word.toUpperCase())) {
             console.error(`The word ${word} is not valid.`);
             console.log(`Attempting to revert placement of word: ${word}`);
-            revertTilePlacement(row, col);
+            console.log('Current board state before revert:', JSON.stringify(board));
+            console.log('Current player tiles before revert:', JSON.stringify(currentPlayerTiles));
+            console.log('Reverting tile placement...');
+            revertTilePlacement();
+            console.log('Board state after revert:', JSON.stringify(board));
+            console.log('Player tiles after revert:', JSON.stringify(currentPlayerTiles));
             console.log(`Reverted placement of invalid word "${word}".`);
-            return `The word ${word} is not valid.`; // Return validation result
+            return false; // Return validation result
         }
         updateScore(word); // Update the score based on the valid word
-        return `The word ${word} is valid!`;
+        return true;
     } else {
-        return null; // Return null if the word is invalid
+        console.log(`The word ${word} is invalid.`);
+        return false; // Return null if the word is invalid
     }
 }
 
@@ -376,20 +410,90 @@ function reinitializeDragAndDrop() {
     });
 }
 
-// Event listeners for game controls
+function getWordsFromBoard(boardState) {
+    const words = [];
+    // Check rows for words
+    for (let row = 0; row < BOARD_SIZE; row++) {
+        let word = '';
+        let startCol = 0;
+        for (let col = 0; col < BOARD_SIZE; col++) {
+            if (boardState[row][col]) {
+                if (word === '') startCol = col;
+                word += boardState[row][col];
+                console.log(`Word so far: ${word} at position (${row}, ${col})`);
+            } else {
+                if (word.length > 1) {
+                    words.push({word, row, col: startCol, isHorizontal: true});
+                    console.log(`Word found: ${word} at position (${row}, ${startCol})`);
+                }
+                word = '';
+            }
+        }
+        if (word.length > 1) {
+            words.push({word, row, col: startCol, isHorizontal: true});
+            console.log(`Word found: ${word} at position (${row}, ${startCol})`);
+        }
+    }
+    // Check columns for words
+    for (let col = 0; col < BOARD_SIZE; col++) {
+        let word = '';
+        let startRow = 0;
+        for (let row = 0; row < BOARD_SIZE; row++) {
+            if (boardState[row][col]) {
+                if (word === '') startRow = row;
+                word += boardState[row][col];
+                console.log(`Word so far: ${word} at position (${row}, ${col})`);
+            } else {
+                if (word.length > 1) {
+                    words.push({word, row: startRow, col, isHorizontal: false});
+                    console.log(`Word found: ${word} at position (${startRow}, ${col})`);
+                }
+                word = '';
+            }
+        }
+        if (word.length > 1) {
+            words.push({word, row: startRow, col, isHorizontal: false});
+            console.log(`Word found: ${word} at position (${startRow}, ${col})`);
+        }
+    }
+    return words;
+}
+
+
 document.getElementById('submit-word').addEventListener('click', () => {
-    console.log('Submit word button clicked');
-    if (lastPlacedTile && lastPlacedTile.firstChild) {
-        const row = parseInt(lastPlacedTile.getAttribute('data-row'), 10);
-        const col = parseInt(lastPlacedTile.getAttribute('data-col'), 10);
-        const horizontalWord = getWord(row, col, true);
-        const verticalWord = getWord(row, col, false);
-        validateWord(horizontalWord.word, horizontalWord.row, horizontalWord.col, horizontalWord.isHorizontal); // Validate horizontally
-        validateWord(verticalWord.word, verticalWord.row, verticalWord.col, verticalWord.isHorizontal); // Validate vertically
+    logFunctionCall('submit-word click event');
+    const boardState = getBoardState();
+    const wordsToValidate = getWordsFromBoard(boardState);
+    if (wordsToValidate.length > 0) {
+        let invalidWords = wordsToValidate.filter(wordObj => {
+            logFunctionCall('wordsToValidate.forEach', wordObj);
+            const validationResult = validateWord(wordObj.word, wordObj.row, wordObj.col, wordObj.isHorizontal === true);
+            if (!validationResult) {
+                console.log(`Invalid word "${wordObj.word}" detected at row ${wordObj.row}, col ${wordObj.col}, horizontal: ${wordObj.isHorizontal}`);
+                console.log('Reverting tile placement...');
+                console.log('Invalid word detected, reverting tile placement.');
+                console.log('Current board state before revert:', JSON.stringify(boardState));
+                revertTilePlacement(); // Revert the board and player's tiles to the backup state
+                console.log('Reverted board state:', JSON.stringify(getBoardState()));
+                const revertedBoardState = getBoardState();
+                console.log('Board state after revert:', JSON.stringify(revertedBoardState));
+                return true; // Exit the loop early if an invalid word is detected
+            } else {
+                console.log(`Valid word "${wordObj.word}" detected at row ${wordObj.row}, col ${wordObj.col}, horizontal: ${wordObj.isHorizontal}`);
+                return false; // Continue the loop if the word is valid
+            }
+        });
+        if (invalidWords && invalidWords.length > 0) {
+            updateStatusDisplay(`Invalid words detected: ${invalidWords.map(word => word.word).join(', ')}`);
+        } else {
+            updateStatusDisplay('All words are valid!');
+            backupState(); // Backup the current board state and player's tiles
+        }
     } else {
         console.error('No tile has been placed to validate.');
     }
-}); // Validate the last placed word dynamically and revert if invalid
+}); // Validate all placed words dynamically
+
 document.getElementById('reset-game').addEventListener('click', initBoard); // Reset game functionality
 
 // Initialize the game and draw tiles on load

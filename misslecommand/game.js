@@ -27,11 +27,14 @@ document.addEventListener('DOMContentLoaded', function () {
         updateScoreboard();
 
         // Setup cities and batteries
+        const gameAreaWidth = gameArea.clientWidth;
+        const citySpacing = gameAreaWidth / 7; // 6 cities, 7 spaces
+        const batterySpacing = gameAreaWidth / 4; // 3 batteries, 4 spaces
+
         for (let i = 0; i < 6; i++) {
             let city = document.createElement('div');
             city.className = 'city';
-            city.style.left = `${100 + i * 100}px`;
-            city.style.bottom = '0px'; // Ensure cities are positioned at the bottom
+           city.style.left = `${citySpacing * (i + 1) - citySpacing / 2}px`;
             city.style.bottom = '0px'; // Ensure cities are positioned at the bottom
             gameArea.appendChild(city);
             cities.push(city);
@@ -39,8 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (i % 2 === 0) { // Place batteries between some cities
                 let battery = document.createElement('div');
                 battery.className = 'battery';
-                battery.style.left = `${135 + i * 100}px`;
-                battery.style.bottom = '0px'; // Ensure batteries are positioned at the bottom
+               battery.style.left = `${batterySpacing * (i / 2 + 1) - batterySpacing / 2}px`;
                 battery.style.bottom = '0px'; // Ensure batteries are positioned at the bottom
                 gameArea.appendChild(battery);
                 batteries.push(battery);
@@ -77,9 +79,30 @@ document.addEventListener('DOMContentLoaded', function () {
             interceptor.y += interceptor.dy;
             interceptor.element.style.top = `${interceptor.y}px`;
             interceptor.element.style.left = `${interceptor.x}px`;
-            if (interceptor.y < 0) {
+           let angle = Math.atan2(interceptor.dy, interceptor.dx) * 180 / Math.PI + 90; // Adjust angle to match flight direction
+           interceptor.element.style.transform = `rotate(${angle}deg)`;
+            if (Math.abs(interceptor.x - interceptor.targetX) < 10 && Math.abs(interceptor.y - interceptor.targetY) < 10) {
+                // Interceptor reached the target position
                 gameArea.removeChild(interceptor.element);
                 interceptors.splice(index, 1);
+                createExplosion(interceptor.x, interceptor.y, 2); // 2x radius explosion
+                checkExplosionCollisions(interceptor.x, interceptor.y, 2);
+            } else if (interceptor.y < 0) {
+                gameArea.removeChild(interceptor.element);
+                interceptors.splice(index, 1);
+            }
+        });
+    }
+
+    function checkExplosionCollisions(explosionX, explosionY, scale) {
+        const explosionRadius = 20 * scale; // Assuming base radius is 20
+        missiles.forEach((missile, missileIndex) => {
+            if (Math.abs(missile.x - explosionX) < explosionRadius && Math.abs(missile.y - explosionY) < explosionRadius) {
+                console.log('Missile destroyed by explosion');
+                gameArea.removeChild(missile.element);
+                missiles.splice(missileIndex, 1);
+                score += 10;
+                updateScoreboard();
             }
         });
     }
@@ -132,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function () {
             let missile = document.createElement('div');
             missile.className = 'missile';
             missile.style.position = 'absolute'; // Ensure missile is positioned absolutely within gameArea
-            missile.style.left = `${Math.random() * 800}px`;
+           missile.style.left = `${Math.random() * gameArea.clientWidth}px`;
             missile.style.top = '0px';
             gameArea.appendChild(missile);
 
@@ -148,11 +171,12 @@ document.addEventListener('DOMContentLoaded', function () {
         scoreboard.textContent = `Score: ${score}`;
     }
 
-    function createExplosion(x, y) {
+    function createExplosion(x, y, scale = 1) {
         let explosion = document.createElement('div');
         explosion.className = 'explosion';
         explosion.style.left = `${x}px`;
         explosion.style.top = `${y}px`;
+        explosion.style.transform = `scale(${scale})`; // Scale the explosion
         gameArea.appendChild(explosion);
         setTimeout(() => {
             gameArea.removeChild(explosion);
@@ -197,8 +221,10 @@ document.addEventListener('DOMContentLoaded', function () {
             element: interceptor,
             x: closestBattery.offsetLeft + closestBattery.offsetWidth / 2,
             y: closestBattery.offsetTop,
-            dx: dx / 100,
-            dy: dy / 100
+            dx: dx / 50, // 2x speed
+            dy: dy / 50,  // 2x speed
+            targetX: x,
+            targetY: y
         });
     });
 

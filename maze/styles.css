@@ -24,11 +24,14 @@ body {
 /* Game area styling */
 #gameArea {
     position: relative;
-    width: 400px; /* Maximum width */
-    height: 400px; /* Increased height */
+    width: 100%; /* Adjusted to fit container */
+    height: 500px; /* Set a specific height */
     margin: 20px 0; /* Add margin for spacing */
     border: 1px solid #ccc; /* Add border for better visibility */
     overflow: hidden; /* Prevent overflow */
+   display: flex;
+   flex-wrap: wrap;
+   align-content: flex-start;
 }
 
 /* Styling for the canvas */
@@ -55,15 +58,12 @@ button {
 /* Maze cell styling */
 .cell {
     position: absolute;
-    width: 20px;
-    height: 20px;
+    box-sizing: border-box; /* Ensure padding and border are included in the element's total width and height */
 }
 
 /* Player styling */
 #player {
     position: absolute;
-    width: 20px;
-    height: 20px;
     background-color: red; /* Red color to make the player easily visible */
     z-index: 10; /* Ensure the player is above other elements */
 }

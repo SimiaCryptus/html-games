@@ -1,77 +1,26 @@
-import {updateGameState} from './game.js';
-import {validateWord} from './game.js'; // Import validateWord function
-import {getWord} from './game.js'; // Import getWord function
-import {revertTilePlacement} from './game.js'; // Import revertTilePlacement function
+import {backupState, revertTilePlacement, updateGameState, updateStatusDisplay, validateWord, getBoardState} from './game.js'; // Import revertTilePlacement function // Import updateStatusDisplay function // Import validateWord function
+
+const BOARD_SIZE = 15;
 
 function logFunctionCall(functionName, ...args) {
     console.log(`Function called: ${functionName} with arguments:`, args);
 }
+
 function logFunctionReturn(functionName, returnValue) {
     console.log(`Function returned: ${functionName} with value:`, returnValue);
- }
+}
 
 let lastPlacedTile = null; // Ensure lastPlacedTile is defined
 document.addEventListener('DOMContentLoaded', () => {
     logFunctionCall('DOMContentLoaded');
+    console.log('Initializing game...');
+    console.log('Current board state:', JSON.stringify(getBoardState()));
     initializeDragAndDrop();
     console.log('Drag and drop initialized.');
     initializeDropZones();
 
 });
 
-function displayValidationResults(results) {
-    logFunctionCall('displayValidationResults', results);
-    const validationResultsElement = document.getElementById('validation-results');
-    validationResultsElement.innerHTML = ''; // Clear previous results
-    results.forEach(result => {
-        const resultElement = document.createElement('div');
-        resultElement.textContent = result;
-        validationResultsElement.appendChild(resultElement);
-    });
-}
-
-document.getElementById('submit-word').addEventListener('click', () => {
-    logFunctionCall('submit-word click event');
-   const boardState = getBoardState();
-   const wordsToValidate = getWordsFromBoard(boardState);
-   if (wordsToValidate.length > 0) {
-        let validationResults = [];
-       wordsToValidate.forEach(wordObj => {
-            logFunctionCall('wordsToValidate.forEach', wordObj);
-            const validationResult = validateWord(wordObj.word, wordObj.row, wordObj.col, wordObj.isHorizontal === true);
-            if (validationResult) {
-                validationResults.push(validationResult);
-            } else {
-                revertTilePlacement(); // Revert the board and player's tiles to the backup state
-            }
-        });
-        displayValidationResults(validationResults);
-    } else {
-        console.error('No tile has been placed to validate.');
-    }
-}); // Validate all placed words dynamically
-
-function getBoardState() {
-    const boardState = [];
-    for (let row = 0; row < BOARD_SIZE; row++) {
-        const rowState = [];
-        for (let col = 0; col < BOARD_SIZE; col++) {
-            const cell = document.querySelector(`.game-cell[data-row="${row}"][data-col="${col}"] .tile`);
-            rowState.push(cell ? cell.textContent : null);
-        }
-        boardState.push(rowState);
-    }
-    return boardState;
-}
-function updateStatusDisplay(message) {
-    logFunctionCall('updateStatusDisplay', message);
-    const statusDisplay = document.getElementById('status-display');
-    if (statusDisplay) {
-        statusDisplay.textContent = message;
-    } else {
-        console.error('Status display element not found.');
-    }
-}
 
 function initializeDropZones() {
     logFunctionCall('initializeDropZones');
@@ -139,6 +88,7 @@ function handleDrop(event) {
         dropZone.appendChild(draggableElement);
         dropZone.classList.remove('over');
         updateGameState(draggableElement, dropZone); // Update game state when a tile is dropped
+        console.log('Updated board state:', JSON.stringify(getBoardState()));
         console.log(`Tile ${draggableElement.textContent} successfully moved to position (${dropZone.getAttribute('data-row')}, ${dropZone.getAttribute('data-col')})`);
         console.log('Tile dropped successfully');
         lastPlacedTile = dropZone; // Update lastPlacedTile to the current drop zone
@@ -184,51 +134,3 @@ function initializeDragAndDrop() {
 }
 
 
-function getWordsFromBoard(boardState) {
-    const words = [];
-    // Check rows for words
-    for (let row = 0; row < BOARD_SIZE; row++) {
-        let word = '';
-        let startCol = 0;
-        for (let col = 0; col < BOARD_SIZE; col++) {
-            if (boardState[row][col]) {
-                if (word === '') startCol = col;
-                word += boardState[row][col];
-                console.log(`Word so far: ${word} at position (${row}, ${col})`);
-            } else {
-                if (word.length > 1) {
-                    words.push({ word, row, col: startCol, isHorizontal: true });
-                    console.log(`Word found: ${word} at position (${row}, ${startCol})`);
-                }
-                word = '';
-            }
-        }
-        if (word.length > 1) {
-            words.push({ word, row, col: startCol, isHorizontal: true });
-            console.log(`Word found: ${word} at position (${row}, ${startCol})`);
-        }
-    }
-    // Check columns for words
-    for (let col = 0; col < BOARD_SIZE; col++) {
-        let word = '';
-        let startRow = 0;
-        for (let row = 0; row < BOARD_SIZE; row++) {
-            if (boardState[row][col]) {
-                if (word === '') startRow = row;
-                word += boardState[row][col];
-                console.log(`Word so far: ${word} at position (${row}, ${col})`);
-            } else {
-                if (word.length > 1) {
-                    words.push({ word, row: startRow, col, isHorizontal: false });
-                    console.log(`Word found: ${word} at position (${startRow}, ${col})`);
-                }
-                word = '';
-            }
-        }
-        if (word.length > 1) {
-            words.push({ word, row: startRow, col, isHorizontal: false });
-            console.log(`Word found: ${word} at position (${startRow}, ${col})`);
-        }
-    }
-    return words;
-}
