@@ -21,7 +21,7 @@ function init() {
     scene.add(cube);
 
     // Start the animation loop
-    animate = animate.bind(null);
+    animate = animate.bind(this);
     requestAnimationFrame(animate);
 }
 

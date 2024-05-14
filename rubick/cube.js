@@ -20,12 +20,12 @@ export function createRubiksCube() {
 
                 // Assign materials to each face of the cube
                 const materials = [
-                    faceMaterials[0], // Right face
-                    faceMaterials[1], // Left face
-                    faceMaterials[2], // Top face
-                    faceMaterials[3], // Bottom face
-                    faceMaterials[4], // Front face
-                    faceMaterials[5]  // Back face
+    faceMaterials[0], // Left face
+    faceMaterials[0], // Right face
+    faceMaterials[1], // Top face
+    faceMaterials[1], // Bottom face
+    faceMaterials[2], // Front face
+    faceMaterials[2]  // Back face
                 ];
 
                 const cube = new THREE.Mesh(geometry, materials);
