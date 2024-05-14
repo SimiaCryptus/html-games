@@ -1,0 +1,16 @@
+/* Ensure the body takes up the full viewport and has no margin */
+body {
+    margin: 0;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #000; /* Black background */
+}
+
+/* Ensure the container takes up the full viewport */
+#container {
+    width: 100%;
+    height: 100%;
+}
