@@ -1,6 +1,7 @@
 // Place the tile on the board if it's the first move or if it's adjacent to existing tiles
 
 const BOARD_SIZE = 15;
+const MIN_WORD_LENGTH = 2; // Define minimum word length for validation
 
 const RACK_SIZE = 7;
 const LETTER_VALUES = {
@@ -36,7 +37,9 @@ const LETTER_VALUES = {
 // Path to the dictionary file
 const DICTIONARY_URL = 'Collins_Scrabble_Words_2019.txt';
 let board = Array.from({length: BOARD_SIZE}, () => Array(BOARD_SIZE).fill(null));
+let boardBackup = []; // Backup of the board state at the start of the turn
 let validWords = new Set();
+let currentPlayerTilesBackup = []; // Backup of the player's tiles at the start of the turn
 let currentPlayerTiles = [];
 let score = 0;
 let tilesRemaining = 100;
@@ -44,6 +47,7 @@ let lastPlacedTile = null; // Declare lastPlacedTile to keep track of the last p
 
 // Helper function to determine if a position is special
 function isSpecialPosition(row, col) {
+    console.log(`Called isSpecialPosition with row: ${row}, col: ${col}`);
     // Define special positions here
     const specialPositions = {
         'double-word': [[1, 1], [2, 2], [3, 3], [4, 4], [10, 10], [11, 11], [12, 12], [13, 13], [1, 13], [2, 12], [3, 11], [4, 10], [10, 4], [11, 3], [12, 2], [13, 1]],
@@ -54,6 +58,7 @@ function isSpecialPosition(row, col) {
 
 // Helper function to get the special type based on position
 function getSpecialType(row, col) {
+    console.log(`Called getSpecialType with row: ${row}, col: ${col}`);
     const specialPositions = {
         'double-word': [[1, 1], [2, 2], [3, 3], [4, 4], [10, 10], [11, 11], [12, 12], [13, 13], [1, 13], [2, 12], [3, 11], [4, 10], [10, 4], [11, 3], [12, 2], [13, 1]],
         'triple-letter': [[5, 1], [5, 2], [5, 3], [5, 4], [9, 10], [9, 11], [9, 12], [9, 13], [1, 5], [2, 5], [3, 5], [4, 5], [10, 9], [11, 9], [12, 9], [13, 9]]
@@ -66,39 +71,45 @@ function getSpecialType(row, col) {
     return '';
 }
 
-function revertTilePlacement(row, col) {
-    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-    const tile = cell.firstChild;
-    if (tile) {
-        document.getElementById('tile-rack').appendChild(tile); // Move the tile back to the rack
-        board[row][col] = null; // Clear the cell on the board
-    }
+export function revertTilePlacement(row, col) {
+    console.log(`Called revertTilePlacement with row: ${row}, col: ${col}`);
+    board = JSON.parse(JSON.stringify(boardBackup)); // Restore the board from the backup
+    renderBoard(); // Re-render the board to reflect the reverted state
+    drawTiles(); // Re-draw the tiles to reflect the reverted state
+    currentPlayerTiles = JSON.parse(JSON.stringify(currentPlayerTilesBackup)); // Restore the player's tiles from the backup
 }
 
 // Extract a word from the board given a starting position and direction
 function getWord(row, col, isHorizontal) {
+    console.log(`Called getWord with row: ${row}, col: ${col}, isHorizontal: ${isHorizontal}`);
+    console.log(`Extracting word starting at (${row}, ${col}) horizontally: ${isHorizontal}`);
     let word = '';
-    let start = col;
 
-    let end = col;
+    let start = isHorizontal ? col : row;
+    let end = isHorizontal ? col : row;
     if (isHorizontal) {
         while (start > 0 && board[row][start - 1] !== null) start--;
         while (end < BOARD_SIZE - 1 && board[row][end + 1] !== null) end++;
+        end++; // Include the last letter
         for (let i = start; i <= end; i++) {
             if (board[row][i]) word += board[row][i].letter;
         }
     } else {
-        while (row > 0 && board[row - 1][col] !== null) row--;
-        while (row < BOARD_SIZE - 1 && board[row + 1][col] !== null) row++;
-        for (let i = row; i <= col; i++) {
-            if (board[i][col]) word += board[i][col].letter;
+        while (start > 0 && board[start - 1][col] !== null) start--;
+        while (end < BOARD_SIZE - 1 && board[end + 1] !== null) end++;
+        end++; // Include the last letter
+        for (let i = start; i <= end; i++) {
+            if (board[i] && board[i][col]) word += board[i][col].letter;
         }
     }
+    console.log(`Extracted word: ${word}`);
+    return { word, row, col: start, isHorizontal };
     return word;
 }
 
 // Load the dictionary of valid words
 function loadDictionary() {
+    console.log('Called loadDictionary');
     fetch(DICTIONARY_URL)
         .then(response => response.text())
         .then(text => {
@@ -112,6 +123,7 @@ function loadDictionary() {
 
 // Initialize the game board
 function initBoard() {
+    console.log('Called initBoard');
     console.log('Initializing game board...');
     renderBoard();
     currentPlayerTiles = []; // Reset player tiles when initializing the board
@@ -124,6 +136,7 @@ function initBoard() {
 
 // Render the game board
 function renderBoard() {
+    console.log('Called renderBoard');
     const boardElement = document.getElementById('game-board');
     boardElement.innerHTML = ''; // Clear previous board
 
@@ -133,6 +146,10 @@ function renderBoard() {
         row.forEach((cell, cellIndex) => {
             const cellElement = document.createElement('div');
             cellElement.className = 'game-cell'; // Correct class name for consistency
+            // Indicate the center of the board
+            if (rowIndex === Math.floor(BOARD_SIZE / 2) && cellIndex === Math.floor(BOARD_SIZE / 2)) {
+                cellElement.classList.add('center-cell');
+            }
             // Apply special styles based on position
             if (isSpecialPosition(rowIndex, cellIndex) && getSpecialType(rowIndex, cellIndex) !== '') {
                 const specialType = getSpecialType(rowIndex, cellIndex);
@@ -162,6 +179,7 @@ function renderBoard() {
 
 // Draw tiles for the player's rack
 function drawTiles() {
+    console.log('Called drawTiles');
     const tileRack = document.getElementById('tile-rack');
     tileRack.innerHTML = ''; // Clear previous tiles
 
@@ -188,6 +206,7 @@ function drawTiles() {
 
 // Create a tile element
 function createTileElement(letter) {
+    console.log(`Called createTileElement with letter: ${letter}`);
     const tileElement = document.createElement('div');
     tileElement.textContent = letter;
     tileElement.className = 'tile';
@@ -198,6 +217,7 @@ function createTileElement(letter) {
 
 // Get a random letter from the pool of available tiles
 function getRandomLetter() {
+    console.log('Called getRandomLetter');
     const letters = Object.keys(LETTER_VALUES);
     const randomIndex = Math.floor(Math.random() * letters.length);
     return letters[randomIndex];
@@ -205,11 +225,13 @@ function getRandomLetter() {
 
 // Update game state after placing a tile
 export function updateGameState(tile, target) {
+    console.log('Called updateGameState');
     console.log('Updating game state...');
     const row = target.getAttribute('data-row');
     const col = target.getAttribute('data-col');
     // Ensure the first move is on the center tile for a standard 15x15 Scrabble board
-    if (isFirstMove() && (row === 7 && col === 7)) {
+    if (!tile || !target) return; // Ensure tile and target are valid
+    if (isFirstMove() && !(parseInt(row, 10) === 7 && parseInt(col, 10) === 7)) {
         console.error('The first tile must be placed at the center of the board.');
         console.log('Reverting tile placement due to incorrect starting position.');
         revertTilePlacement(row, col);
@@ -218,20 +240,33 @@ export function updateGameState(tile, target) {
     board[row][col] = {letter: tile.textContent, value: LETTER_VALUES[tile.textContent.toUpperCase()]};
     // Remove tile from player's rack
     const tileIndex = currentPlayerTiles.findIndex(t => t.id === tile.id); // Use id to find index
+    if (tileIndex > -1) currentPlayerTiles.splice(tileIndex, 1); // Ensure valid index
     if (tileIndex > -1) {
         currentPlayerTiles.splice(tileIndex, 1);
     }
-    updateScore();
     // Check if new words formed are valid
-    validateWord(row, col, true); // Validate horizontally and vertically
-    validateWord(row, col);
     lastPlacedTile = target; // Keep track of the last placed tile
+    backupBoardState(); // Backup the board state at the start of the turn
+    backupPlayerTiles(); // Backup the player's tiles at the start of the turn
 }
 
+// Backup the current board state
+function backupBoardState() {
+    console.log('Called backupBoardState');
+    boardBackup = JSON.parse(JSON.stringify(board));
+}
+
+// Backup the current player's tiles
+function backupPlayerTiles() {
+    console.log('Called backupPlayerTiles');
+    currentPlayerTilesBackup = JSON.parse(JSON.stringify(currentPlayerTiles));
+}
 // Check if it's the first move
 function isFirstMove() {
+    console.log('Called isFirstMove');
     // Ensure board is initialized before checking if it's the first move
     // Ensure board is always initialized at the start of the game
+    backupPlayerTiles(); // Backup the player's tiles at the start of the game
     if (typeof board === 'undefined' || board === null) {
         console.error('Board not initialized or incorrectly defined.');
         initBoard(); // Initialize the board if it's not already done
@@ -242,13 +277,15 @@ function isFirstMove() {
 
 // Check if the tile placement is adjacent to existing tiles
 function isAdjacentToExistingTiles(row, col) {
+    console.log(`Called isAdjacentToExistingTiles with row: ${row}, col: ${col}`);
     console.log(`Checking adjacency for tile at position (${row}, ${col})`);
-   const adjacentPositions = [
-       [row - 1, col], // Up
-       [row + 1, col], // Down
-       [row, col - 1], // Left
-       [row, col + 1]  // Right
-   ].filter(([r, c]) => r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE); // Ensure positions are within board limits
+    const adjacentPositions = [
+        [row - 1, col], // Up
+        [row + 1, col], // Down
+        [row, col - 1], // Left
+        [row, col - 1], // Left
+        [row, col + 1]  // Right
+    ].filter(([r, c]) => r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE); // Ensure positions are within board limits
     let isAdjacent = false;
     // Skip adjacency check if it's the first move
     if (isFirstMove()) {
@@ -256,7 +293,7 @@ function isAdjacentToExistingTiles(row, col) {
         return true;
     }
     adjacentPositions.forEach(([r, c]) => {
-       const result = board[r][c] !== null;
+        const result = board[r][c] !== null;
         console.log(`Checking position (${r}, ${c}): ${result ? 'Adjacent' : 'Not adjacent'}`);
         if (result) isAdjacent = true;
     });
@@ -269,29 +306,29 @@ function isAdjacentToExistingTiles(row, col) {
 }
 
 // Validate words formed on the board
-function validateWord(row, col, isHorizontal = true) { // Default to horizontal if not specified
+export function validateWord(word, row, col, isHorizontal) { // Adjust parameters to accept word string
+    console.log(`Called validateWord with word: ${word}, row: ${row}, col: ${col}, isHorizontal: ${isHorizontal}`);
     console.log('Validating word...');
-    const word = getWord(row, col, isHorizontal); // This function needs to correctly extract the word considering both directions
     console.log(`Word to validate: ${word} at position (${row}, ${col}) horizontally: ${isHorizontal}`);
-    if (word && word.length > 1) {
-        console.log(`Validating word of length ${word.length}: ${word}`);
+    if (word && word.length >= MIN_WORD_LENGTH) {
+        console.log(`Validating word of length ${word.length}: ${word.toUpperCase()}`);
         if (!validWords.has(word.toUpperCase())) {
             console.error(`The word ${word} is not valid.`);
             console.log(`Attempting to revert placement of word: ${word}`);
             revertTilePlacement(row, col);
             console.log(`Reverted placement of invalid word "${word}".`);
-            return; // Stop further processing if word is invalid
+            return `The word ${word} is not valid.`; // Return validation result
         }
+        updateScore(word); // Update the score based on the valid word
+        return `The word ${word} is valid!`;
     } else {
-        console.log(`No valid word formed or word too short to validate: ${word}`);
-        console.log(`Skipping validation for "${word}" due to insufficient length or missing tiles.`);
-        return; // Stop further processing if word is too short
+        return null; // Return null if the word is invalid
     }
-    // Proceed with score calculation if word is valid
 }
 
 // Calculate and update scores
 function updateScore(word = '') {
+    console.log(`Called updateScore with word: ${word}`);
     // Placeholder for score calculation
     console.log('Updating score...');
     if (word) {
@@ -307,6 +344,7 @@ function updateScore(word = '') {
 
 // Reinitialize drag and drop functionality for game cells
 function reinitializeDragAndDrop() {
+    console.log('Called reinitializeDragAndDrop');
     const gameCells = document.querySelectorAll('.game-cell');
     gameCells.forEach(cell => {
         cell.addEventListener('dragover', (event) => {
@@ -337,20 +375,25 @@ function reinitializeDragAndDrop() {
         });
     });
 }
+
 // Event listeners for game controls
 document.getElementById('submit-word').addEventListener('click', () => {
+    console.log('Submit word button clicked');
     if (lastPlacedTile && lastPlacedTile.firstChild) {
         const row = parseInt(lastPlacedTile.getAttribute('data-row'), 10);
         const col = parseInt(lastPlacedTile.getAttribute('data-col'), 10);
-        validateWord(row, col, true); // Validate horizontally
-        validateWord(row, col, false); // Validate vertically
+        const horizontalWord = getWord(row, col, true);
+        const verticalWord = getWord(row, col, false);
+        validateWord(horizontalWord.word, horizontalWord.row, horizontalWord.col, horizontalWord.isHorizontal); // Validate horizontally
+        validateWord(verticalWord.word, verticalWord.row, verticalWord.col, verticalWord.isHorizontal); // Validate vertically
     } else {
         console.error('No tile has been placed to validate.');
     }
-}); // Validate the last placed word dynamically
+}); // Validate the last placed word dynamically and revert if invalid
 document.getElementById('reset-game').addEventListener('click', initBoard); // Reset game functionality
 
 // Initialize the game and draw tiles on load
 window.onload = () => {
+    console.log('Window onload event triggered');
     initBoard(); // drawTiles is now called inside initBoard
 };

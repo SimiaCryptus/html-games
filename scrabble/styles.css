@@ -62,22 +62,30 @@ body {
     cursor: pointer;
 }
 
- /* Special board positions */
- .double-word {
+/* Special board positions */
+.double-word {
     background-color: #f4cccc;
     color: #d9534f; /* Change text color to red */
     font-weight: bold; /* Make the font bold */
     box-shadow: 0 0 8px #d9534f; /* Add shadow for emphasis */
     text-transform: uppercase; /* Uppercase letters for more impact */
- }
+}
 
- .triple-letter {
+.triple-letter {
     background-color: #ccf2ff;
     color: #5bc0de; /* Change text color to blue */
     font-weight: bold; /* Make the font bold */
     box-shadow: 0 0 8px #5bc0de; /* Add shadow for emphasis */
     text-transform: uppercase; /* Uppercase letters for more impact */
- }
+}
+
+/* Center cell indicator */
+.center-cell {
+    background-color: #ffffcc;  /* Light yellow background */
+    box-shadow: 0 0 10px #ffcc00;  /* Gold shadow for emphasis */
+    width: 100%;  /* Ensure uniform size */
+    height: 100%;  /* Ensure uniform size */
+}
 /* Button styles */
 button {
     padding: 10px 20px;
