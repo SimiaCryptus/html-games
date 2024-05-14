@@ -1,10 +1,24 @@
 // Importing the maze data from mazeData.js
 import mazeData from './mazeData.js';
 
+// Helper function to find an open position in the maze
+function findOpenPosition(grid, startX, startY) {
+    for (let y = startY; y < grid.length; y++) {
+        for (let x = startX; x < grid[y].length; x++) {
+            if (grid[y][x] === 0) {
+                return { x: x, y: y };
+            }
+        }
+    }
+    return { x: startX, y: startY }; // Fallback to the original position if no open position is found
+}
+// Variables to store maze size
+let mazeWidth = 10;
+let mazeHeight = 10;
 // Select the first level as default
-const { grid: maze, start, end } = mazeData.levels[0];
-const startPosition = { row: start.y, col: start.x };
-const endPosition = { row: end.y, col: end.x };
+let { grid: maze, start, end } = mazeData.levels[0];
+let startPosition = { row: start.y, col: start.x };
+let endPosition = { row: end.y, col: end.x };
 // Variables to track the player's position and game status
 let playerPosition = {...startPosition};
 let gameRunning = false;
@@ -15,6 +29,7 @@ let timeElapsed = 0;
 function initializeGame() {
     document.getElementById('resetButton').addEventListener('click', restartGame);
     document.getElementById('startButton').addEventListener('click', startGame);
+    document.getElementById('setSizeButton').addEventListener('click', setMazeSize);
     document.addEventListener('keydown', handleKeyPress);
     document.addEventListener('touchstart', handleTouchStart, { passive: false });
     document.addEventListener('touchmove', handleTouchMove, { passive: false });
@@ -22,6 +37,19 @@ function initializeGame() {
     placePlayer();
 }
 
+function setMazeSize() {
+    mazeWidth = parseInt(document.getElementById('mazeWidth').value);
+    mazeHeight = parseInt(document.getElementById('mazeHeight').value);
+    const newGrid = mazeData.generateMaze(mazeHeight, mazeWidth);
+    maze = newGrid; // Directly update the local 'maze' variable
+    // Ensure start and end are not placed inside walls
+    start = findOpenPosition(newGrid, 1, 1);
+    end = findOpenPosition(newGrid, mazeWidth - 2, mazeHeight - 2);
+    startPosition = { row: mazeData.levels[0].start.y, col: mazeData.levels[0].start.x };
+    endPosition = { row: mazeData.levels[0].end.y, col: mazeData.levels[0].end.x };
+    drawMaze();
+    placePlayer();
+}
 let touchStartX = 0;
 let touchStartY = 0;
 
