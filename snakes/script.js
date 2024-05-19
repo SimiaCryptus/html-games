@@ -3,11 +3,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const scoreElement = document.getElementById('score');
     const gameOverMessage = document.getElementById('gameOverMessage');
 
-    const gameWidth = Math.min(window.innerWidth, window.innerHeight);
-    const gameHeight = Math.min(window.innerWidth, window.innerHeight);
+    let gameWidth = window.innerWidth;
+    let gameHeight = window.innerHeight;
     const snakeSize = 20;
-    const gridWidth = Math.floor(window.innerWidth / snakeSize) * snakeSize; // Ensure the grid width is a multiple of snakeSize
-    const gridHeight = Math.floor(window.innerHeight / snakeSize) * snakeSize; // Ensure the grid height is a multiple of snakeSize
+    let gridWidth = Math.floor(gameWidth / snakeSize) * snakeSize; // Ensure the grid width is a multiple of snakeSize
+    let gridHeight = Math.floor(gameHeight / snakeSize) * snakeSize; // Ensure the grid height is a multiple of snakeSize
     let score = 0;
     let gameRunning = false;
 
@@ -18,10 +18,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Adjust canvas size on window resize
     window.addEventListener('resize', function() {
-       const newWidth = window.innerWidth;
-       const newHeight = window.innerHeight;
-       gameArea.width = newWidth;
-       gameArea.height = newHeight;
+       gameWidth = window.innerWidth;
+       gameHeight = window.innerHeight;
+       gridWidth = Math.floor(gameWidth / snakeSize) * snakeSize;
+       gridHeight = Math.floor(gameHeight / snakeSize) * snakeSize;
+       gameArea.width = gridWidth;
+       gameArea.height = gridHeight;
         console.log(`Resized: width=${gameArea.width}, height=${gameArea.height}`);
     });
     function main() {
@@ -166,8 +168,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 // Initialize the game
-    gameArea.width = gridWidth;
-    gameArea.height = gridHeight;
+    gameArea.width = gameWidth;
+    gameArea.height = gameHeight;
 
     main();
     let restart = document.getElementById('restartButton');
