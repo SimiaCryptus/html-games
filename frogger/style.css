@@ -5,7 +5,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    height: 100vh;
     margin: 0;
     overflow: hidden;
 }
@@ -17,8 +17,6 @@ canvas {
 
 /* Main game container */
 #gameContainer {
-    width: 600px;
-    height: 400px;
     width: 100vw;
     height: 100vh;
     background-color: #000;

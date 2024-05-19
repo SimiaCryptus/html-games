@@ -38,8 +38,9 @@ function initializeGame() {
     document.getElementById('startButton').addEventListener('click', startGame);
     document.getElementById('setSizeButton').addEventListener('click', setMazeSize);
     document.addEventListener('keydown', handleKeyPress);
-    document.addEventListener('touchstart', handleTouchStart, {passive: false});
-    document.addEventListener('touchmove', handleTouchMove, {passive: false});
+    const touchOverlay = document.getElementById('touchOverlay');
+    touchOverlay.addEventListener('touchstart', handleTouchStart, {passive: false});
+    touchOverlay.addEventListener('touchmove', handleTouchMove, {passive: false});
     updateMazeHeight(); // Update maze height based on aspect ratio
     updateCellSize(); // Update cell size based on maze dimensions
     console.log(`Initial maze state:`);
@@ -51,6 +52,7 @@ function initializeGame() {
 
 function updateMazeHeight() {
     mazeHeight = calculateMazeHeight(mazeWidth);
+    if (mazeHeight % 2 === 0) mazeHeight--; // Ensure height is odd
     document.getElementById('mazeHeight').value = mazeHeight;
     console.log(`Maze height updated to ${mazeHeight} based on aspect ratio.`);
 }
@@ -58,7 +60,9 @@ function updateMazeHeight() {
 function calculateMazeHeight(width) {
     const gameArea = document.getElementById('gameArea');
     const aspectRatio = gameArea.clientWidth / gameArea.clientHeight;
-    return Math.round(width / aspectRatio);
+    let height = Math.floor(width / aspectRatio) - 1;
+    if (height % 2 === 0) height--; // Ensure height is odd
+    return height;
 }
 
 function updateCellSize() {
@@ -94,44 +98,52 @@ let touchStartX = 0;
 let touchStartY = 0;
 
 function handleTouchStart(event) {
-    touchStartX = event.touches[0].clientX;
-    touchStartY = event.touches[0].clientY;
+    const touch = event.touches[0];
+    const gameArea = document.getElementById('gameArea');
+    const rect = gameArea.getBoundingClientRect();
+    touchStartX = touch.clientX - rect.left;
+    touchStartY = touch.clientY - rect.top;
     event.preventDefault();
 }
 
 function handleTouchMove(event) {
-    if (!touchStartX || !touchStartY) {
+    if (touchStartX === null || touchStartY === null) {
         return;
     }
 
-    let touchMoveX = event.touches[0].clientX;
-    let touchMoveY = event.touches[0].clientY;
-    let diffX = touchStartX - touchMoveX;
-    let diffY = touchStartY - touchMoveY;
+    const touch = event.touches[0];
+    const gameArea = document.getElementById('gameArea');
+    const rect = gameArea.getBoundingClientRect();
+    const touchMoveX = touch.clientX - rect.left;
+    const touchMoveY = touch.clientY - rect.top;
+    const diffX = touchStartX - touchMoveX;
+    const diffY = touchStartY - touchMoveY;
 
-    if (Math.abs(diffX) > Math.abs(diffY)) {
-        // Horizontal movement
-        if (diffX > 0) {
-            // Left swipe
-            handleKeyPress({key: 'ArrowLeft'});
+    if (Math.abs(diffX) > cellSize / 2 || Math.abs(diffY) > cellSize / 2) {
+        if (Math.abs(diffX) > Math.abs(diffY)) {
+            // Horizontal movement
+            if (diffX > 0) {
+                // Left swipe
+                handleKeyPress({key: 'ArrowLeft'});
+            } else {
+                // Right swipe
+                handleKeyPress({key: 'ArrowRight'});
+            }
         } else {
-            // Right swipe
-            handleKeyPress({key: 'ArrowRight'});
+            // Vertical movement
+            if (diffY > 0) {
+                // Up swipe
+                handleKeyPress({key: 'ArrowUp'});
+            } else {
+                // Down swipe
+                handleKeyPress({key: 'ArrowDown'});
+            }
         }
-    } else {
-        // Vertical movement
-        if (diffY > 0) {
-            // Up swipe
-            handleKeyPress({key: 'ArrowUp'});
-        } else {
-            // Down swipe
-            handleKeyPress({key: 'ArrowDown'});
-        }
+        // Reset start positions to allow continuous dragging
+        touchStartX = touchMoveX;
+        touchStartY = touchMoveY;
     }
 
-    // Reset values
-    touchStartX = 0;
-    touchStartY = 0;
     event.preventDefault();
 }
 
@@ -198,13 +210,13 @@ function handleKeyPress(event) {
         updatePlayerPosition(newPosition);
         checkWinCondition();
     } else {
-        console.log(`Invalid move to position (${newPosition.row}, ${newPosition.col}).`);
+        //console.log(`Invalid move to position (${newPosition.row}, ${newPosition.col}).`);
     }
 }
 
 // Function to check if the move is valid
 function isValidMove(position) {
-    console.log(`Checking if move to position (${position.row}, ${position.col}) is valid.`);
+    //console.log(`Checking if move to position (${position.row}, ${position.col}) is valid.`);
     return maze[position.row] && maze[position.row][position.col] === 0;
 }
 
@@ -215,7 +227,6 @@ function updatePlayerPosition(position) {
     playerElement.style.top = `${position.row * cellSize}px`;
     playerElement.style.left = `${position.col * cellSize}px`;
     console.log(`Player position updated to (${position.row}, ${position.col}). Current player position:`);
-    console.table(playerPosition);
 }
 
 // Function to check win condition
@@ -226,7 +237,7 @@ function checkWinCondition() {
         console.log(`Player has reached the end position. Game won.`);
         alert('Congratulations! You have completed the maze.');
     } else {
-        console.log(`Player has not yet reached the end position.`);
+        //console.log(`Player has not yet reached the end position.`);
     }
 }
 

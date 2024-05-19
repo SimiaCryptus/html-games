@@ -3,7 +3,7 @@
 function generateMaze(rows, cols) {
     console.log(`Generating maze with ${rows} rows and ${cols} columns.`);
     // Create a grid filled with walls
-    const grid = Array.from({ length: rows + 2 }, () => Array(cols + 2).fill(1));
+    const grid = Array.from({ length: rows }, () => Array(cols).fill(1));
 
     // Helper function to mark the cell and its neighbor as path
     function carve(x, y) {
@@ -15,11 +15,10 @@ function generateMaze(rows, cols) {
         shuffle(directions); // Randomize directions
 
         directions.forEach(([dx, dy]) => {
-            const nx = x + 2 * dx, ny = y + 2 * dy;
-            if (nx > 0 && nx < rows && ny > 0 && ny < cols && grid[nx][ny] === 1) {
+            const nx = x + dx * 2, ny = y + dy * 2;
+            if (nx > 0 && nx < rows - 1 && ny > 0 && ny < cols - 1 && grid[nx][ny] === 1) {
                 grid[x + dx][y + dy] = 0;
                 carve(nx, ny);
-            } else {
             }
         });
     }
