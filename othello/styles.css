@@ -62,6 +62,16 @@
     margin-top: 20px;
     font-size: 16px;
 }
+ #scoreBoard {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 320px;
+    margin-top: 10px;
+ }
+    margin-top: 20px;
+    font-size: 16px;
+}
 
 /* Button styling */
 button {

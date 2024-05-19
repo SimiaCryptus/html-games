@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameBoard = document.getElementById('board'); // Corrected to match HTML
     let board = [];
     let currentPlayer = 'Black';
+   let blackScore = 2;
+   let whiteScore = 2;
 
    function indicatePossibleMoves() {
       console.log('Indicating possible moves for', currentPlayer);
@@ -59,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         setInitialPieces();
         updateBoard();
+       updateScores();
        indicatePossibleMoves();
         updateCurrentPlayerDisplay();
     }
@@ -128,19 +131,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 board[row][col] = color;
                 cellsToFlip.forEach(([fx, fy]) => {
                     board[fx][fy] = color;
+                   updateScores();
                    console.log(`Flipping disc at ${fx}, ${fy}`);
                 });
             }
+
         });
 
         if (!valid) console.log(`Placement not valid at ${row}, ${col}`);
         return valid;
     }
 
+function updateScores() {
+    blackScore = 0;
+    whiteScore = 0;
+    for (let i = 0; i < boardSize; i++) {
+        for (let j = 0; j < boardSize; j++) {
+            if (board[i][j] === 'black') blackScore++;
+            if (board[i][j] === 'white') whiteScore++;
+        }
+    }
+    document.getElementById('blackScore').textContent = blackScore;
+    document.getElementById('whiteScore').textContent = whiteScore;
+}
     function checkGameOver() {
         // Simple game over check: no empty cells
         if (!board.some(row => row.includes(''))) {
-            alert('Game over!');
         }
     }
 
