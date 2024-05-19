@@ -9,6 +9,14 @@ document.addEventListener('DOMContentLoaded', function () {
     let gameInterval;
     let score = 0;
 
+    // Adjust game area height to account for mobile navigation bars
+    function adjustGameAreaHeight() {
+        gameArea.style.height = `${window.innerHeight}px`;
+    }
+
+    window.addEventListener('resize', adjustGameAreaHeight);
+    adjustGameAreaHeight();
+
     function startGame() {
         //console.log('Starting game...');
         setupGame();
