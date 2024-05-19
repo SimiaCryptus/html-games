@@ -27,8 +27,8 @@ body, html {
     background-color: #000; /* Black background for the canvas */
     display: block; /* Block display to handle margins correctly */
     margin: 0 auto; /* Center the canvas horizontally */
-    width: 100%;
-    height: calc(100vh - 100px);
+    width: 90vw;
+    height: 90vh;
     border: 1px solid #fff; /* White border for visibility */
 }
 

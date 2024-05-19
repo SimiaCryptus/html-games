@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let ctx = canvas.getContext('2d');
 
 // Game variables
-    let x = canvas.width / 2;
+    let x;
     let y;
     let dx = 0.5;
     let dy = -0.5;
@@ -18,23 +18,42 @@ document.addEventListener('DOMContentLoaded', function () {
     let leftPressed = false;
     let score = 0;
     let bricks = [];
-    let brickRowCount = 5;
+    let brickRowCount = 10;
     let brickColumnCount = 10;
     let brickPadding = 10;
-    let brickOffsetTop = 30;
+    let brickOffsetTop = 10;
     let brickOffsetLeft = 10;
-    let brickWidth = (((canvas.width - (2 * brickOffsetLeft)) / 1) / (brickColumnCount));
-    let brickHeight = (((canvas.height - (2 * brickOffsetTop)) / 4) / (brickRowCount));
+    let gameRunning = false;
+    let gameOver = false;
+
+    function calculateSizes() {
+        ballRadius = canvas.width * 0.01;
+        paddleHeight = canvas.height * 0.02;
+        paddleWidth = canvas.width * 0.15;
+        paddleX = (canvas.width - paddleWidth) / 2;
+        let brickAreaHeight = canvas.height * 0.5; // 50% of the canvas height
+        brickWidth = (canvas.width - (2 * brickOffsetLeft) - (brickPadding * (brickColumnCount - 1))) / brickColumnCount;
+        brickHeight = (brickAreaHeight - (2 * brickOffsetTop) - (brickPadding * (brickRowCount - 1))) / brickRowCount;
+        x = canvas.width / 2;
+        y = canvas.height - 30;
+        dx = canvas.width * 0.005;
+        dy = -canvas.height * 0.005;
+    }
+
+    let brickWidth;
+    let brickHeight;
 
 // Setup bricks
     function setupBricks() {
-        for (let c = 0; c < brickColumnCount; c++) { // Changed from brickColumnCount / 2 to brickColumnCount
+        for (let c = 0; c < brickColumnCount; c++) {
             bricks[c] = [];
             for (let r = 0; r < brickRowCount; r++) {
                 bricks[c][r] = {x: 0, y: 0, status: 1};
             }
         }
+        let brickAreaHeight = canvas.height * 0.5; // 50% of the canvas height
         brickWidth = (canvas.width - (2 * brickOffsetLeft) - (brickPadding * (brickColumnCount - 1))) / brickColumnCount;
+        brickHeight = (brickAreaHeight - (2 * brickOffsetTop) - (brickPadding * (brickRowCount - 1))) / brickRowCount;
     }
 
 // Draw game elements
@@ -55,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function drawBricks() {
-        for (let c = 0; c < brickColumnCount; c++) { // Changed from brickColumnCount / 2 to brickColumnCount
+        for (let c = 0; c < brickColumnCount; c++) {
             for (let r = 0; r < brickRowCount; r++) {
                 if (bricks[c][r].status == 1) {
                     let brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
@@ -84,34 +103,34 @@ document.addEventListener('DOMContentLoaded', function () {
             rightPressed = true;
         } else if (e.key == "Left" || e.key == "ArrowLeft") {
             leftPressed = true;
-    } else if (e.key == " ") {
-        if (score == 0) {
-            resetBall();
-            setupBricks();
-            draw();
-        } else {
-            if (paused) {
-                paused = false;
+        } else if (e.key == " ") {
+            if (score == 0) {
+                resetBall();
+                setupBricks();
                 draw();
             } else {
-                paused = true;
+                if (paused) {
+                    paused = false;
+                    draw();
+                } else {
+                    paused = true;
+                }
             }
         }
+    }
+
+    function touchStartHandler(e) {
+        if (e.touches[0].clientX > canvas.width / 2) {
+            rightPressed = true;
+        } else {
+            leftPressed = true;
         }
     }
 
-function touchStartHandler(e) {
-    if (e.touches[0].clientX > canvas.width / 2) {
-        rightPressed = true;
-    } else {
-        leftPressed = true;
+    function touchEndHandler(e) {
+        rightPressed = false;
+        leftPressed = false;
     }
-}
-
-function touchEndHandler(e) {
-    rightPressed = false;
-    leftPressed = false;
-}
 
     function keyUpHandler(e) {
         if (e.key == "Right" || e.key == "ArrowRight") {
@@ -121,16 +140,20 @@ function touchEndHandler(e) {
         }
     }
 
-let paused = false;
+    let paused = false;
     document.addEventListener("keydown", keyDownHandler, false);
     document.addEventListener("keyup", keyUpHandler, false);
-canvas.addEventListener("touchstart", touchStartHandler, false);
-canvas.addEventListener("touchend", touchEndHandler, false);
+    canvas.addEventListener("touchstart", touchStartHandler, false);
+    canvas.addEventListener("touchend", touchEndHandler, false);
 
     document.getElementById('startButton').addEventListener('click', function () {
+        if (!gameRunning) {
         resetBall();
         setupBricks();
         draw();
+            gameRunning = true;
+            gameOver = false;
+        }
     });
 
 // Collision detection
@@ -177,6 +200,7 @@ canvas.addEventListener("touchend", touchEndHandler, false);
                 dy = -dy;
             } else {
                 alert("GAME OVER");
+                gameOver = true;
                 resetBall();
                 document.location.reload();
             }
@@ -190,8 +214,19 @@ canvas.addEventListener("touchend", touchEndHandler, false);
 
         x += dx;
         y += dy;
-        if (score < brickRowCount * brickColumnCount) {
+        if (score < brickRowCount * brickColumnCount && !gameOver) {
             requestAnimationFrame(draw);
         }
     }
+
+    window.addEventListener('resize', function () {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        calculateSizes();
+        draw();
+    });
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    calculateSizes();
 });
