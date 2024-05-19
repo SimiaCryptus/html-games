@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Tetris Game</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="image/png" href="thumbnail.png">
@@ -15,6 +16,14 @@
             <button id="startButton">Start Game</button>
         </div>
     </div>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('startButton').addEventListener('click', startGame);
+            canvas.addEventListener('touchstart', handleTouchStart);
+            canvas.addEventListener('touchmove', handleTouchMove);
+            canvas.addEventListener('touchend', handleTouchEnd);
+        });
+    </script>
     <script src="game.js"></script>
 </body>
 </html>

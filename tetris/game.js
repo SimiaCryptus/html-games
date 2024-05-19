@@ -2,14 +2,36 @@ const canvas = document.getElementById('game-board');
 const context = canvas.getContext('2d');
 const ROWS = 20;
 const COLS = 10;
-const BLOCK_SIZE = 30;
+let BLOCK_SIZE = 30;
 const LINES_PER_LEVEL = 10;
 
-        console.log('Rotation complete. Current shape:', this.shape);
+let board = [];
+let currentPiece;
+let gameRunning = false;
+let score = 0;
+let lines = 0;
+let level = 1;
+let dropStart = Date.now();
+let gameOver = false;
 
+console.log('Rotation complete. Current shape:', this.shape);
 
-canvas.width = COLS * BLOCK_SIZE;
-canvas.height = ROWS * BLOCK_SIZE;
+function resizeCanvas() {
+    const blockSize = Math.min(
+        Math.floor(window.innerHeight / ROWS),
+        Math.floor(window.innerWidth / COLS)
+    );
+    const canvasWidth = COLS * blockSize;
+    const canvasHeight = ROWS * blockSize;
+    canvas.width = Math.min(canvasWidth, window.innerWidth);
+    canvas.height = Math.min(canvasHeight, window.innerHeight);
+    BLOCK_SIZE = blockSize;
+    drawBoard();
+}
+
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', resizeCanvas); // Handle orientation changes
+resizeCanvas();
 
 class Piece {
     constructor(type) {
@@ -140,15 +162,6 @@ class Piece {
     }
 }
 
-let board = [];
-let currentPiece;
-let gameRunning = false;
-let score = 0;
-let lines = 0;
-let level = 1;
-let dropStart = Date.now();
-let gameOver = false;
-
 function resetBoard() {
     board = Array.from({length: ROWS}, () => Array(COLS).fill(0));
 }
@@ -164,7 +177,7 @@ function drawBoard() {
     context.clearRect(0, 0, canvas.width, canvas.height);
     for (let y = 0; y < ROWS; y++) {
         for (let x = 0; x < COLS; x++) {
-            if (board[y][x] !== 0) {
+            if (board[y] && board[y][x] !== 0) {
                 drawBlock(x, y, board[y][x]);
             }
         }
@@ -287,7 +300,7 @@ function handleTouchStart(event) {
 let lastSwipeTime = 0; // Initialize lastSwipeTime to control the frequency of swipe down
 function handleTouchMove(event) {
     event.preventDefault();
-    const touch = event.touches[0];
+    const touch = event.touches[event.touches.length - 1];
     const deltaX = touch.clientX - startX;
     const deltaY = touch.clientY - startY;
     if (Math.abs(deltaX) > Math.abs(deltaY)) { // Check if horizontal movement is dominant
@@ -312,7 +325,10 @@ function handleTouchMove(event) {
    } else if (Math.abs(deltaY) > 20) { // Increased threshold for vertical swipe for better control
        if (deltaY > 30 && lastSwipeTime + 200 < Date.now()) { // Adding a delay to control the speed of swipe down
             // Swipe down to move piece down
-            currentPiece.moveDown();
+            const steps = Math.floor(deltaY / BLOCK_SIZE);
+            for (let i = 0; i < steps; i++) {
+                currentPiece.moveDown();
+            }
            lastSwipeTime = Date.now(); // Update the last swipe time
         } else if (deltaY < -50) { // Increased threshold for swipe up to avoid accidental rotations
             // Swipe up to rotate counter-clockwise
