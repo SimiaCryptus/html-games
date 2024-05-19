@@ -23,6 +23,7 @@ function setupTouchControls() {
                 y: player.y - projectileHeight,
                 width: projectileWidth,
                 height: projectileHeight,
+                firedBy: 'player', // Identify who fired the projectile
                 direction: 'up'
             });
         }
@@ -180,7 +181,9 @@ function setupPlayerControls() {
                 x: player.x + player.width / 2 - projectileWidth / 2,
                 y: player.y - projectileHeight,
                 width: projectileWidth,
-                height: projectileHeight
+                 height: projectileHeight,
+                firedBy: 'player', // Identify who fired the projectile
+                 direction: 'up'
             });
         }
     });
@@ -239,6 +242,7 @@ function moveEnemies() {
                 y: enemy.y + enemy.height,
                 width: projectileWidth,
                 height: projectileHeight,
+                firedBy: 'enemy', // Identify who fired the projectile
                 direction: 'down' // Correcting the direction of the projectile
             });
             projectiles.push({
@@ -246,6 +250,7 @@ function moveEnemies() {
                 y: enemy.y + enemy.height,
                 width: projectileWidth,
                 height: projectileHeight,
+                firedBy: 'enemy', // Identify who fired the projectile
                 direction: 'down' // Correcting the direction of the projectile
             });
             console.log(`Enemy at (${enemy.x}, ${enemy.y}) shot a projectile`);
@@ -293,26 +298,16 @@ function checkCollisions() {
         }
         // Check collisions between projectiles and enemies
         projectiles.forEach((projectile, pIndex) => {
-            if (checkCollision(projectile, enemy)) {
+            if (projectile.firedBy === 'player' && checkCollision(projectile, enemy)) {
                 // Increase score
                 score += 10;
                 // Remove enemy and projectile
                 projectiles.splice(pIndex, 1);
-            }
-        });
-    });
-    enemies.forEach((enemy, eIndex) => {
-        if (checkCollision(player, enemy)) {
-            gameOver();
-        }
-        // Check collisions between projectiles and enemies
-        projectiles.forEach((projectile, pIndex) => {
-            if (checkCollision(projectile, enemy)) {
-                // Increase score
-                score += 10;
-                // Remove enemy and projectile
                 enemies.splice(eIndex, 1);
-                projectiles.splice(pIndex, 1);
+            }
+            // Check if enemy projectile hits the player
+            if (projectile.firedBy === 'enemy' && checkCollision(projectile, player)) {
+                gameOver();
             }
         });
     });
