@@ -2,14 +2,14 @@ const STORAGE_KEY = 'chessGameState';
 
 // Define the initial state of the chessboard
 const initialState = [
-    ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
-    ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
-    ['', '', '', '', '', '', '', ''],
-    ['', '', '', '', '', '', '', ''],
-    ['', '', '', '', '', '', '', ''],
-    ['', '', '', '', '', '', '', ''],
+    ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'],
     ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
-    ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
+    ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+    ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r']
 ];
 // Create an instance of ChessGame
 const game = new ChessGame();
@@ -79,6 +79,7 @@ if (savedHistory) {
 // Function to clear highlighted squares
 // Function to initialize the game
 function initializeGame() {
+    console.log('Game initialized.');
     const boardElement = document.getElementById('chessboard');
     boardElement.innerHTML = '';
     chessboard.forEach((row, rowIndex) => {
@@ -118,7 +119,7 @@ function handleSquareClick(row, col) {
     } else {
         console.log('No piece selected');
     }
-    if (selectedPiece && (selectedPiece.row === row && selectedPiece.col === col)) {
+    if (selectedPiece && selectedPiece.row === row && selectedPiece.col === col) {
         // Deselect the piece if the same square is clicked again
         selectedPiece = null;
     } else if (selectedPiece) {
@@ -129,8 +130,15 @@ function handleSquareClick(row, col) {
         console.log(`Attempting to move from ${startPos} to ${endPos}`);
         console.log(`Moving piece ${chessboard[selectedPiece.row][selectedPiece.col]} from [${selectedPiece.row}, ${selectedPiece.col}] to [${row}, ${col}]`);
         if (isValidMove(selectedPiece, to)) {
-            movePiece(from, to);
+            const capturedPiece = chessboard[to.row][to.col];
+            const movingPlayer = currentPlayer
+            movePiece(from, to, capturedPiece);
             game.movePiece(startPos, endPos);
+            saveState(); // Save state after a move
+            if (capturedPiece) {
+                game.status = `${movingPlayer === 'white' ? 'White' : 'Black'} captured ${capturedPiece}`;
+            }
+            updateStatus(game.status); // Update the status after the move
             selectedPiece = null;
             // Highlights are removed after the move is made
             removeHighlights();
@@ -138,6 +146,12 @@ function handleSquareClick(row, col) {
     } else {
         // Select the piece and highlight possible moves
         selectedPiece = {row, col};  // Set the selected piece
+        const piece = chessboard[row][col];
+        if ((currentPlayer === 'white' && piece !== piece.toUpperCase()) || (currentPlayer === 'black' && piece !== piece.toLowerCase())) {
+            console.log('Cannot select opponent\'s piece');
+            selectedPiece = null;
+            return;
+        }
         highlightPossibleMoves(row, col);
         console.log(`Selected piece: ${selectedPiece.row}, ${selectedPiece.col}`);
     }
@@ -145,13 +159,16 @@ function handleSquareClick(row, col) {
 }
 
 // Function to move a piece
-function movePiece(from, to) {
+function movePiece(from, to, capturedPiece) {
     const piece = chessboard[from.row][from.col];
     console.log(`Moving piece ${piece} from [${from.row}, ${from.col}] to [${to.row}, ${to.col}]`);
     chessboard[from.row][from.col] = '';
     chessboard[to.row][to.col] = piece;
-    // currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
-    updateStatus(`${currentPlayer === 'white' ? 'White' : 'Black'}'s turn`);
+    updateStatus(game.status); // Update the status after the move
+    if (capturedPiece) {
+        console.log(`Captured piece: ${capturedPiece}`);
+        console.log(`Captured piece: ${capturedPiece}`);
+    }
     currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
 }
 
@@ -189,8 +206,8 @@ function getPossibleMoves(piece, row, col) {
     if (!pieceType) return [];
     const pieceColor = getPieceColor(piece);
     if (pieceType === 'pawn') {
-        const direction = pieceColor === 'white' ? -1 : 1;
-        const startRow = pieceColor === 'white' ? 6 : 1;
+        const direction = pieceColor === 'white' ? 1 : -1;
+        const startRow = pieceColor === 'white' ? 1 : 6;
         if (row === startRow) {
             moves.push({row: row + direction * 2, col: col});
         }
@@ -388,13 +405,27 @@ function updateBoard() {
             square.addEventListener('click', () => handleSquareClick(rowIndex, colIndex));
         });
     });
+    console.table(chessboard.map(row => row.map(piece => piece ? piece : '  ')));
     if (selectedPiece) {
         highlightPossibleMoves(selectedPiece.row, selectedPiece.col);
     }
+    updateMoveLog();
 }
 
+// Function to update the move log display
+function updateMoveLog() {
+    const moveLogElement = document.getElementById('move-log');
+    moveLogElement.innerHTML = '';
+    game.moveLog.forEach((move, index) => {
+        const moveElement = document.createElement('div');
+        moveElement.textContent = `${index + 1}. ${move}`;
+        moveLogElement.appendChild(moveElement);
+    });
+}
 // Helper function to get piece color
 function getPieceColor(piece) {
+    if(piece.substring(0,1) === 'w') return 'white';
+    if(piece.substring(0,1) === 'b') return 'black';
     return piece === piece.toUpperCase() ? 'white' : 'black';
 }
 
@@ -404,7 +435,7 @@ function getPieceType(piece) {
         'p': 'pawn', 'r': 'rook', 'n': 'knight', 'b': 'bishop', 'q': 'queen', 'k': 'king',
         'P': 'pawn', 'R': 'rook', 'N': 'knight', 'B': 'bishop', 'Q': 'queen', 'K': 'king'
     };
-    return types[piece.toLowerCase()];
+    return types[piece[piece.length-1].toLowerCase()];
 }
 
 // Function to get the image URL for a chess piece
@@ -424,7 +455,84 @@ function updateStatus(message) {
 
 // Initialize the game when the page loads
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('Initializing game...');
     setTimeout(initializeGame, 0);  // Defer initialization to allow the UI thread to remain responsive
     document.getElementById('undo').addEventListener('click', undo);
     document.getElementById('redo').addEventListener('click', redo);
+    document.getElementById('import-layout').addEventListener('click', importLayout);
+    document.getElementById('export-layout').addEventListener('click', exportLayout);
+   document.getElementById('reset').addEventListener('click', resetGame);
 });
+
+// Function to reset the game
+function resetGame() {
+    chessboard = [...initialState];
+    gameHistory = [];
+    currentStateIndex = -1;
+    selectedPiece = null;
+    currentPlayer = 'white';
+    game.board = game.initializeBoard();
+    game.currentTurn = 'white';
+    game.gameOver = false;
+    game.status = "White's turn";
+    saveState();
+    updateBoard();
+    updateStatus(game.status);
+}
+// Function to import board layout from textarea
+function importLayout() {
+    const layoutText = document.getElementById('board-layout').value;
+    try {
+        const newLayout = parseAsciiBoard(layoutText);
+        if (newLayout && validateBoardLayout(newLayout)) {
+            chessboard = newLayout;
+            saveState();
+            updateBoard();
+            alert('Board layout imported successfully.');
+            console.log('Board layout imported successfully:', newLayout);
+         } else {
+            alert('Invalid board layout. Please ensure it is in the correct ASCII format.');
+            console.error('Invalid board layout:', newLayout);
+        }
+    } catch (e) {
+        console.error('Error importing layout:', e);
+        alert('Invalid format. Please ensure the board layout is in valid ASCII format.');
+    }
+}
+
+// Function to export board layout to textarea
+function exportLayout() {
+    const layoutText = generateAsciiBoard(chessboard);
+    document.getElementById('board-layout').value = layoutText;
+}
+
+// Function to parse ASCII board layout
+function parseAsciiBoard(ascii) {
+    const rows = ascii.trim().split('\n');
+    if (rows.length !== 8) return null;
+    const board = rows.map(row => row.split('').map(char => char === ' ' ? '' : char));
+    if (board.some(row => row.length !== 8)) return null;
+    console.log('Parsed ASCII board layout:', board);
+    return board;
+}
+
+// Function to validate the board layout
+function validateBoardLayout(board) {
+    if (!Array.isArray(board) || board.length !== 8) {
+        console.error('Board layout must be an 8x8 array.');
+        return false;
+    }
+    for (const row of board) {
+        if (!Array.isArray(row) || row.length !== 8) {
+            console.error('Each row in the board layout must be an array of length 8.');
+            return false;
+        }
+    }
+    console.log('Board layout is valid:', board);
+    return true;
+}
+ 
+// Function to generate ASCII board layout
+function generateAsciiBoard(board) {
+    return board.map(row => row.map(piece => piece === '' ? ' ' : piece).join('')).join('\n');
+}

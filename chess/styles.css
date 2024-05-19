@@ -63,3 +63,22 @@
      display: flex;
      flex-direction: column;
  }
+
+#reset-game {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#move-log-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#move-log {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #333;
+    padding: 10px;
+    background-color: #f9f9f9;
+    text-align: left;
+}

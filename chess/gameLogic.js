@@ -5,7 +5,8 @@ class ChessGame {
         this.board = this.initializeBoard();
         this.currentTurn = 'white';
         this.gameOver = false;
-        this.status = '';
+        this.status = "White's turn";
+        this.moveLog = [];
     }
 
     initializeBoard() {
@@ -23,8 +24,8 @@ class ChessGame {
         // Place other pieces
         const lineup = ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'];
         lineup.forEach((piece, index) => {
-            board[0][index] = 'w' + piece;
             board[7][index] = 'b' + piece;
+            board[0][index] = 'w' + piece;
         });
 
         return board;
@@ -40,9 +41,18 @@ class ChessGame {
             return false;
         }
 
+         // Capture the piece if present
+         const capturedPiece = this.board[endRow][endCol];
+ 
         // Move the piece
         this.board[endRow][endCol] = this.board[startRow][startCol];
-        this.board[startRow][startCol] = null;
+       this.board[startRow][startCol] = ''; // Use empty string to be consistent with initialState
+
+        // Log the move
+        this.logMove(start, end, capturedPiece ? capturedPiece : '');
+
+        // Switch turn before checking for check/checkmate
+        this.currentTurn = this.currentTurn === 'white' ? 'black' : 'white';
 
         // Check for check/checkmate conditions
         if (this.isCheck()) {
@@ -53,23 +63,41 @@ class ChessGame {
                 this.status = `${this.currentTurn} is in check`;
             }
         } else {
-            this.status = `${this.currentTurn === 'white' ? 'Black' : 'White'}'s turn`;
+            this.status = `${this.currentTurn === 'white' ? 'White' : 'Black'}'s turn`;
         }
+        console.table(this.board.map(row => row.map(piece => piece ? piece : '  ')));
 
-        // Switch turn
-        this.currentTurn = this.currentTurn === 'white' ? 'black' : 'white';
         return true;
+    }
+
+    logMove(start, end, capturedPiece) {
+        const piece = this.board[this.parsePosition(end)[0]][this.parsePosition(end)[1]];
+        const move = `${piece[1]}${start}${capturedPiece ? 'x' : ''}${end}`;
+        if (capturedPiece) {
+            move += ` (captured ${capturedPiece})`;
+        }
+        this.moveLog.push(move);
     }
 
     isValidMove(startRow, startCol, endRow, endCol) {
         if (startRow < 0 || startRow >= 8 || startCol < 0 || startCol >= 8 ||
             endRow < 0 || endRow >= 8 || endCol < 0 || endCol >= 8) {
+            console.log("Invalid move: " + [startRow, startCol, endRow, endCol])
             return false;
         }
         const piece = this.board[startRow][startCol];
-        if (!piece) return false; // No piece at the start position
+        if (!piece) {
+            console.log("Invalid move: No piece at the start position")
+            return false; // No piece at the start position
+        }
+        if ((this.currentTurn === 'white' && piece[0] !== 'w') || (this.currentTurn === 'black' && piece[0] !== 'b')) {
+            console.log("Invalid move: Not the player's piece")
+            return false; // Not the player's piece
+        }
         const possibleMoves = getPossibleMoves(piece, startRow, startCol);
-        return possibleMoves.some(move => move.row === to.row && move.col === to.col);
+        let b = possibleMoves.some( move => move.row === endRow && move.col === endCol);
+        if(!b) console.log("Invalid move: Not in possible moves: " + [startRow, startCol, endRow, endCol] + " " + b)
+        return b;
     }
 
     isCheck() {
