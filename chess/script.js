@@ -226,33 +226,33 @@ function getPossibleMoves(piece, row, col) {
             moves.push({row: row + direction, col: rightDiagonal});
         }
     } else if (pieceType === 'rook') {
-       for (let i = row + 1; i < 8; i++) {
-           if (chessboard[i][col]) {
-               if (getPieceColor(chessboard[i][col]) !== pieceColor) moves.push({row: i, col: col});
-               break;
-           }
-           moves.push({row: i, col: col});
-       }
-       for (let i = row - 1; i >= 0; i--) {
-           if (chessboard[i][col]) {
-               if (getPieceColor(chessboard[i][col]) !== pieceColor) moves.push({row: i, col: col});
-               break;
-           }
-           moves.push({row: i, col: col});
-       }
-       for (let i = col + 1; i < 8; i++) {
-           if (chessboard[row][i]) {
-               if (getPieceColor(chessboard[row][i]) !== pieceColor) moves.push({row: row, col: i});
-               break;
-           }
-           moves.push({row: row, col: i});
-       }
-       for (let i = col - 1; i >= 0; i--) {
-           if (chessboard[row][i]) {
-               if (getPieceColor(chessboard[row][i]) !== pieceColor) moves.push({row: row, col: i});
-               break;
-           }
-           moves.push({row: row, col: i});
+        for (let i = row + 1; i < 8; i++) {
+            if (chessboard[i][col]) {
+                if (getPieceColor(chessboard[i][col]) !== pieceColor) moves.push({row: i, col: col});
+                break;
+            }
+            moves.push({row: i, col: col});
+        }
+        for (let i = row - 1; i >= 0; i--) {
+            if (chessboard[i][col]) {
+                if (getPieceColor(chessboard[i][col]) !== pieceColor) moves.push({row: i, col: col});
+                break;
+            }
+            moves.push({row: i, col: col});
+        }
+        for (let i = col + 1; i < 8; i++) {
+            if (chessboard[row][i]) {
+                if (getPieceColor(chessboard[row][i]) !== pieceColor) moves.push({row: row, col: i});
+                break;
+            }
+            moves.push({row: row, col: i});
+        }
+        for (let i = col - 1; i >= 0; i--) {
+            if (chessboard[row][i]) {
+                if (getPieceColor(chessboard[row][i]) !== pieceColor) moves.push({row: row, col: i});
+                break;
+            }
+            moves.push({row: row, col: i});
         }
     } else if (pieceType === 'knight') {
         moves.push({row: row + 2, col: col + 1});
@@ -264,95 +264,119 @@ function getPossibleMoves(piece, row, col) {
         moves.push({row: row - 1, col: col + 2});
         moves.push({row: row - 1, col: col - 2});
     } else if (pieceType === 'bishop') {
-       for (let i = 1; row + i < 8 && col + i < 8; i++) {
-           if (chessboard[row + i][col + i]) {
-               if (getPieceColor(chessboard[row + i][col + i]) !== pieceColor) moves.push({row: row + i, col: col + i});
-               break;
-           }
-           moves.push({row: row + i, col: col + i});
+        for (let i = 1; row + i < 8 && col + i < 8; i++) {
+            if (chessboard[row + i][col + i]) {
+                if (getPieceColor(chessboard[row + i][col + i]) !== pieceColor) moves.push({
+                    row: row + i,
+                    col: col + i
+                });
+                break;
+            }
+            moves.push({row: row + i, col: col + i});
         }
 
         for (let i = 1; row + i < 8 && col - i >= 0; i++) {
             if (chessboard[row + i][col - i]) {
-                if (getPieceColor(chessboard[row + i][col - i]) !== pieceColor) moves.push({row: row + i, col: col - i});
+                if (getPieceColor(chessboard[row + i][col - i]) !== pieceColor) moves.push({
+                    row: row + i,
+                    col: col - i
+                });
                 break;
             }
             moves.push({row: row + i, col: col - i});
         }
         for (let i = 1; row - i >= 0 && col + i < 8; i++) {
             if (chessboard[row - i][col + i]) {
-                if (getPieceColor(chessboard[row - i][col + i]) !== pieceColor) moves.push({row: row - i, col: col + i});
+                if (getPieceColor(chessboard[row - i][col + i]) !== pieceColor) moves.push({
+                    row: row - i,
+                    col: col + i
+                });
                 break;
             }
             moves.push({row: row - i, col: col + i});
         }
         for (let i = 1; row - i >= 0 && col - i >= 0; i++) {
             if (chessboard[row - i][col - i]) {
-                if (getPieceColor(chessboard[row - i][col - i]) !== pieceColor) moves.push({row: row - i, col: col - i});
+                if (getPieceColor(chessboard[row - i][col - i]) !== pieceColor) moves.push({
+                    row: row - i,
+                    col: col - i
+                });
                 break;
             }
             moves.push({row: row - i, col: col - i});
         }
     } else if (pieceType === 'queen') {
-       for (let i = row + 1; i < 8; i++) {
-           if (chessboard[i][col]) {
-               if (getPieceColor(chessboard[i][col]) !== pieceColor) moves.push({row: i, col: col});
-               break;
-           }
-           moves.push({row: i, col: col});
-       }
-       for (let i = row - 1; i >= 0; i--) {
-           if (chessboard[i][col]) {
-               if (getPieceColor(chessboard[i][col]) !== pieceColor) moves.push({row: i, col: col});
-               break;
-           }
-           moves.push({row: i, col: col});
-       }
-       for (let i = col + 1; i < 8; i++) {
-           if (chessboard[row][i]) {
-               if (getPieceColor(chessboard[row][i]) !== pieceColor) moves.push({row: row, col: i});
-               break;
-           }
-           moves.push({row: row, col: i});
-       }
-       for (let i = col - 1; i >= 0; i--) {
-           if (chessboard[row][i]) {
-               if (getPieceColor(chessboard[row][i]) !== pieceColor) moves.push({row: row, col: i});
-               break;
-           }
-           moves.push({row: row, col: i});
-       }
-       for (let i = 1; i < 8; i++) {
-           if (row + i >= 8 || col + i >= 8) break;
-           if (chessboard[row + i][col + i]) {
-               if (getPieceColor(chessboard[row + i][col + i]) !== pieceColor) moves.push({row: row + i, col: col + i});
-               break;
-           }
-           moves.push({row: row + i, col: col + i});
-       }
-       for (let i = 1; i < 8; i++) {
-           if (row + i >= 8 || col - i < 0) break;
-           if (chessboard[row + i][col - i]) {
-               if (getPieceColor(chessboard[row + i][col - i]) !== pieceColor) moves.push({row: row + i, col: col - i});
-               break;
-           }
-           moves.push({row: row + i, col: col - i});
-       }
-       for (let i = 1; i < 8; i++) {
-           if (row - i < 0 || col + i >= 8) break;
-           if (chessboard[row - i][col + i]) {
-               if (getPieceColor(chessboard[row - i][col + i]) !== pieceColor) moves.push({row: row - i, col: col + i});
-               break;
-           }
-           moves.push({row: row - i, col: col + i});
-       }
-       for (let i = 1; i < 8; i++) {
-           if (row - i < 0 || col - i < 0) break;
-           if (chessboard[row - i][col - i]) {
-               if (getPieceColor(chessboard[row - i][col - i]) !== pieceColor) moves.push({row: row - i, col: col - i});
-               break;
-           }
-           moves.push({row: row - i, col: col - i});
+        for (let i = row + 1; i < 8; i++) {
+            if (chessboard[i][col]) {
+                if (getPieceColor(chessboard[i][col]) !== pieceColor) moves.push({row: i, col: col});
+                break;
+            }
+            moves.push({row: i, col: col});
+        }
+        for (let i = row - 1; i >= 0; i--) {
+            if (chessboard[i][col]) {
+                if (getPieceColor(chessboard[i][col]) !== pieceColor) moves.push({row: i, col: col});
+                break;
+            }
+            moves.push({row: i, col: col});
+        }
+        for (let i = col + 1; i < 8; i++) {
+            if (chessboard[row][i]) {
+                if (getPieceColor(chessboard[row][i]) !== pieceColor) moves.push({row: row, col: i});
+                break;
+            }
+            moves.push({row: row, col: i});
+        }
+        for (let i = col - 1; i >= 0; i--) {
+            if (chessboard[row][i]) {
+                if (getPieceColor(chessboard[row][i]) !== pieceColor) moves.push({row: row, col: i});
+                break;
+            }
+            moves.push({row: row, col: i});
+        }
+        for (let i = 1; i < 8; i++) {
+            if (row + i >= 8 || col + i >= 8) break;
+            if (chessboard[row + i][col + i]) {
+                if (getPieceColor(chessboard[row + i][col + i]) !== pieceColor) moves.push({
+                    row: row + i,
+                    col: col + i
+                });
+                break;
+            }
+            moves.push({row: row + i, col: col + i});
+        }
+        for (let i = 1; i < 8; i++) {
+            if (row + i >= 8 || col - i < 0) break;
+            if (chessboard[row + i][col - i]) {
+                if (getPieceColor(chessboard[row + i][col - i]) !== pieceColor) moves.push({
+                    row: row + i,
+                    col: col - i
+                });
+                break;
+            }
+            moves.push({row: row + i, col: col - i});
+        }
+        for (let i = 1; i < 8; i++) {
+            if (row - i < 0 || col + i >= 8) break;
+            if (chessboard[row - i][col + i]) {
+                if (getPieceColor(chessboard[row - i][col + i]) !== pieceColor) moves.push({
+                    row: row - i,
+                    col: col + i
+                });
+                break;
+            }
+            moves.push({row: row - i, col: col + i});
+        }
+        for (let i = 1; i < 8; i++) {
+            if (row - i < 0 || col - i < 0) break;
+            if (chessboard[row - i][col - i]) {
+                if (getPieceColor(chessboard[row - i][col - i]) !== pieceColor) moves.push({
+                    row: row - i,
+                    col: col - i
+                });
+                break;
+            }
+            moves.push({row: row - i, col: col - i});
         }
     } else if (pieceType === 'king') {
         moves.push({row: row + 1, col: col});
@@ -422,10 +446,11 @@ function updateMoveLog() {
         moveLogElement.appendChild(moveElement);
     });
 }
+
 // Helper function to get piece color
 function getPieceColor(piece) {
-    if(piece.substring(0,1) === 'w') return 'white';
-    if(piece.substring(0,1) === 'b') return 'black';
+    if (piece.substring(0, 1) === 'w') return 'white';
+    if (piece.substring(0, 1) === 'b') return 'black';
     return piece === piece.toUpperCase() ? 'white' : 'black';
 }
 
@@ -435,7 +460,7 @@ function getPieceType(piece) {
         'p': 'pawn', 'r': 'rook', 'n': 'knight', 'b': 'bishop', 'q': 'queen', 'k': 'king',
         'P': 'pawn', 'R': 'rook', 'N': 'knight', 'B': 'bishop', 'Q': 'queen', 'K': 'king'
     };
-    return types[piece[piece.length-1].toLowerCase()];
+    return types[piece[piece.length - 1].toLowerCase()];
 }
 
 // Function to get the image URL for a chess piece
@@ -461,8 +486,38 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('redo').addEventListener('click', redo);
     document.getElementById('import-layout').addEventListener('click', importLayout);
     document.getElementById('export-layout').addEventListener('click', exportLayout);
-   document.getElementById('reset').addEventListener('click', resetGame);
+    document.getElementById('reset').addEventListener('click', resetGame);
+    document.getElementById('save-load-button').addEventListener('click', openModal);
+    document.querySelector('.close').addEventListener('click', closeModal);
+    window.addEventListener('click', (event) => {
+        if (event.target === document.getElementById('move-log-modal')) {
+            closeMoveLogModal();
+        }
+    });
+    document.getElementById('move-log-button').addEventListener('click', openMoveLogModal);
+    document.querySelector('.close-move-log').addEventListener('click', closeMoveLogModal);
+
+// Function to open the move log modal
+    function openMoveLogModal() {
+        document.getElementById('move-log-modal').style.display = 'block';
+    }
+
+// Function to close the move log modal
+    function closeMoveLogModal() {
+        document.getElementById('move-log-modal').style.display = 'none';
+    }
+
 });
+
+// Function to open the modal
+function openModal() {
+    document.getElementById('modal').style.display = 'block';
+}
+
+// Function to close the modal
+function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+}
 
 // Function to reset the game
 function resetGame() {
@@ -479,6 +534,7 @@ function resetGame() {
     updateBoard();
     updateStatus(game.status);
 }
+
 // Function to import board layout from textarea
 function importLayout() {
     const layoutText = document.getElementById('board-layout').value;
@@ -490,7 +546,7 @@ function importLayout() {
             updateBoard();
             alert('Board layout imported successfully.');
             console.log('Board layout imported successfully:', newLayout);
-         } else {
+        } else {
             alert('Invalid board layout. Please ensure it is in the correct ASCII format.');
             console.error('Invalid board layout:', newLayout);
         }
@@ -531,7 +587,7 @@ function validateBoardLayout(board) {
     console.log('Board layout is valid:', board);
     return true;
 }
- 
+
 // Function to generate ASCII board layout
 function generateAsciiBoard(board) {
     return board.map(row => row.map(piece => piece === '' ? ' ' : piece).join('')).join('\n');

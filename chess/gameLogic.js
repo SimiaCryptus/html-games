@@ -41,12 +41,12 @@ class ChessGame {
             return false;
         }
 
-         // Capture the piece if present
-         const capturedPiece = this.board[endRow][endCol];
- 
+        // Capture the piece if present
+        const capturedPiece = this.board[endRow][endCol];
+
         // Move the piece
         this.board[endRow][endCol] = this.board[startRow][startCol];
-       this.board[startRow][startCol] = ''; // Use empty string to be consistent with initialState
+        this.board[startRow][startCol] = ''; // Use empty string to be consistent with initialState
 
         // Log the move
         this.logMove(start, end, capturedPiece ? capturedPiece : '');
@@ -95,8 +95,8 @@ class ChessGame {
             return false; // Not the player's piece
         }
         const possibleMoves = getPossibleMoves(piece, startRow, startCol);
-        let b = possibleMoves.some( move => move.row === endRow && move.col === endCol);
-        if(!b) console.log("Invalid move: Not in possible moves: " + [startRow, startCol, endRow, endCol] + " " + b)
+        let b = possibleMoves.some(move => move.row === endRow && move.col === endCol);
+        if (!b) console.log("Invalid move: Not in possible moves: " + [startRow, startCol, endRow, endCol] + " " + b)
         return b;
     }
 
