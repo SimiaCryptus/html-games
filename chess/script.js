@@ -489,10 +489,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('reset').addEventListener('click', resetGame);
     document.getElementById('save-load-button').addEventListener('click', openModal);
     document.querySelector('.close').addEventListener('click', closeModal);
+   document.getElementById('text-move-button').addEventListener('click', openTextMoveModal);
+   document.querySelector('.close-text-move').addEventListener('click', closeTextMoveModal);
+   document.getElementById('submit-text-move').addEventListener('click', submitTextMove);
     window.addEventListener('click', (event) => {
         if (event.target === document.getElementById('move-log-modal')) {
             closeMoveLogModal();
         }
+       if (event.target === document.getElementById('text-move-modal')) {
+           closeTextMoveModal();
+       }
     });
     document.getElementById('move-log-button').addEventListener('click', openMoveLogModal);
     document.querySelector('.close-move-log').addEventListener('click', closeMoveLogModal);
@@ -507,6 +513,46 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('move-log-modal').style.display = 'none';
     }
 
+// Function to open the text move modal
+function openTextMoveModal() {
+    document.getElementById('text-move-modal').style.display = 'block';
+}
+
+// Function to close the text move modal
+function closeTextMoveModal() {
+    document.getElementById('text-move-modal').style.display = 'none';
+}
+
+// Function to submit a text move
+function submitTextMove() {
+    const moveText = document.getElementById('text-move-input').value.trim();
+    if (moveText.length === 4) {
+        const startPos = moveText.substring(0, 2);
+        const endPos = moveText.substring(2, 4);
+        console.log(`Attempting to move from ${startPos} to ${endPos}`);
+        const [startRow, startCol] = game.parsePosition(startPos);
+        const [endRow, endCol] = game.parsePosition(endPos);
+        const from = { row: startRow, col: startCol };
+        const to = { row: endRow, col: endCol };
+        if (isValidMove(from, to)) {
+            const capturedPiece = chessboard[endRow][endCol];
+            const movingPlayer = currentPlayer;
+            movePiece(from, to, capturedPiece);
+            game.movePiece(startPos, endPos);
+            saveState(); // Save state after a move
+            if (capturedPiece) {
+                game.status = `${movingPlayer === 'white' ? 'White' : 'Black'} captured ${capturedPiece}`;
+            }
+            updateStatus(game.status); // Update the status after the move
+            updateBoard(); // Update the board display
+            closeTextMoveModal(); // Close the modal after the move
+        } else {
+            alert('Invalid move. Please try again.');
+        }
+    } else {
+        alert('Invalid move notation. Please enter a move in the format "e2e4".');
+    }
+}
 });
 
 // Function to open the modal

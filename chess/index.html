@@ -26,6 +26,7 @@
         <button id="redo">Redo</button>
         <button id="reset">Reset Game</button>
         <button id="save-load-button">Save/Load</button>
+       <button id="text-move-button">Text Move</button>
     <div id="modal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -34,6 +35,13 @@
             <button id="export-layout">Export Layout</button>
         </div>
     </div>
+   <div id="text-move-modal" class="modal">
+       <div class="modal-content">
+           <span class="close-text-move">&times;</span>
+           <textarea id="text-move-input" rows="4" cols="50" placeholder="Enter move notation (e.g., e2e4)"></textarea>
+           <button id="submit-text-move">Submit Move</button>
+       </div>
+   </div>
         <button id="move-log-button">View Move Log</button>
     </div>
     <div id="move-log-modal" class="modal">
