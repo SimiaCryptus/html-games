@@ -635,7 +635,7 @@ function exportLayout() {
 
 // Function to parse ASCII board layout
 function parseAsciiBoard(ascii) {
-    const rows = ascii.trim().split('\n');
+    const rows = ascii.split('\n');
     if (rows.length !== 8) return null;
     const board = rows.map(row => row.split('').map(char => char === ' ' ? '' : char));
     if (board.some(row => row.length !== 8)) return null;
