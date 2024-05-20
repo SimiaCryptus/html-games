@@ -41,8 +41,9 @@ function showPossibleMoves(row, col) {
 // Function to save the current state
 function saveState() {
     const currentState = JSON.stringify({
-       board: chessboard,
-       currentPlayer: currentPlayer
+        gameState: game.getGameState(),
+        currentPlayer: currentPlayer,
+        moveLog: game.moveLog
     });
     if (currentStateIndex < gameHistory.length - 1) {
         gameHistory = gameHistory.slice(0, currentStateIndex + 1);
@@ -52,24 +53,24 @@ function saveState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(gameHistory));
 }
 
-// Function to undo the last move
 function undo() {
     if (currentStateIndex > 0) {
         currentStateIndex--;
-       const state = JSON.parse(gameHistory[currentStateIndex]);
-       chessboard = state.board;
-       currentPlayer = state.currentPlayer;
+        const state = JSON.parse(gameHistory[currentStateIndex]).gameState;
+        game.setGameState(state);
+        chessboard = state.board;
+        currentPlayer = state.currentPlayer;
         updateBoard();
     }
 }
 
-// Function to redo the last undone move
 function redo() {
     if (currentStateIndex < gameHistory.length - 1) {
         currentStateIndex++;
-       const state = JSON.parse(gameHistory[currentStateIndex]);
-       chessboard = state.board;
-       currentPlayer = state.currentPlayer;
+        const state = JSON.parse(gameHistory[currentStateIndex]).gameState;
+        game.setGameState(state);
+        chessboard = state.board;
+        currentPlayer = state.currentPlayer;
         updateBoard();
     }
 }
@@ -77,9 +78,12 @@ function redo() {
 if (savedHistory) {
     gameHistory = JSON.parse(savedHistory);
     currentStateIndex = gameHistory.length - 1;
-   const state = JSON.parse(gameHistory[currentStateIndex]);
-   chessboard = state.board;
-   currentPlayer = state.currentPlayer;
+    const state = JSON.parse(gameHistory[currentStateIndex]).gameState;
+    if (state) {
+        game.setGameState(state);
+        chessboard = state.board;
+        currentPlayer = state.currentPlayer;
+    }
     updateBoard(); // Ensure the board is updated with the loaded state
 }
 
@@ -90,7 +94,7 @@ function initializeGame() {
     console.log('Game initialized.');
     const boardElement = document.getElementById('chessboard');
     boardElement.innerHTML = '';
-    if(chessboard) chessboard.forEach((row, rowIndex) => {
+    if (chessboard) chessboard.forEach((row, rowIndex) => {
         row.forEach((piece, colIndex) => {
             saveState();
             const square = document.createElement('div');
@@ -132,7 +136,7 @@ function handleSquareClick(row, col) {
     } else {
         console.log('No piece selected');
     }
-    if (selectedPiece && selectedPiece.row === row && selectedPiece.col === col) {
+    if (selectedPiece && selectedPiece.row === row && selectedPiece.col === col && chessboard[row][col] !== '') {
         // Deselect the piece if the same square is clicked again
         selectedPiece = null;
     } else if (selectedPiece) {
@@ -146,7 +150,6 @@ function handleSquareClick(row, col) {
             const capturedPiece = chessboard[to.row][to.col];
             const movingPlayer = currentPlayer
             const possibleMoves = getPossibleMoves(game.board[selectedPiece.row][selectedPiece.col], selectedPiece.row, selectedPiece.col);
-            movePiece(from, to, capturedPiece);
             game.movePiece(startPos, endPos, possibleMoves);
             saveState(); // Save state after a move
             if (capturedPiece) {
@@ -156,6 +159,7 @@ function handleSquareClick(row, col) {
             selectedPiece = null;
             // Highlights are removed after the move is made
             removeHighlights();
+            updateBoard(); // Ensure the board is updated after a move
         }
     } else {
         // Select the piece and highlight possible moves
@@ -169,7 +173,6 @@ function handleSquareClick(row, col) {
         highlightPossibleMoves(row, col);
         console.log(`Selected piece: ${selectedPiece.row}, ${selectedPiece.col}`);
     }
-    updateBoard();
 }
 
 // Function to move a piece
@@ -402,7 +405,7 @@ function getPossibleMoves(piece, row, col) {
     }
     // Filter out moves that are off the board
     let filter = moves.filter(move => move.row >= 0 && move.row < 8 && move.col >= 0 && move.col < 8);
-    console.log(`Possible moves for ${piece} at [${row}, ${col}]:`, filter);
+    console.log(`Possible moves for ${piece} at [${row}, ${col}]:`, JSON.stringify(filter));
     return filter;
 }
 
@@ -421,7 +424,7 @@ function isValidMove(selectedPiece, to) {
 function updateBoard() {
     const boardElement = document.getElementById('chessboard');
     boardElement.innerHTML = '';
-    if (null==chessboard) return;
+    if (null == chessboard) return;
     chessboard.forEach((row, rowIndex) => {
         row.forEach((piece, colIndex) => {
             const square = document.createElement('div');
@@ -509,16 +512,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('reset').addEventListener('click', resetGame);
     document.getElementById('save-load-button').addEventListener('click', openModal);
     document.querySelector('.close').addEventListener('click', closeModal);
-   document.getElementById('text-move-button').addEventListener('click', openTextMoveModal);
-   document.querySelector('.close-text-move').addEventListener('click', closeTextMoveModal);
-   document.getElementById('submit-text-move').addEventListener('click', submitTextMove);
+    document.getElementById('text-move-button').addEventListener('click', openTextMoveModal);
+    document.querySelector('.close-text-move').addEventListener('click', closeTextMoveModal);
+    document.getElementById('submit-text-move').addEventListener('click', submitTextMove);
     window.addEventListener('click', (event) => {
         if (event.target === document.getElementById('move-log-modal')) {
             closeMoveLogModal();
         }
-       if (event.target === document.getElementById('text-move-modal')) {
-           closeTextMoveModal();
-       }
+        if (event.target === document.getElementById('text-move-modal')) {
+            closeTextMoveModal();
+        }
     });
     document.getElementById('move-log-button').addEventListener('click', openMoveLogModal);
     document.querySelector('.close-move-log').addEventListener('click', closeMoveLogModal);
@@ -534,45 +537,45 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 // Function to open the text move modal
-function openTextMoveModal() {
-    document.getElementById('text-move-modal').style.display = 'block';
-}
+    function openTextMoveModal() {
+        document.getElementById('text-move-modal').style.display = 'block';
+    }
 
 // Function to close the text move modal
-function closeTextMoveModal() {
-    document.getElementById('text-move-modal').style.display = 'none';
-}
+    function closeTextMoveModal() {
+        document.getElementById('text-move-modal').style.display = 'none';
+    }
 
 // Function to submit a text move
-function submitTextMove() {
-    const moveText = document.getElementById('text-move-input').value.trim();
-    if (moveText.length === 4) {
-        const startPos = moveText.substring(0, 2);
-        const endPos = moveText.substring(2, 4);
-        console.log(`Attempting to move from ${startPos} to ${endPos}`);
-        const [startRow, startCol] = game.parsePosition(startPos);
-        const [endRow, endCol] = game.parsePosition(endPos);
-        const from = { row: startRow, col: startCol };
-        const to = { row: endRow, col: endCol };
-        if (isValidMove(from, to)) {
-            const capturedPiece = chessboard[endRow][endCol];
-            const movingPlayer = currentPlayer;
-            movePiece(from, to, capturedPiece);
-            game.movePiece(startPos, endPos);
-            saveState(); // Save state after a move
-            if (capturedPiece) {
-                game.status = `${movingPlayer === 'white' ? 'White' : 'Black'} captured ${capturedPiece}`;
+    function submitTextMove() {
+        const moveText = document.getElementById('text-move-input').value.trim();
+        if (moveText.length === 4) {
+            const startPos = moveText.substring(0, 2);
+            const endPos = moveText.substring(2, 4);
+            console.log(`Attempting to move from ${startPos} to ${endPos}`);
+            const [startRow, startCol] = game.parsePosition(startPos);
+            const [endRow, endCol] = game.parsePosition(endPos);
+            const from = {row: startRow, col: startCol};
+            const to = {row: endRow, col: endCol};
+            if (isValidMove(from, to)) {
+                const capturedPiece = chessboard[endRow][endCol];
+                const movingPlayer = currentPlayer;
+                movePiece(from, to, capturedPiece);
+                game.movePiece(startPos, endPos);
+                saveState(); // Save state after a move
+                if (capturedPiece) {
+                    game.status = `${movingPlayer === 'white' ? 'White' : 'Black'} captured ${capturedPiece}`;
+                }
+                updateStatus(game.status); // Update the status after the move
+                updateBoard(); // Update the board display
+                closeTextMoveModal(); // Close the modal after the move
+            } else {
+                alert('Invalid move. Please try again.');
             }
-            updateStatus(game.status); // Update the status after the move
-            updateBoard(); // Update the board display
-            closeTextMoveModal(); // Close the modal after the move
         } else {
-            alert('Invalid move. Please try again.');
+            alert('Invalid move notation. Please enter a move in the format "e2e4".');
         }
-    } else {
-        alert('Invalid move notation. Please enter a move in the format "e2e4".');
     }
-}
 });
 
 // Function to open the modal
@@ -596,6 +599,7 @@ function resetGame() {
     game.currentTurn = 'white';
     game.gameOver = false;
     game.status = "White's turn";
+    game.moveLog = [];
     saveState();
     updateBoard();
     updateStatus(game.status);

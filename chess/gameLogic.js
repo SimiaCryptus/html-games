@@ -9,10 +9,29 @@ class ChessGame {
         this.moveLog = [];
     }
 
+    getGameState() {
+        return {
+            board: this.board,
+            currentTurn: this.currentTurn,
+            moveLog: this.moveLog,
+            status: this.status,
+            gameOver: this.gameOver
+        };
+    }
+
+    setGameState(state) {
+        this.board = state.board;
+        this.currentTurn = state.currentTurn;
+        this.moveLog = state.moveLog;
+        this.status = state.status;
+        this.gameOver = state.gameOver;
+        this.moveLog = state.moveLog;
+    }
+
     initializeBoard() {
         // Initialize the chess board with pieces in their starting positions
         // Simplified representation: each piece is represented by a string
-         // Example: 'P' for pawn, 'K' for king, etc.
+        // Example: 'P' for pawn, 'K' for king, etc.
         const board = new Array(8).fill(null).map(() => new Array(8).fill(null));
 
         // Place pawns
@@ -45,7 +64,8 @@ class ChessGame {
         const capturedPiece = this.board[endRow][endCol];
 
         // Move the piece
-        this.board[endRow][endCol] = this.board[startRow][startCol];
+        const movingPiece = this.board[startRow][startCol];
+        this.board[endRow][endCol] = movingPiece;
         this.board[startRow][startCol] = ''; // Use empty string to be consistent with initialState
 
         // Log the move
