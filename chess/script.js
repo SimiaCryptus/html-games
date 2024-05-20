@@ -98,6 +98,11 @@ function initializeGame() {
             square.id = `${rowIndex}-${colIndex}`;
             square.dataset.row = rowIndex;
             square.dataset.col = colIndex;
+            // Add coordinate display
+            const coordinate = document.createElement('div');
+            coordinate.className = 'coordinate';
+            coordinate.textContent = `${String.fromCharCode(97 + colIndex)}${8 - rowIndex}`;
+            square.appendChild(coordinate);
             if (piece) {
                 const pieceElement = document.createElement('div');
                 pieceElement.className = `chess-piece ${getPieceColor(piece)} ${getPieceType(piece)}`;
@@ -424,6 +429,11 @@ function updateBoard() {
             square.id = `${rowIndex}-${colIndex}`;
             square.dataset.row = rowIndex;
             square.dataset.col = colIndex;
+            // Add coordinate display
+            const coordinate = document.createElement('div');
+            coordinate.className = 'coordinate';
+            coordinate.textContent = `${String.fromCharCode(97 + colIndex)}${8 - rowIndex}`;
+            square.appendChild(coordinate);
             if (piece) {
                 const pieceElement = document.createElement('div');
                 pieceElement.className = `chess-piece ${getPieceColor(piece)} ${getPieceType(piece)}`;

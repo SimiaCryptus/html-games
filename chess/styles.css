@@ -66,8 +66,18 @@ button:active {
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative; /* Add position relative for coordinate display */
 }
 
+/* Styling for the coordinates */
+.coordinate {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-size: 1.0em;
+    color: rgba(0, 0, 0, 0.5); /* Light color for better visibility */
+    pointer-events: none; /* Prevent interaction with the coordinate text */
+}
 /* Alternating colors for squares */
 .square.odd {
     background-color: #f0d9b5;
