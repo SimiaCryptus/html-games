@@ -25,6 +25,7 @@ class ChessGame {
         this.moveLog = state.moveLog;
         this.status = state.status;
         this.gameOver = state.gameOver;
+        this.status = `${this.currentTurn === 'white' ? 'White' : 'Black'}'s turn`;
         this.moveLog = state.moveLog;
     }
 
@@ -73,6 +74,7 @@ class ChessGame {
 
         // Switch turn before checking for check/checkmate
         this.currentTurn = this.currentTurn === 'white' ? 'black' : 'white';
+        currentPlayer = this.currentTurn;
 
         // Check for check/checkmate conditions
         if (this.isCheck()) {

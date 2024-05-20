@@ -42,7 +42,7 @@ function showPossibleMoves(row, col) {
 function saveState() {
     const currentState = JSON.stringify({
         gameState: game.getGameState(),
-        currentPlayer: currentPlayer,
+        currentPlayer: game.currentTurn,
         moveLog: game.moveLog
     });
     if (currentStateIndex < gameHistory.length - 1) {
@@ -59,7 +59,7 @@ function undo() {
         const state = JSON.parse(gameHistory[currentStateIndex]).gameState;
         game.setGameState(state);
         chessboard = state.board;
-        currentPlayer = state.currentPlayer;
+        currentPlayer = game.currentTurn;
         updateBoard();
     }
 }
@@ -70,7 +70,7 @@ function redo() {
         const state = JSON.parse(gameHistory[currentStateIndex]).gameState;
         game.setGameState(state);
         chessboard = state.board;
-        currentPlayer = state.currentPlayer;
+        currentPlayer = game.currentTurn;
         updateBoard();
     }
 }
@@ -82,7 +82,8 @@ if (savedHistory) {
     if (state) {
         game.setGameState(state);
         chessboard = state.board;
-        currentPlayer = state.currentPlayer;
+        currentPlayer = game.currentTurn;
+        updateStatus(`${currentPlayer === 'white' ? 'White' : 'Black'}'s turn`);
     }
     updateBoard(); // Ensure the board is updated with the loaded state
 }
@@ -594,7 +595,7 @@ function resetGame() {
     gameHistory = [];
     currentStateIndex = -1;
     selectedPiece = null;
-    currentPlayer = 'white';
+    currentPlayer = game.currentTurn = 'white';
     game.board = game.initializeBoard();
     game.currentTurn = 'white';
     game.gameOver = false;
