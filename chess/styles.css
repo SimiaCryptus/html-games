@@ -3,6 +3,8 @@
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(8, 1fr);
+    width: 100vmin; /* Use 100% of the viewport's smaller dimension */
+    height: 100vmin; /* Use 100% of the viewport's smaller dimension */
     width: 100vmin; /* Use 80% of the viewport's smaller dimension or 640px, whichever is smaller */
     height: 100vmin; /* Use 80% of the viewport's smaller dimension or 640px, whichever is smaller */
     border: 2px solid #333;
@@ -176,4 +178,31 @@ button:active {
     color: black;
     text-decoration: none;
     cursor: pointer;
+}
+
+/* Media query for landscape layout */
+@media (min-aspect-ratio: 1/1) {
+    #game-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+
+    #chessboard {
+        width: 100vh; /* Use 100% of the viewport height */
+        height: 100vh; /* Use 100% of the viewport height */
+    }
+
+    #buttons-container {
+        flex-direction: column;
+        margin-top: 0;
+        margin-left: 20px;
+        height: 100%;
+    }
+
+    button {
+        margin-bottom: 10px;
+    }
 }
