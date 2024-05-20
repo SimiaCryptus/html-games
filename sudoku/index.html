@@ -4,28 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sudoku Game</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/png" href="thumbnail.png">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1>Sudoku Game</h1>
-        <img src="logo.png" alt="Sudoku Logo">
-    </header>
-    <main>
-        <div id="sudoku-board">
-    <!-- Sudoku grid will be dynamically generated here by JavaScript and corrected ID to sudoku-grid -->
-       <table id="sudoku-grid"></table>
+    <div id="sudoku-grid">
+        <!-- 9x9 grid cells will be generated here by JavaScript -->
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Select Number</h2>
+            <form id="number-form">
+                <label><input type="checkbox" name="number" value="1"> 1</label>
+                <label><input type="checkbox" name="number" value="2"> 2</label>
+                <label><input type="checkbox" name="number" value="3"> 3</label>
+                <label><input type="checkbox" name="number" value="4"> 4</label>
+                <label><input type="checkbox" name="number" value="5"> 5</label>
+                <label><input type="checkbox" name="number" value="6"> 6</label>
+                <label><input type="checkbox" name="number" value="7"> 7</label>
+                <label><input type="checkbox" name="number" value="8"> 8</label>
+                <label><input type="checkbox" name="number" value="9"> 9</label>
+            </form>
+            <button id="save-btn">Save</button>
         </div>
-        <div class="controls">
-    <button id="new-game">New Game</button>
-    <button id="check-solution">Check Solution</button>
-            <button id="hint-button">Hint</button>
-        </div>
-    </main>
-    <footer>
-        <p>Created for Sudoku enthusiasts!</p>
-    </footer>
-    <script src="game.js"></script>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
