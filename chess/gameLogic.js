@@ -116,6 +116,3 @@ class ChessGame {
         return [row, col];
     }
 }
-
-// Example usage
-// Removed the example usage to prevent redeclaration of 'game' in global scope

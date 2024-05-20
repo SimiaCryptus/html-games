@@ -176,7 +176,6 @@ function movePiece(from, to, capturedPiece) {
     updateStatus(game.status); // Update the status after the move
     if (capturedPiece) {
         console.log(`Captured piece: ${capturedPiece}`);
-        console.log(`Captured piece: ${capturedPiece}`);
     }
     currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
 }
