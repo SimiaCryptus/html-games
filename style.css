@@ -41,6 +41,7 @@ main {
     background-color: #4ecdc4;
     color: #1a1a1a;
     border-radius: 5px;
+    width: 90vh;
 }
 
 .hero h1 {

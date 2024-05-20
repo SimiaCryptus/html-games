@@ -60,8 +60,17 @@ body {
     font-size: 18px;
     font-weight: bold;
     cursor: pointer;
+   display: flex; /* Ensure the tile is displayed correctly */
+   justify-content: center; /* Center the tile content */
+   align-items: center; /* Center the tile content vertically */
+   text-align: center; /* Center the text within the tile */
+    transition: background-color 0.3s;
 }
 
+.tile.selected {
+    background-color: #aaf;
+    border-color: #55f;
+}
 /* Special board positions */
 .double-word {
     background-color: #f4cccc;

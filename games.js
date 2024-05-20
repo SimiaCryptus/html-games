@@ -108,11 +108,10 @@ document.addEventListener('DOMContentLoaded', () => {
         thumbnail.alt = `${game.title} Thumbnail`;
         gameCard.appendChild(thumbnail);
 
-        const playButton = document.createElement('a');
-        playButton.href = game.url;
-        playButton.classList.add('play-button');
-        playButton.textContent = 'Play Now';
-        gameCard.appendChild(playButton);
+
+        gameCard.addEventListener('click', () => {
+            window.location.href = game.url;
+        });
 
         gameGrid.appendChild(gameCard);
     });

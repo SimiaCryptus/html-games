@@ -1,5 +1,8 @@
 // Place the tile on the board if it's the first move or if it's adjacent to existing tiles
 
+import {handleDragStart, handleTileClick, initializeClickToPlace} from "./dragdrop.js";
+import { selectedTile } from "./dragdrop.js";
+
 const BOARD_SIZE = 15;
 const MIN_WORD_LENGTH = 2; // Define minimum word length for validation
 
@@ -163,38 +166,41 @@ function renderBoard() {
 
     board.forEach((row, rowIndex) => {
         const rowElement = document.createElement('div');
-        rowElement.className = 'game-row'; // Correct class name for consistency
+        rowElement.className = 'game-row';
         row.forEach((cell, cellIndex) => {
             const cellElement = document.createElement('div');
+            cellElement.className = 'game-cell';
             cellElement.className = 'game-cell'; // Correct class name for consistency
             // Indicate the center of the board
             if (rowIndex === Math.floor(BOARD_SIZE / 2) && cellIndex === Math.floor(BOARD_SIZE / 2)) {
                 cellElement.classList.add('center-cell');
             }
-            // Apply special styles based on position
             if (isSpecialPosition(rowIndex, cellIndex) && getSpecialType(rowIndex, cellIndex) !== '') {
                 const specialType = getSpecialType(rowIndex, cellIndex);
                 cellElement.classList.add(specialType);
             }
             cellElement.setAttribute('data-row', rowIndex);
             cellElement.setAttribute('data-col', cellIndex);
-            if (cell) {
+            if (cell && cell.letter) { // Ensure that the cell object has a letter property before trying to display it
                 const tileElement = document.createElement('span');
+                tileElement.style.display = 'flex'; // Ensure the tile is displayed correctly
+                tileElement.style.justifyContent = 'center'; // Center the tile content
                 tileElement.textContent = cell.letter;
                 tileElement.className = 'tile';
+                tileElement.classList.add('placed'); // Add a class to indicate the tile is placed
                 cellElement.appendChild(tileElement);
             }
             rowElement.appendChild(cellElement);
         });
         boardElement.appendChild(rowElement);
     });
-    // Ensure drop zones are initialized after rendering the board
     try {
         reinitializeDragAndDrop();
         console.log('Drop zones initialized successfully after rendering the board.');
     } catch (error) {
         console.error('Failed to initialize drop zones due to:', error);
     }
+    initializeClickToPlace();
     // Moved reinitialization to ensure it happens after the board is fully rendered
 }
 
@@ -202,14 +208,16 @@ function renderBoard() {
 function drawTiles() {
     console.log('Called drawTiles');
     const tileRack = document.getElementById('tile-rack');
-    tileRack.innerHTML = ''; // Clear previous tiles
+    // Do not clear previous tiles, only fill up to RACK_SIZE
+    const existingTiles = tileRack.querySelectorAll('.tile').length;
+    const tilesToDraw = RACK_SIZE - existingTiles;
 
-    for (let i = 0; i < RACK_SIZE; i++) {
+     for (let i = 0; i < tilesToDraw; i++) {
         if (tilesRemaining > 0) {
             const letter = getRandomLetter();
             const tileElement = createTileElement(letter);
             currentPlayerTiles.push(tileElement);
-            tileRack.appendChild(tileElement);
+            tileRack.appendChild(tileElement.cloneNode(true)); // Append a clone of the tile to the rack
             console.log(`Tile ${letter} created and added to the rack.`);
             tilesRemaining--;
         }
@@ -222,6 +230,7 @@ function drawTiles() {
         } catch (error) {
             console.error('Failed to reinitialize drag and drop due to:', error);
         }
+        initializeClickToPlace();
     }, 0); // Use setTimeout to ensure DOM updates are complete
 }
 
@@ -233,17 +242,28 @@ function createTileElement(letter) {
     tileElement.className = 'tile';
     tileElement.id = `tile-${letter}-${Date.now()}`; // Unique id for each tile
     tileElement.draggable = true;
+    tileElement.setAttribute('data-letter', letter); // Store the letter as a data attribute
     return tileElement;
 }
-
+const LETTER_DISTRIBUTION = {
+    A: 9, B: 2, C: 2, D: 4, E: 12, F: 2, G: 3, H: 2, I: 9, J: 1, K: 1, L: 4,
+    M: 2, N: 6, O: 8, P: 2, Q: 1, R: 6, S: 4, T: 6, U: 4, V: 2, W: 2, X: 1,
+    Y: 2, Z: 1, _: 2  // Blank tiles
+};
 // Get a random letter from the pool of available tiles
 function getRandomLetter() {
     console.log('Called getRandomLetter');
-    const letters = Object.keys(LETTER_VALUES);
+    const letters = [];
+    Object.keys(LETTER_DISTRIBUTION).forEach(letter => {
+        for (let i = 0; i < LETTER_DISTRIBUTION[letter]; i++) {
+            letters.push(letter);
+        }
+    });
     const randomIndex = Math.floor(Math.random() * letters.length);
     return letters[randomIndex];
 }
 
+ // Modify drawTiles to fill up to RACK_SIZE
 // Update game state after placing a tile
 export function updateGameState(tile, target) {
     console.log('Called updateGameState');
@@ -251,21 +271,26 @@ export function updateGameState(tile, target) {
     const row = target.getAttribute('data-row');
     const col = target.getAttribute('data-col');
     // Ensure the first move is on the center tile for a standard 15x15 Scrabble board
+    if (tile.classList.contains('placed')) {
+        return; // Prevent updating game state for already placed tiles
+    }
     if (!tile || !target) return; // Ensure tile and target are valid
     if (isFirstMove() && !(parseInt(row, 10) === 7 && parseInt(col, 10) === 7)) {
         console.error('The first tile must be placed at the center of the board.');
         console.log('Reverting tile placement due to incorrect starting position.');
-        revertTilePlacement();
+        revertTilePlacement(); // Revert the placement if the first move is not at the center
         return;
     }
     board[row][col] = {letter: tile.textContent, value: LETTER_VALUES[tile.textContent.toUpperCase()]};
-    // Remove tile from player's rack
-    const tileIndex = currentPlayerTiles.findIndex(t => t.id === tile.id); // Use id to find index
-    if (tileIndex > -1) currentPlayerTiles.splice(tileIndex, 1); // Ensure valid index
+    const tileIndex = currentPlayerTiles.findIndex(t => t.getAttribute('data-letter') === tile.getAttribute('data-letter')); // Use data-letter attribute to find index
     if (tileIndex > -1) {
         currentPlayerTiles.splice(tileIndex, 1);
+        //selectedTile = null; // Clear the selected tile after updating the game state
         console.log(`Tile ${tile.textContent} removed from player's rack.`);
     }
+    tile.style.pointerEvents = 'none'; // Disable pointer events to make the tile non-clickable
+    tile.removeEventListener('dragstart', handleDragStart); // Remove dragstart event listener
+    tile.removeEventListener('mousedown', handleTileClick); // Remove mousedown event listener
     // Check if new words formed are valid
     lastPlacedTile = target; // Keep track of the last placed tile
 }
@@ -386,7 +411,15 @@ function reinitializeDragAndDrop() {
         });
         cell.addEventListener('drop', (event) => {
             event.preventDefault();
-            const tile = document.getElementById(event.dataTransfer.getData('text'));
+            const tileId = event.dataTransfer.getData('text');
+            const tile = document.getElementById(tileId);
+            if (!tile) {
+                console.error(`Tile with ID ${tileId} not found.`);
+                return;
+            }
+            if (tile.classList.contains('placed')) {
+                return; // Prevent reinitializing drag and drop for placed tiles
+            }
             // Prevent placing a tile if the cell is already occupied
             if (cell.firstChild) {
                 console.error('This cell is already occupied.');
@@ -406,9 +439,11 @@ function reinitializeDragAndDrop() {
     tilesOnRack.forEach(tile => {
         tile.addEventListener('dragstart', (event) => {
             event.dataTransfer.setData('text', tile.id);
+            tile.classList.add('dragging'); // Add dragging class to the tile being dragged
         });
     });
 }
+
 
 function getWordsFromBoard(boardState) {
     const words = [];
@@ -480,6 +515,7 @@ document.getElementById('submit-word').addEventListener('click', () => {
                 return true; // Exit the loop early if an invalid word is detected
             } else {
                 console.log(`Valid word "${wordObj.word}" detected at row ${wordObj.row}, col ${wordObj.col}, horizontal: ${wordObj.isHorizontal}`);
+                drawTiles(); // Draw new tiles after a valid word is placed
                 return false; // Continue the loop if the word is valid
             }
         });
