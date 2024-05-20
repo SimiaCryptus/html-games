@@ -96,7 +96,7 @@ class ChessGame {
         }
         const possibleMoves = getPossibleMoves(piece, startRow, startCol);
         let b = possibleMoves.some(move => move.row === endRow && move.col === endCol);
-        if (!b) console.log("Invalid move: Not in possible moves: " + [startRow, startCol, endRow, endCol] + " " + b)
+        if (!b) console.log("Invalid move: " + [startRow, startCol] + ' -> ' + [endRow, endCol] + " not in possible moves: ", possibleMoves)
         return b;
     }
 
