@@ -32,6 +32,8 @@
     background-color: #333;
     padding: 10px;
     border-top: 2px solid #444;
+    width: 100%;
+    flex-wrap: wrap;
 }
 
 /* Button styling */
