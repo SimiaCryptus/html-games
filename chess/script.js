@@ -19,6 +19,11 @@ let currentStateIndex = -1;
 let selectedPiece = null; // Variable to track the currently selected piece
 let currentPlayer = 'white';
 
+let chessboard = gameHistory.length > 0 ? JSON.parse(gameHistory[currentStateIndex]) : [...initialState];
+
+// Load the saved game state from local storage
+const savedHistory = localStorage.getItem(STORAGE_KEY);
+
 // Removed the declaration of 'game' here to avoid conflict with gameLogic.js
 
 function showPossibleMoves(row, col) {
@@ -35,7 +40,10 @@ function showPossibleMoves(row, col) {
 
 // Function to save the current state
 function saveState() {
-    const currentState = JSON.stringify(chessboard);
+    const currentState = JSON.stringify({
+       board: chessboard,
+       currentPlayer: currentPlayer
+    });
     if (currentStateIndex < gameHistory.length - 1) {
         gameHistory = gameHistory.slice(0, currentStateIndex + 1);
     }
@@ -48,8 +56,9 @@ function saveState() {
 function undo() {
     if (currentStateIndex > 0) {
         currentStateIndex--;
-        chessboard = JSON.parse(gameHistory[currentStateIndex]);
-        chessboard = JSON.parse(gameHistory[currentStateIndex]);
+       const state = JSON.parse(gameHistory[currentStateIndex]);
+       chessboard = state.board;
+       currentPlayer = state.currentPlayer;
         updateBoard();
     }
 }
@@ -58,20 +67,19 @@ function undo() {
 function redo() {
     if (currentStateIndex < gameHistory.length - 1) {
         currentStateIndex++;
-        const nextState = JSON.parse(gameHistory[currentStateIndex]);
-        chessboard = nextState;
+       const state = JSON.parse(gameHistory[currentStateIndex]);
+       chessboard = state.board;
+       currentPlayer = state.currentPlayer;
         updateBoard();
     }
 }
 
-let chessboard = gameHistory.length > 0 ? JSON.parse(gameHistory[currentStateIndex]) : [...initialState];
-
-// Load the saved game state from local storage
-const savedHistory = localStorage.getItem(STORAGE_KEY);
 if (savedHistory) {
     gameHistory = JSON.parse(savedHistory);
     currentStateIndex = gameHistory.length - 1;
-    chessboard = JSON.parse(gameHistory[currentStateIndex]);
+   const state = JSON.parse(gameHistory[currentStateIndex]);
+   chessboard = state.board;
+   currentPlayer = state.currentPlayer;
     updateBoard(); // Ensure the board is updated with the loaded state
 }
 
@@ -82,7 +90,7 @@ function initializeGame() {
     console.log('Game initialized.');
     const boardElement = document.getElementById('chessboard');
     boardElement.innerHTML = '';
-    chessboard.forEach((row, rowIndex) => {
+    if(chessboard) chessboard.forEach((row, rowIndex) => {
         row.forEach((piece, colIndex) => {
             saveState();
             const square = document.createElement('div');
@@ -132,8 +140,9 @@ function handleSquareClick(row, col) {
         if (isValidMove(selectedPiece, to)) {
             const capturedPiece = chessboard[to.row][to.col];
             const movingPlayer = currentPlayer
+            const possibleMoves = getPossibleMoves(game.board[selectedPiece.row][selectedPiece.col], selectedPiece.row, selectedPiece.col);
             movePiece(from, to, capturedPiece);
-            game.movePiece(startPos, endPos);
+            game.movePiece(startPos, endPos, possibleMoves);
             saveState(); // Save state after a move
             if (capturedPiece) {
                 game.status = `${movingPlayer === 'white' ? 'White' : 'Black'} captured ${capturedPiece}`;
@@ -177,7 +186,6 @@ function highlightPossibleMoves(row, col) {
     const piece = chessboard[row][col];
     console.log(`Highlighting possible moves for ${piece} at [${row}, ${col}]`);
     const possibleMoves = getPossibleMoves(piece, row, col);
-    console.log(`Possible moves for ${piece} at [${row}, ${col}]:`, possibleMoves);
     if (!possibleMoves || possibleMoves.length === 0) {
         console.log('No moves')
         return;
@@ -389,7 +397,9 @@ function getPossibleMoves(piece, row, col) {
         moves.push({row: row - 1, col: col - 1});
     }
     // Filter out moves that are off the board
-    return moves.filter(move => move.row >= 0 && move.row < 8 && move.col >= 0 && move.col < 8);
+    let filter = moves.filter(move => move.row >= 0 && move.row < 8 && move.col >= 0 && move.col < 8);
+    console.log(`Possible moves for ${piece} at [${row}, ${col}]:`, filter);
+    return filter;
 }
 
 // Function to check if a move is valid
@@ -407,6 +417,7 @@ function isValidMove(selectedPiece, to) {
 function updateBoard() {
     const boardElement = document.getElementById('chessboard');
     boardElement.innerHTML = '';
+    if (null==chessboard) return;
     chessboard.forEach((row, rowIndex) => {
         row.forEach((piece, colIndex) => {
             const square = document.createElement('div');
@@ -449,8 +460,8 @@ function updateMoveLog() {
 
 // Helper function to get piece color
 function getPieceColor(piece) {
-    if (piece.substring(0, 1) === 'w') return 'white';
-    if (piece.substring(0, 1) === 'b') return 'black';
+    return piece === piece.toUpperCase() ? 'white' : 'black';
+
     return piece === piece.toUpperCase() ? 'white' : 'black';
 }
 
@@ -465,7 +476,7 @@ function getPieceType(piece) {
 
 // Function to get the image URL for a chess piece
 function getPieceImageUrl(piece) {
-    const color = piece === piece.toUpperCase() ? 'l' : 'd';
+    const color = getPieceColor(piece) === 'white' ? 'l' : 'd';
     const typeCode = {
         'p': 'p', 'r': 'r', 'n': 'n', 'b': 'b', 'q': 'q', 'k': 'k'
     }[piece.toLowerCase()];

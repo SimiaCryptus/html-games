@@ -12,31 +12,31 @@ class ChessGame {
     initializeBoard() {
         // Initialize the chess board with pieces in their starting positions
         // Simplified representation: each piece is represented by a string
-        // Example: 'wP' for white pawn, 'bK' for black king, etc.
+         // Example: 'P' for pawn, 'K' for king, etc.
         const board = new Array(8).fill(null).map(() => new Array(8).fill(null));
 
         // Place pawns
         for (let i = 0; i < 8; i++) {
-            board[1][i] = 'wP';
-            board[6][i] = 'bP';
+            board[1][i] = 'P';
+            board[6][i] = 'p';
         }
 
         // Place other pieces
-        const lineup = ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'];
+        const lineup = ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'].map(piece => piece.toUpperCase());
         lineup.forEach((piece, index) => {
-            board[7][index] = 'b' + piece;
-            board[0][index] = 'w' + piece;
+            board[7][index] = piece.toLowerCase();
+            board[0][index] = piece;
         });
 
         return board;
     }
 
-    movePiece(start, end) {
+    movePiece(start, end, possibleMoves) {
         // Validate and move a piece from start to end
         const [startRow, startCol] = this.parsePosition(start);
         const [endRow, endCol] = this.parsePosition(end);
 
-        if (!this.isValidMove(startRow, startCol, endRow, endCol)) {
+        if (!this.isValidMove(startRow, startCol, endRow, endCol, possibleMoves)) {
             this.status = 'Invalid move';
             return false;
         }
@@ -72,14 +72,14 @@ class ChessGame {
 
     logMove(start, end, capturedPiece) {
         const piece = this.board[this.parsePosition(end)[0]][this.parsePosition(end)[1]];
-        const move = `${piece[1]}${start}${capturedPiece ? 'x' : ''}${end}`;
+        let move = `${piece}${start}${capturedPiece ? 'x' : ''}${end}`;
         if (capturedPiece) {
             move += ` (captured ${capturedPiece})`;
         }
         this.moveLog.push(move);
     }
 
-    isValidMove(startRow, startCol, endRow, endCol) {
+    isValidMove(startRow, startCol, endRow, endCol, possibleMoves) {
         if (startRow < 0 || startRow >= 8 || startCol < 0 || startCol >= 8 ||
             endRow < 0 || endRow >= 8 || endCol < 0 || endCol >= 8) {
             console.log("Invalid move: " + [startRow, startCol, endRow, endCol])
@@ -90,11 +90,10 @@ class ChessGame {
             console.log("Invalid move: No piece at the start position")
             return false; // No piece at the start position
         }
-        if ((this.currentTurn === 'white' && piece[0] !== 'w') || (this.currentTurn === 'black' && piece[0] !== 'b')) {
+        if ((this.currentTurn === 'white' && piece !== piece.toUpperCase()) || (this.currentTurn === 'black' && piece !== piece.toLowerCase())) {
             console.log("Invalid move: Not the player's piece")
             return false; // Not the player's piece
         }
-        const possibleMoves = getPossibleMoves(piece, startRow, startCol);
         let b = possibleMoves.some(move => move.row === endRow && move.col === endCol);
         if (!b) console.log("Invalid move: " + [startRow, startCol] + ' -> ' + [endRow, endCol] + " not in possible moves: ", possibleMoves)
         return b;
