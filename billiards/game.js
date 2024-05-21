@@ -6,30 +6,55 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetButton = document.getElementById('resetButton');
 
     const ballRadius = 10;
+    const velocityTolerance = 0.01;
     const tableWidth = canvas.width;
     const tableHeight = canvas.height;
 
     let balls = [];
     let cue = {angle: 0};
 
+    let isCharging = false;
+    let chargePower = 0;
+ 
     function initGame() {
         // Initialize balls and cue position
         const centerX = tableWidth / 2;
         const centerY = tableHeight / 2;
-        balls = [
-            {x: centerX - 100, y: centerY, vx: 0, vy: 0, color: 'white'},
-            {x: centerX + 50, y: centerY, vx: 0, vy: 0, color: 'red'},
-            {x: centerX + 70, y: centerY + 10, vx: 0, vy: 0, color: 'yellow'},
-            // Add more balls with different positions and colors
-        ];
+        balls = createBalls();
         cue.angle = 0;
         drawGame();
+    }
+
+    function createBalls() {
+        const colors = ['white', 'red', 'yellow', 'blue', 'green', 'purple', 'orange', 'brown'];
+        const balls = [];
+        let index = 0;
+       const positions = [
+           {x: tableWidth / 4, y: tableHeight / 2}, // cue ball
+           {x: tableWidth * 3 / 4, y: tableHeight / 2}, // 8-ball
+           {x: tableWidth * 3 / 4 + 20, y: tableHeight / 2 - 10},
+           {x: tableWidth * 3 / 4 + 20, y: tableHeight / 2 + 10},
+           {x: tableWidth * 3 / 4 + 40, y: tableHeight / 2 - 20},
+           {x: tableWidth * 3 / 4 + 40, y: tableHeight / 2},
+           {x: tableWidth * 3 / 4 + 40, y: tableHeight / 2 + 20},
+           {x: tableWidth * 3 / 4 + 60, y: tableHeight / 2 - 30},
+           {x: tableWidth * 3 / 4 + 60, y: tableHeight / 2 - 10},
+           {x: tableWidth * 3 / 4 + 60, y: tableHeight / 2 + 10},
+           {x: tableWidth * 3 / 4 + 60, y: tableHeight / 2 + 30}
+       ];
+        positions.forEach(pos => {
+            balls.push({x: pos.x, y: pos.y, vx: 0, vy: 0, color: colors[index % colors.length]});
+            index++;
+        });
+        return balls;
     }
 
     function drawGame() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawBalls();
-        drawCue();
+       if (!isCueBallMoving() && balls.length > 0) {
+            drawCue();
+        }
     }
 
     function drawBalls() {
@@ -45,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function drawCue() {
         const cueBall = balls[0];
         ctx.save();
-        ctx.translate(cueBall.x, cueBall.y);
+        ctx.translate(cueBall.x - Math.cos(cue.angle) * chargePower, cueBall.y - Math.sin(cue.angle) * chargePower);
         ctx.rotate(cue.angle);
         ctx.beginPath();
         ctx.rect(0, -2.5, -100, 5); // Draw a rectangle to represent the cue stick
@@ -72,8 +97,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         handleBallCollisions();
         drawGame();
+       if (!isCueBallMoving()) {
+        drawCue();
+    }
     }
 
+    function isAnyBallMoving() {
+        return balls.some(ball => Math.abs(ball.vx) > velocityTolerance || Math.abs(ball.vy) > velocityTolerance);
+    }
+
+   function isCueBallMoving() {
+       const cueBall = balls[0];
+       return Math.abs(cueBall.vx) > velocityTolerance || Math.abs(cueBall.vy) > velocityTolerance;
+   }
     function handleBallCollisions() {
         for (let i = 0; i < balls.length; i++) {
             for (let j = i + 1; j < balls.length; j++) {
@@ -139,8 +175,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function shootCueBall() {
         // Implement shooting logic
-        balls[0].vx = Math.cos(cue.angle) * 5;
-        balls[0].vy = Math.sin(cue.angle) * 5;
+        balls[0].vx = Math.cos(cue.angle) * chargePower * 0.1;
+        balls[0].vy = Math.sin(cue.angle) * chargePower * 0.1;
+        chargePower = 0;
     }
 
     canvas.addEventListener('mousemove', (e) => {
@@ -148,12 +185,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
         const cueBall = balls[0];
-        cue.angle = Math.atan2(mouseY - cueBall.y, mouseX - cueBall.x);
+        if (!isAnyBallMoving()) {
+            cue.angle = Math.atan2(mouseY - cueBall.y, mouseX - cueBall.x);
+        }
         drawGame();
     });
 
-    canvas.addEventListener('click', () => {
-        shootCueBall();
+    canvas.addEventListener('mousedown', () => {
+        if (!isAnyBallMoving()) {
+            isCharging = true;
+            chargePower = 0;
+        }
+    });
+
+    canvas.addEventListener('mouseup', () => {
+        if (isCharging) {
+            shootCueBall();
+            isCharging = false;
+        }
     });
 
     startButton.addEventListener('click', initGame);
@@ -161,4 +210,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initGame();
     setInterval(updateGame, 1000 / 60);
-});
+ 
+    setInterval(() => {
+        if (isCharging && chargePower < 100) chargePower += 1;
+    }, 1000 / 60);
+
+ });
