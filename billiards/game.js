@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const ballRadius = 10;
     const velocityTolerance = 0.01;
-    const tableWidth = canvas.width;
-    const tableHeight = canvas.height;
+    let tableWidth = canvas.width;
+    let tableHeight = canvas.height;
 
     let balls = [];
     let cue = {angle: 0};
@@ -16,6 +16,25 @@ document.addEventListener('DOMContentLoaded', () => {
     let isCharging = false;
     let chargePower = 0;
  
+    function resizeCanvas() {
+        const aspectRatio = 2; // 800 / 400 = 2
+        const container = document.getElementById('game-container');
+        const containerWidth = container.clientWidth;
+        const containerHeight = container.clientHeight;
+
+        if (containerWidth / containerHeight > aspectRatio) {
+            canvas.height = containerHeight;
+            canvas.width = containerHeight * aspectRatio;
+        } else {
+            canvas.width = containerWidth;
+            canvas.height = containerWidth / aspectRatio;
+        }
+
+        tableWidth = canvas.width;
+        tableHeight = canvas.height;
+        drawGame();
+    }
+
     function initGame() {
         // Initialize balls and cue position
         const centerX = tableWidth / 2;
@@ -205,10 +224,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    startButton.addEventListener('click', initGame);
-    resetButton.addEventListener('click', initGame);
-
     initGame();
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
     setInterval(updateGame, 1000 / 60);
  
     setInterval(() => {
