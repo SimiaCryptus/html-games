@@ -7,6 +7,9 @@ function generateMaze(rows, cols) {
 
     // Helper function to mark the cell and its neighbor as path
     function carve(x, y) {
+        if (x < 0 || y < 0 || x >= rows || y >= cols) {
+            return; // Boundary check to ensure indices are within bounds
+        }
         grid[x][y] = 0;
         console.log(`Carving path at (${x}, ${y}).`);
         const directions = [

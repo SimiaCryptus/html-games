@@ -31,16 +31,43 @@ let gameRunning = false;
 let timerInterval;
 let timeElapsed = 0;
 
-// Function to initialize the game
+ // Function to initialize the game and show the modal
+function initializeKeyboardControls() {
+    document.addEventListener('keydown', handleKeyPress);
+}
+ 
 function initializeGame() {
     console.log(`Initializing game.`);
-    document.getElementById('resetButton').addEventListener('click', restartGame);
-    document.getElementById('startButton').addEventListener('click', startGame);
-    document.getElementById('setSizeButton').addEventListener('click', setMazeSize);
-    document.addEventListener('keydown', handleKeyPress);
-    const touchOverlay = document.getElementById('touchOverlay');
-    touchOverlay.addEventListener('touchstart', handleTouchStart, {passive: false});
-    touchOverlay.addEventListener('touchmove', handleTouchMove, {passive: false});
+   const startButton = document.getElementById('startButton');
+   const setSizeButton = document.getElementById('setSizeButton');
+   const touchOverlay = document.getElementById('touchOverlay');
+  const mazeWidthInput = document.getElementById('mazeWidth');
+   
+   if (startButton) {
+       startButton.addEventListener('click', startGame);
+   } else {
+       console.error('startButton element not found.');
+   }
+   
+   if (setSizeButton) {
+       setSizeButton.addEventListener('click', setMazeSize);
+   } else {
+       console.error('setSizeButton element not found.');
+   }
+    
+   if (touchOverlay) {
+       touchOverlay.addEventListener('touchstart', handleTouchStart, {passive: false});
+       touchOverlay.addEventListener('touchmove', handleTouchMove, {passive: false});
+   } else {
+       console.error('touchOverlay element not found.');
+   }
+
+  if (mazeWidthInput) {
+      mazeWidthInput.addEventListener('input', setMazeSize);
+  } else {
+      console.error('mazeWidth input element not found.');
+  }
+
     updateMazeHeight(); // Update maze height based on aspect ratio
     updateCellSize(); // Update cell size based on maze dimensions
     console.log(`Initial maze state:`);
@@ -48,8 +75,21 @@ function initializeGame() {
     drawMaze();
     placePlayer();
     console.log(`Game initialized.`);
+   showGameModal();
 }
 
+initializeKeyboardControls();
+ // Function to show the game modal
+ function showGameModal() {
+     const modal = document.getElementById('gameModal');
+     modal.style.display = 'block';
+ }
+ 
+ // Function to hide the game modal
+ function hideGameModal() {
+     const modal = document.getElementById('gameModal');
+     modal.style.display = 'none';
+ }
 function updateMazeHeight() {
     mazeHeight = calculateMazeHeight(mazeWidth);
     if (mazeHeight % 2 === 0) mazeHeight--; // Ensure height is odd
@@ -68,7 +108,7 @@ function calculateMazeHeight(width) {
 function updateCellSize() {
     const gameArea = document.getElementById('gameArea');
     const maxWidth = gameArea.clientWidth;
-    const maxHeight = gameArea.clientHeight || 500; // Fallback to 500 if clientHeight is 0
+    const maxHeight = gameArea.clientHeight;
     cellSize = Math.min(Math.floor(maxWidth / mazeWidth), Math.floor(maxHeight / mazeHeight));
     console.log(`Cell size updated to ${cellSize}px. Max dimensions: ${maxWidth}x${maxHeight}`);
 }
@@ -76,6 +116,10 @@ function updateCellSize() {
 function setMazeSize() {
     console.log(`Setting maze size.`);
     mazeWidth = parseInt(document.getElementById('mazeWidth').value);
+    if (isNaN(mazeWidth) || mazeWidth < 5 || mazeWidth > 500) {
+        console.error('Invalid maze width. It should be between 5 and 500.');
+        return;
+    }
     updateMazeHeight();
     console.log(`New maze dimensions: ${mazeWidth}x${mazeHeight}`);
     const {grid: newGrid, end: newEnd} = generateMaze(mazeHeight, mazeWidth);
@@ -181,7 +225,7 @@ function placePlayer() {
     console.log(`Player placed at starting position (${playerPosition.row}, ${playerPosition.col}).`);
 }
 
-// Function to handle key press events
+// Function to handle key press events (arrow keys)
 function handleKeyPress(event) {
     if (!gameRunning) {
         startGame();
@@ -241,9 +285,10 @@ function checkWinCondition() {
     }
 }
 
-// Function to start the game
+ // Function to start the game and hide the modal
 function startGame() {
     if (gameRunning) return; // Prevent restarting the game if it's already running
+   hideGameModal();
     gameRunning = true;
     console.log(`Game started.`);
     timerInterval = setInterval(() => {
@@ -265,7 +310,7 @@ function padZero(number) {
     return number.toString().padStart(2, '0');
 }
 
-// Function to restart the game
+ // Function to restart the game and show the modal
 function restartGame() {
     if (!gameRunning) startGame(); // Ensure game starts if not already running when reset
     clearInterval(timerInterval);
@@ -277,6 +322,7 @@ function restartGame() {
     console.log(`Game restarted. Current player position:`);
     console.table(playerPosition);
     console.log(`Game restarted.`);
+   showGameModal();
 }
 
 // Initialize the game when the window loads
