@@ -1,0 +1,86 @@
+/* General Body and Background Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Game Board Styles */
+#game-board {
+    width: 800px;
+    background-color: #fff;
+    border: 2px solid #ddd;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Card Styles */
+.player-hand {
+    display: flex;
+    justify-content: center;
+    margin: 10px;
+}
+
+.card {
+    width: 60px;
+    height: 90px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    margin: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    color: #333;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+}
+
+/* Different colors for cards */
+.card.red { background-color: #e74c3c; }
+.card.blue { background-color: #3498db; }
+.card.green { background-color: #2ecc71; }
+.card.yellow { background-color: #f1c40f; }
+
+/* Draw and Discard Pile Styles */
+#draw-pile, #discard-pile {
+    width: 60px;
+    height: 90px;
+    background-color: #ddd;
+    display: inline-block;
+    margin: 0 20px;
+}
+
+/* Button Styles */
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #3498db;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+/* Utility Classes */
+.hidden {
+    display: none;
+}

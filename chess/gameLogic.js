@@ -66,7 +66,7 @@ class ChessGame {
 
         // Move the piece
         const movingPiece = this.board[startRow][startCol];
-        this.board[endRow][endCol] = movingPiece;
+        this.board[endRow][endCol] = this.board[startRow][startCol];
         this.board[startRow][startCol] = ''; // Use empty string to be consistent with initialState
 
         // Log the move
@@ -111,6 +111,11 @@ class ChessGame {
         if (!piece) {
             console.log("Invalid move: No piece at the start position")
             return false; // No piece at the start position
+        }
+        const targetPiece = this.board[endRow][endCol];
+        if (targetPiece && ((this.currentTurn === 'white' && targetPiece === targetPiece.toUpperCase()) || (this.currentTurn === 'black' && targetPiece === targetPiece.toLowerCase()))) {
+            console.log("Invalid move: Cannot capture a piece of the same color")
+            return false; // Cannot capture a piece of the same color
         }
         if ((this.currentTurn === 'white' && piece !== piece.toUpperCase()) || (this.currentTurn === 'black' && piece !== piece.toLowerCase())) {
             console.log("Invalid move: Not the player's piece")

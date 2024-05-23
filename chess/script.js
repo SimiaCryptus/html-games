@@ -137,9 +137,10 @@ function handleSquareClick(row, col) {
     } else {
         console.log('No piece selected');
     }
-    if (selectedPiece && selectedPiece.row === row && selectedPiece.col === col && chessboard[row][col] !== '') {
+    if (selectedPiece && selectedPiece.row === row && selectedPiece.col === col) {
         // Deselect the piece if the same square is clicked again
         selectedPiece = null;
+        removeHighlights();
     } else if (selectedPiece) {
         const from = {row: selectedPiece.row, col: selectedPiece.col};
         const to = {row, col};
@@ -147,7 +148,7 @@ function handleSquareClick(row, col) {
         const endPos = `${String.fromCharCode(97 + col)}${8 - row}`;
         console.log(`Attempting to move from ${startPos} to ${endPos}`);
         console.log(`Moving piece ${chessboard[selectedPiece.row][selectedPiece.col]} from [${selectedPiece.row}, ${selectedPiece.col}] to [${row}, ${col}]`);
-        if (isValidMove(selectedPiece, to)) {
+        if (isValidMove(selectedPiece, to) && (!chessboard[row][col] || getPieceColor(chessboard[row][col]) !== currentPlayer)) {
             const capturedPiece = chessboard[to.row][to.col];
             const movingPlayer = currentPlayer
             const possibleMoves = getPossibleMoves(game.board[selectedPiece.row][selectedPiece.col], selectedPiece.row, selectedPiece.col);
@@ -161,6 +162,13 @@ function handleSquareClick(row, col) {
             // Highlights are removed after the move is made
             removeHighlights();
             updateBoard(); // Ensure the board is updated after a move
+         } else {
+            // If the move is invalid, select the new piece if it belongs to the current player
+            if (getPieceColor(chessboard[row][col]) === currentPlayer) {
+                selectedPiece = {row, col};
+                highlightPossibleMoves(row, col);
+                console.log(`Selected piece: ${selectedPiece.row}, ${selectedPiece.col}`);
+            }
         }
     } else {
         // Select the piece and highlight possible moves
@@ -171,8 +179,16 @@ function handleSquareClick(row, col) {
             selectedPiece = null;
             return;
         }
-        highlightPossibleMoves(row, col);
-        console.log(`Selected piece: ${selectedPiece.row}, ${selectedPiece.col}`);
+        if (selectedPiece && getPieceColor(chessboard[row][col]) === currentPlayer) {
+            selectedPiece = {row, col};
+            highlightPossibleMoves(row, col);
+            console.log(`Selected piece: ${selectedPiece.row}, ${selectedPiece.col}`);
+        } else {
+            // Select the piece and highlight possible moves
+            selectedPiece = {row, col};  // Set the selected piece
+            highlightPossibleMoves(row, col);
+            console.log(`Selected piece: ${selectedPiece.row}, ${selectedPiece.col}`);
+        }
     }
 }
 
@@ -473,10 +489,10 @@ function updateMoveLog() {
 
 // Helper function to get piece color
 function getPieceColor(piece) {
+    if (!piece) return null;
     return piece === piece.toUpperCase() ? 'white' : 'black';
+ }
 
-    return piece === piece.toUpperCase() ? 'white' : 'black';
-}
 
 // Helper function to get piece type
 function getPieceType(piece) {

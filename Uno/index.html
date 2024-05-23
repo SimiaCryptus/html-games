@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uno-like Card Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <header>
+            <h1>Uno-like Game</h1>
+        </header>
+        <main>
+            <section id="player-area">
+                <div class="player-hand" id="player-hand">
+                    <!-- Player cards will be dynamically inserted here -->
+                </div>
+                <div class="player-actions">
+                    <button id="draw-card">Draw Card</button>
+                    <button id="end-turn">End Turn</button>
+                </div>
+            </section>
+            <section id="game-board">
+                <div id="draw-pile">
+                    <p>Draw Pile</p>
+                    <!-- Representation of the draw pile -->
+                </div>
+                <div id="discard-pile">
+                    <p>Discard Pile</p>
+                    <!-- Top card of the discard pile shown here -->
+                </div>
+            </section>
+        </main>
+        <footer>
+            <p>Game developed by [Your Name]</p>
+        </footer>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
