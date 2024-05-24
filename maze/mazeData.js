@@ -1,7 +1,7 @@
 
     // Removed erroneous text
 function generateMaze(rows, cols) {
-    console.log(`Generating maze with ${rows} rows and ${cols} columns.`);
+    console.debug(`Generating maze with ${rows} rows and ${cols} columns.`);
     // Create a grid filled with walls
     const grid = Array.from({ length: rows }, () => Array(cols).fill(1));
 
@@ -11,7 +11,7 @@ function generateMaze(rows, cols) {
             return; // Boundary check to ensure indices are within bounds
         }
         grid[x][y] = 0;
-        console.log(`Carving path at (${x}, ${y}).`);
+        // console.debug(`Carving path at (${x}, ${y}).`);
         const directions = [
             [1, 0], [-1, 0], [0, 1], [0, -1]
         ];
@@ -28,23 +28,23 @@ function generateMaze(rows, cols) {
 
     // Start carving from a random odd-indexed cell
     carve(1, 1);
-     console.log(`Maze generation complete. Final grid state:`);
-    console.table(grid);
-    console.log(`Maze generation complete.`);
+    // console.debug(`Maze generation complete. Final grid state:`);
+    // console.debug(grid);
+    // console.debug(`Maze generation complete.`);
     
     // Find the farthest open cell from the start position (1, 1)
     const end = findFarthestOpenCell(grid, 1, 1);
-    console.log(`End position determined at (${end.x}, ${end.y}).`);
+    console.debug(`End position determined at (${end.x}, ${end.y}).`);
     return { grid, end };
 }
 
 function shuffle(array) {
-    console.log(`Shuffling array.`);
+    // console.debug(`Shuffling array.`);
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
     }
-    console.log(`Array shuffled.`);
+    // console.debug(`Array shuffled.`);
 }
 
 export function findFarthestOpenCell(grid, startX, startY) {

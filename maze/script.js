@@ -1,27 +1,28 @@
 // Importing the maze data from mazeData.js
-import {generateMaze} from './mazeData.js';
+import { generateMaze } from './mazeData.js';
 
 // Helper function to find an open position in the maze
 function findOpenPosition(grid, startX, startY) {
-    console.log(`Finding open position starting from (${startX}, ${startY}). Grid size: ${grid.length}x${grid[0].length}`);
+    console.debug(`Finding open position starting from (${startX}, ${startY}). Grid size: ${grid.length}x${grid[0].length}`);
     for (let y = startY; y < grid.length; y++) {
         for (let x = startX; x < grid[y].length; x++) {
             if (grid[y][x] === 0) {
-                console.log(`Open position found at (${x}, ${y}).`);
+                console.debug(`Open position found at (${x}, ${y}).`);
                 return {x: x, y: y};
             }
         }
     }
-    console.log(`No open position found. Returning fallback position (${startX}, ${startY}).`);
+    console.debug(`No open position found. Returning fallback position (${startX}, ${startY}).`);
     return {x: startX, y: startY}; // Fallback to the original position if no open position is found
 }
 
 // Variables to store maze size
 let mazeWidth = 50;
-let mazeHeight = calculateMazeHeight(mazeWidth);
+let mazeHeight;
 let cellSize = 20; // Default cell size
+
 // Generate the initial maze
-let {grid: maze, end} = generateMaze(50, 50);
+let maze, end;
 let start = {x: 1, y: 1};
 let startPosition = {row: start.y, col: start.x};
 let endPosition = end ? {row: end.y, col: end.x} : {row: 1, col: 1}; // Fallback to (1, 1) if end is null
@@ -37,7 +38,7 @@ function initializeKeyboardControls() {
 }
  
 function initializeGame() {
-    console.log(`Initializing game.`);
+    console.info(`Initializing game.`);
    const startButton = document.getElementById('startButton');
    const setSizeButton = document.getElementById('setSizeButton');
    const touchOverlay = document.getElementById('touchOverlay');
@@ -46,35 +47,42 @@ function initializeGame() {
    if (startButton) {
        startButton.addEventListener('click', startGame);
    } else {
-       console.error('startButton element not found.');
+        console.warn('startButton element not found.');
    }
    
    if (setSizeButton) {
        setSizeButton.addEventListener('click', setMazeSize);
    } else {
-       console.error('setSizeButton element not found.');
+        console.warn('setSizeButton element not found.');
    }
     
    if (touchOverlay) {
        touchOverlay.addEventListener('touchstart', handleTouchStart, {passive: false});
        touchOverlay.addEventListener('touchmove', handleTouchMove, {passive: false});
    } else {
-       console.error('touchOverlay element not found.');
+        console.warn('touchOverlay element not found.');
    }
 
   if (mazeWidthInput) {
       mazeWidthInput.addEventListener('input', setMazeSize);
   } else {
-      console.error('mazeWidth input element not found.');
+        console.warn('mazeWidth input element not found.');
   }
 
     updateMazeHeight(); // Update maze height based on aspect ratio
     updateCellSize(); // Update cell size based on maze dimensions
-    console.log(`Initial maze state:`);
-    console.table(maze);
+    const initialMaze = generateMaze(mazeHeight, mazeWidth);
+    maze = initialMaze.grid;
+    end = initialMaze.end;
+    endPosition = end ? {row: end.y, col: end.x} : {row: 1, col: 1}; // Fallback to (1, 1) if end is null
+
+    updateMazeHeight(); // Update maze height based on aspect ratio
+    updateCellSize(); // Update cell size based on maze dimensions
+    console.debug(`Initial maze state:`);
+    console.debug(maze);
     drawMaze();
     placePlayer();
-    console.log(`Game initialized.`);
+    console.info(`Game initialized.`);
    showGameModal();
 }
 
@@ -94,7 +102,7 @@ function updateMazeHeight() {
     mazeHeight = calculateMazeHeight(mazeWidth);
     if (mazeHeight % 2 === 0) mazeHeight--; // Ensure height is odd
     document.getElementById('mazeHeight').value = mazeHeight;
-    console.log(`Maze height updated to ${mazeHeight} based on aspect ratio.`);
+    console.debug(`Maze height updated to ${mazeHeight} based on aspect ratio.`);
 }
 
 function calculateMazeHeight(width) {
@@ -110,32 +118,32 @@ function updateCellSize() {
     const maxWidth = gameArea.clientWidth;
     const maxHeight = gameArea.clientHeight;
     cellSize = Math.min(Math.floor(maxWidth / mazeWidth), Math.floor(maxHeight / mazeHeight));
-    console.log(`Cell size updated to ${cellSize}px. Max dimensions: ${maxWidth}x${maxHeight}`);
+    console.debug(`Cell size updated to ${cellSize}px. Max dimensions: ${maxWidth}x${maxHeight}`);
 }
 
 function setMazeSize() {
-    console.log(`Setting maze size.`);
+    console.info(`Setting maze size.`);
     mazeWidth = parseInt(document.getElementById('mazeWidth').value);
     if (isNaN(mazeWidth) || mazeWidth < 5 || mazeWidth > 500) {
-        console.error('Invalid maze width. It should be between 5 and 500.');
+        console.warn('Invalid maze width. It should be between 5 and 500.');
         return;
     }
     updateMazeHeight();
-    console.log(`New maze dimensions: ${mazeWidth}x${mazeHeight}`);
+    console.debug(`New maze dimensions: ${mazeWidth}x${mazeHeight}`);
     const {grid: newGrid, end: newEnd} = generateMaze(mazeHeight, mazeWidth);
     maze = newGrid; // Directly update the local 'maze' variable
     // Ensure start and end are not placed inside walls
     start = findOpenPosition(newGrid, 1, 1);
     end = newEnd;
-    console.log(`New start position: (${start.x}, ${start.y}). New end position: (${end.x}, ${end.y})`);
+    console.debug(`New start position: (${start.x}, ${start.y}). New end position: (${end.x}, ${end.y})`);
     startPosition = {row: start.y, col: start.x};
     endPosition = {row: end.y, col: end.x};
     updateCellSize(); // Update cell size based on new maze dimensions
-    console.log(`Updated maze state:`);
-    console.table(maze);
+    console.debug(`Updated maze state:`);
+    console.debug(maze);
     drawMaze();
     placePlayer();
-    console.log(`Maze size set to ${mazeWidth}x${mazeHeight}. Start position: (${start.x}, ${start.y}). End position: (${end.x}, ${end.y}).`);
+    console.info(`Maze size set to ${mazeWidth}x${mazeHeight}. Start position: (${start.x}, ${start.y}). End position: (${end.x}, ${end.y}).`);
 }
 
 let touchStartX = 0;
@@ -194,7 +202,7 @@ function handleTouchMove(event) {
 function drawMaze() {
     const mazeContainer = document.getElementById('gameArea');
     mazeContainer.innerHTML = ''; // Clear previous maze
-    console.log(`Drawing maze.`);
+    console.debug(`Drawing maze.`);
 
     maze.forEach((row, rowIndex) => {
         row.forEach((cell, colIndex) => {
@@ -210,10 +218,9 @@ function drawMaze() {
             mazeContainer.appendChild(cellElement);
         });
     });
-    console.log(`Maze drawn.`);
+    console.debug(`Maze drawn.`);
 }
 
-// Function to place the player in the starting position
 function placePlayer() {
     const playerElement = document.createElement('div');
     playerElement.id = 'player';
@@ -222,10 +229,9 @@ function placePlayer() {
     playerElement.style.top = `${playerPosition.row * cellSize}px`;
     playerElement.style.left = `${playerPosition.col * cellSize}px`;
     document.getElementById('gameArea').appendChild(playerElement);
-    console.log(`Player placed at starting position (${playerPosition.row}, ${playerPosition.col}).`);
+    console.debug(`Player placed at starting position (${playerPosition.row}, ${playerPosition.col}).`);
 }
 
-// Function to handle key press events (arrow keys)
 function handleKeyPress(event) {
     if (!gameRunning) {
         startGame();
@@ -246,7 +252,7 @@ function handleKeyPress(event) {
             newPosition.col++;
             break;
         default:
-            console.log(`Unhandled key pressed: ${event.key}`);
+            console.debug(`Unhandled key pressed: ${event.key}`);
             return; // Ignore other keys
     }
 
@@ -254,47 +260,43 @@ function handleKeyPress(event) {
         updatePlayerPosition(newPosition);
         checkWinCondition();
     } else {
-        //console.log(`Invalid move to position (${newPosition.row}, ${newPosition.col}).`);
+        console.debug(`Invalid move to position (${newPosition.row}, ${newPosition.col}).`);
     }
 }
 
-// Function to check if the move is valid
 function isValidMove(position) {
-    //console.log(`Checking if move to position (${position.row}, ${position.col}) is valid.`);
+    console.debug(`Checking if move to position (${position.row}, ${position.col}) is valid.`);
     return maze[position.row] && maze[position.row][position.col] === 0;
 }
 
-// Function to update the player's position
 function updatePlayerPosition(position) {
     playerPosition = position;
     const playerElement = document.getElementById('player');
     playerElement.style.top = `${position.row * cellSize}px`;
     playerElement.style.left = `${position.col * cellSize}px`;
-    console.log(`Player position updated to (${position.row}, ${position.col}). Current player position:`);
+    console.debug(`Player position updated to (${position.row}, ${position.col}). Current player position:`);
 }
 
-// Function to check win condition
 function checkWinCondition() {
     if (playerPosition.row === endPosition.row && playerPosition.col === endPosition.col) {
         clearInterval(timerInterval);
         gameRunning = false;
-        console.log(`Player has reached the end position. Game won.`);
+        console.info(`Player has reached the end position. Game won.`);
         alert('Congratulations! You have completed the maze.');
     } else {
-        //console.log(`Player has not yet reached the end position.`);
+        console.debug(`Player has not yet reached the end position.`);
     }
 }
 
- // Function to start the game and hide the modal
 function startGame() {
     if (gameRunning) return; // Prevent restarting the game if it's already running
    hideGameModal();
     gameRunning = true;
-    console.log(`Game started.`);
+    console.info(`Game started.`);
     timerInterval = setInterval(() => {
         timeElapsed++;
         document.getElementById('timer').textContent = formatTime(timeElapsed);
-        console.log(`Time elapsed: ${timeElapsed} seconds.`);
+        console.debug(`Time elapsed: ${timeElapsed} seconds.`);
     }, 1000);
 }
 
@@ -319,10 +321,9 @@ function restartGame() {
     playerPosition = {...startPosition};
     placePlayer();
     gameRunning = false;
-    console.log(`Game restarted. Current player position:`);
-    console.table(playerPosition);
-    console.log(`Game restarted.`);
-   showGameModal();
+    console.info(`Game restarted. Current player position:`);
+    console.debug(playerPosition);
+    console.info(`Game restarted.`);
 }
 
 // Initialize the game when the window loads
