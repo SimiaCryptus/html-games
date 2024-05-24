@@ -6,32 +6,27 @@
     <title>Maze Runner Game</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="image/png" href="thumbnail.png">
+    <script type="module" src="script.js"></script>
 </head>
 <body>
-    <div id="gameContainer">
-       <div id="gameModal" class="modal">
-           <div class="modal-content">
-               <h2>Game Settings</h2>
-               <div>
-                   <label for="mazeWidth">Width:</label>
-                   <input type="number" id="mazeWidth" placeholder="Width" min="5" max="50" value="50">
-               </div>
-               <div>
-                   <label for="mazeHeight">Height:</label>
-                   <input type="number" id="mazeHeight" placeholder="Height" min="5" max="20" value="10" readonly>
-               </div>
-               <button id="startButton">Start Game</button>
-              <button id="setSizeButton" style="display: none;">Set Size</button>
-           </div>
-       </div>
-        <div id="gameArea"></div>
-    <div id="touchOverlay"></div>
-        <div id="gameInfo">
-            <span>Timer: <span id="timer">00:00</span></span>
-            <span>Score: <span id="score">0</span></span>
+<div id="gameContainer">
+    <div id="gameModal" class="modal">
+        <div class="modal-content">
+            <h2>Game Settings</h2>
+            <div>
+                <label for="mazeWidth">Width:</label>
+                <input type="number" id="mazeWidth" placeholder="Width" min="5" max="50" value="50">
+            </div>
+            <button id="startButton">Start Game</button>
+            <button id="setSizeButton" style="display: none;">Set Size</button>
         </div>
     </div>
-<script src="script.js"></script>
-<script type="module" src="script.js"></script>
+    <div id="gameArea"></div>
+    <div id="touchOverlay"></div>
+    <div id="gameInfo">
+        <span>Timer: <span id="timer">00:00</span></span>
+        <span>Score: <span id="score">0</span></span>
+    </div>
+</div>
 </body>
 </html>

@@ -1,5 +1,8 @@
 // Importing the maze data from mazeData.js
-import { generateMaze } from './mazeData.js';
+import {generateMaze} from './mazeData.js';
+
+let touchStartX = null;
+let touchStartY = null;
 
 // Helper function to find an open position in the maze
 function findOpenPosition(grid, startX, startY) {
@@ -18,7 +21,6 @@ function findOpenPosition(grid, startX, startY) {
 
 // Variables to store maze size
 let mazeWidth = 50;
-let mazeHeight;
 let cellSize = 20; // Default cell size
 
 // Generate the initial maze
@@ -31,86 +33,129 @@ let playerPosition = {...startPosition};
 let gameRunning = false;
 let timerInterval;
 let timeElapsed = 0;
+let mazeHeight = calculateMazeHeight();
 
- // Function to initialize the game and show the modal
+function calculateMazeHeight() {
+    const gameArea = document.getElementById('gameArea');
+    const maxHeight = gameArea.clientHeight;
+    const aspectRatio = gameArea.clientWidth / gameArea.clientHeight;
+    return Math.floor(mazeWidth / aspectRatio);
+}
+
+function handleKeyPress(event) {
+    const validKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+    if (!validKeys.includes(event.key)) {
+        return; // Ignore non-arrow keys
+    }
+    
+    const modal = document.getElementById('gameModal');
+    if (modal.style.display === 'block') {
+        return; // Do not handle key presses if the modal is open
+    }
+
+    if (!gameRunning) {
+        startGame();
+    }
+
+    let newPosition = {...playerPosition};
+    switch (event.key) {
+        case 'ArrowUp':
+            newPosition.row--;
+            break;
+        case 'ArrowDown':
+            newPosition.row++;
+            break;
+        case 'ArrowLeft':
+            newPosition.col--;
+            break;
+        case 'ArrowRight':
+            newPosition.col++;
+            break;
+        default:
+            console.debug(`Unhandled key pressed: ${event.key}`);
+            return; // Ignore other keys
+    }
+
+    if (isValidMove(newPosition)) {
+        updatePlayerPosition(newPosition);
+        checkWinCondition();
+    } else {
+        console.debug(`Invalid move to position (${newPosition.row}, ${newPosition.col}).`);
+    }
+}
+
+// Function to initialize the game and show the modal
 function initializeKeyboardControls() {
     document.addEventListener('keydown', handleKeyPress);
 }
- 
+
 function initializeGame() {
     console.info(`Initializing game.`);
-   const startButton = document.getElementById('startButton');
-   const setSizeButton = document.getElementById('setSizeButton');
-   const touchOverlay = document.getElementById('touchOverlay');
-  const mazeWidthInput = document.getElementById('mazeWidth');
-   
-   if (startButton) {
-       startButton.addEventListener('click', startGame);
-   } else {
+    const startButton = document.getElementById('startButton');
+    const setSizeButton = document.getElementById('setSizeButton');
+    const touchOverlay = document.getElementById('touchOverlay');
+    const mazeWidthInput = document.getElementById('mazeWidth');
+    const mazeHeightInput = document.getElementById('mazeHeight');
+
+    if (startButton) {
+        startButton.addEventListener('click', startGame);
+    } else {
         console.warn('startButton element not found.');
-   }
-   
-   if (setSizeButton) {
-       setSizeButton.addEventListener('click', setMazeSize);
-   } else {
+    }
+
+    if (setSizeButton) {
+        setSizeButton.addEventListener('click', setMazeSize);
+    } else {
         console.warn('setSizeButton element not found.');
-   }
-    
-   if (touchOverlay) {
-       touchOverlay.addEventListener('touchstart', handleTouchStart, {passive: false});
-       touchOverlay.addEventListener('touchmove', handleTouchMove, {passive: false});
-   } else {
+    }
+
+    if (touchOverlay) {
+        touchOverlay.addEventListener('touchstart', handleTouchStart, {passive: false});
+        touchOverlay.addEventListener('touchmove', handleTouchMove, {passive: false});
+    } else {
         console.warn('touchOverlay element not found.');
-   }
+    }
 
-  if (mazeWidthInput) {
-      mazeWidthInput.addEventListener('input', setMazeSize);
-  } else {
+    if (mazeWidthInput) {
+        mazeWidthInput.addEventListener('change', setMazeSize);
+    } else {
         console.warn('mazeWidth input element not found.');
-  }
+    }
 
-    updateMazeHeight(); // Update maze height based on aspect ratio
+    if (mazeHeightInput) {
+        mazeHeightInput.addEventListener('input', setMazeSize);
+    } else {
+        console.warn('mazeHeight input element not found.');
+    }
+
+    mazeHeight = calculateMazeHeight();
     updateCellSize(); // Update cell size based on maze dimensions
     const initialMaze = generateMaze(mazeHeight, mazeWidth);
     maze = initialMaze.grid;
+     mazeHeight = calculateMazeHeight();
     end = initialMaze.end;
     endPosition = end ? {row: end.y, col: end.x} : {row: 1, col: 1}; // Fallback to (1, 1) if end is null
 
-    updateMazeHeight(); // Update maze height based on aspect ratio
     updateCellSize(); // Update cell size based on maze dimensions
     console.debug(`Initial maze state:`);
     console.debug(maze);
     drawMaze();
     placePlayer();
     console.info(`Game initialized.`);
-   showGameModal();
+    showGameModal();
+    initializeKeyboardControls();
 }
 
-initializeKeyboardControls();
- // Function to show the game modal
- function showGameModal() {
-     const modal = document.getElementById('gameModal');
-     modal.style.display = 'block';
- }
- 
- // Function to hide the game modal
- function hideGameModal() {
-     const modal = document.getElementById('gameModal');
-     modal.style.display = 'none';
- }
-function updateMazeHeight() {
-    mazeHeight = calculateMazeHeight(mazeWidth);
-    if (mazeHeight % 2 === 0) mazeHeight--; // Ensure height is odd
-    document.getElementById('mazeHeight').value = mazeHeight;
-    console.debug(`Maze height updated to ${mazeHeight} based on aspect ratio.`);
+// Function to show the game modal
+function showGameModal() {
+    const modal = document.getElementById('gameModal');
+    modal.style.display = 'block';
 }
 
-function calculateMazeHeight(width) {
-    const gameArea = document.getElementById('gameArea');
-    const aspectRatio = gameArea.clientWidth / gameArea.clientHeight;
-    let height = Math.floor(width / aspectRatio) - 1;
-    if (height % 2 === 0) height--; // Ensure height is odd
-    return height;
+// Function to hide the game modal
+function hideGameModal() {
+    const modal = document.getElementById('gameModal');
+    modal.style.display = 'none';
 }
 
 function updateCellSize() {
@@ -124,31 +169,35 @@ function updateCellSize() {
 function setMazeSize() {
     console.info(`Setting maze size.`);
     mazeWidth = parseInt(document.getElementById('mazeWidth').value);
-    if (isNaN(mazeWidth) || mazeWidth < 5 || mazeWidth > 500) {
-        console.warn('Invalid maze width. It should be between 5 and 500.');
+    if (isNaN(mazeWidth) || mazeWidth < 5 || mazeWidth > 50) {
+        console.warn('Invalid maze width. It should be between 5 and 50.');
         return;
+     }
+    mazeHeight = calculateMazeHeight(); // Recalculate maze height based on the new width
+        console.debug(`New maze dimensions: ${mazeWidth}x${mazeHeight}`);
+        const {grid: newGrid, end: newEnd} = generateMaze(mazeHeight, mazeWidth);
+        maze = newGrid; // Directly update the local 'maze' variable
+        start = findOpenPosition(newGrid, 1, 1);
+        end = newEnd;
+        console.debug(`New start position: (${start.x}, ${start.y}). New end position: (${end.x}, ${end.y})`);
+        startPosition = {row: start.y, col: start.x};
+        endPosition = {row: end.y, col: end.x};
+        updateCellSize(); // Update cell size based on new maze dimensions
+        console.debug(`Updated maze state:`);
+        console.debug(maze);
+        drawMaze();
+        placePlayer();
+        console.info(`Maze size set to ${mazeWidth}x${mazeHeight}. Start position: (${start.x}, ${start.y}). End position: (${end.x}, ${end.y}).`);
     }
-    updateMazeHeight();
-    console.debug(`New maze dimensions: ${mazeWidth}x${mazeHeight}`);
-    const {grid: newGrid, end: newEnd} = generateMaze(mazeHeight, mazeWidth);
-    maze = newGrid; // Directly update the local 'maze' variable
-    // Ensure start and end are not placed inside walls
-    start = findOpenPosition(newGrid, 1, 1);
-    end = newEnd;
-    console.debug(`New start position: (${start.x}, ${start.y}). New end position: (${end.x}, ${end.y})`);
-    startPosition = {row: start.y, col: start.x};
-    endPosition = {row: end.y, col: end.x};
-    updateCellSize(); // Update cell size based on new maze dimensions
-    console.debug(`Updated maze state:`);
-    console.debug(maze);
-    drawMaze();
-    placePlayer();
-    console.info(`Maze size set to ${mazeWidth}x${mazeHeight}. Start position: (${start.x}, ${start.y}). End position: (${end.x}, ${end.y}).`);
-}
 
-let touchStartX = 0;
-let touchStartY = 0;
-
+// Add event listener to recalculate maze dimensions on window resize
+window.addEventListener('resize', function() {
+    mazeHeight = calculateMazeHeight(); // Recalculate the maze height based on the current game area
+    updateCellSize(); // Update cell size based on new dimensions
+    drawMaze(); // Redraw the maze with updated dimensions
+    placePlayer(); // Reposition the player in the resized maze
+    console.debug(`Window resized. Maze dimensions recalculated to ${mazeWidth}x${mazeHeight}.`);
+});
 function handleTouchStart(event) {
     const touch = event.touches[0];
     const gameArea = document.getElementById('gameArea');
@@ -232,38 +281,6 @@ function placePlayer() {
     console.debug(`Player placed at starting position (${playerPosition.row}, ${playerPosition.col}).`);
 }
 
-function handleKeyPress(event) {
-    if (!gameRunning) {
-        startGame();
-    }
-
-    let newPosition = {...playerPosition};
-    switch (event.key) {
-        case 'ArrowUp':
-            newPosition.row--;
-            break;
-        case 'ArrowDown':
-            newPosition.row++;
-            break;
-        case 'ArrowLeft':
-            newPosition.col--;
-            break;
-        case 'ArrowRight':
-            newPosition.col++;
-            break;
-        default:
-            console.debug(`Unhandled key pressed: ${event.key}`);
-            return; // Ignore other keys
-    }
-
-    if (isValidMove(newPosition)) {
-        updatePlayerPosition(newPosition);
-        checkWinCondition();
-    } else {
-        console.debug(`Invalid move to position (${newPosition.row}, ${newPosition.col}).`);
-    }
-}
-
 function isValidMove(position) {
     console.debug(`Checking if move to position (${position.row}, ${position.col}) is valid.`);
     return maze[position.row] && maze[position.row][position.col] === 0;
@@ -290,7 +307,7 @@ function checkWinCondition() {
 
 function startGame() {
     if (gameRunning) return; // Prevent restarting the game if it's already running
-   hideGameModal();
+    hideGameModal();
     gameRunning = true;
     console.info(`Game started.`);
     timerInterval = setInterval(() => {
@@ -310,20 +327,6 @@ function formatTime(seconds) {
 // Helper function to pad time values with zero
 function padZero(number) {
     return number.toString().padStart(2, '0');
-}
-
- // Function to restart the game and show the modal
-function restartGame() {
-    if (!gameRunning) startGame(); // Ensure game starts if not already running when reset
-    clearInterval(timerInterval);
-    timeElapsed = 0;
-    document.getElementById('timer').textContent = '00:00';
-    playerPosition = {...startPosition};
-    placePlayer();
-    gameRunning = false;
-    console.info(`Game restarted. Current player position:`);
-    console.debug(playerPosition);
-    console.info(`Game restarted.`);
 }
 
 // Initialize the game when the window loads
