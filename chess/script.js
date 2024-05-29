@@ -464,6 +464,7 @@ function updateBoard() {
                 square.appendChild(pieceElement);
             } else {
                 square.innerHTML = '';
+               square.appendChild(coordinate); // Ensure coordinate display is re-added
             }
             boardElement.appendChild(square);
             square.addEventListener('click', () => handleSquareClick(rowIndex, colIndex));

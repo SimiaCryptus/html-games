@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     const startGameButton = document.querySelector('#start-game');
-    startGameButton.addEventListener('click', startGame);
     const resetButton = document.querySelector('#reset-button');
     resetButton.addEventListener('click', resetGame);
 
@@ -20,7 +19,31 @@ document.addEventListener('DOMContentLoaded', () => {
         {name: 'card7', img: 'card7.png'},
         {name: 'card7', img: 'card7.png'},
         {name: 'card8', img: 'card8.png'},
-        {name: 'card8', img: 'card8.png'}
+        {name: 'card8', img: 'card8.png'},
+        {name: 'card9', img: 'card9.png'},
+        {name: 'card9', img: 'card9.png'},
+        {name: 'card10', img: 'card10.png'},
+        {name: 'card10', img: 'card10.png'},
+        {name: 'card11', img: 'card11.png'},
+        {name: 'card11', img: 'card11.png'},
+        {name: 'card12', img: 'card12.png'},
+        {name: 'card12', img: 'card12.png'},
+        {name: 'card13', img: 'card13.png'},
+        {name: 'card13', img: 'card13.png'},
+        {name: 'card14', img: 'card14.png'},
+        {name: 'card14', img: 'card14.png'},
+        {name: 'card15', img: 'card15.png'},
+        {name: 'card15', img: 'card15.png'},
+        {name: 'card16', img: 'card16.png'},
+        {name: 'card16', img: 'card16.png'},
+        {name: 'card17', img: 'card17.png'},
+        {name: 'card17', img: 'card17.png'},
+        {name: 'card18', img: 'card18.png'},
+        {name: 'card18', img: 'card18.png'},
+        {name: 'card19', img: 'card19.png'},
+        {name: 'card19', img: 'card19.png'},
+        {name: 'card20', img: 'card20.png'},
+        {name: 'card20', img: 'card20.png'},
     ];
 
     function resetGame() {
@@ -35,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`[RESET GAME] Creating board with width: ${width}, height: ${height}`);
         createBoard(width, height);
         document.querySelector('#setup-area').style.display = 'block'; // Show setup area when game resets
-        document.querySelector('#start-game').style.display = 'block'; // Show start game button when game resets
     }
 
     const grid = document.querySelector('#game-board');
@@ -47,34 +69,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPlayer = 0;
     let isChecking = false;  // Flag to prevent flipping more cards during check
 
-    function startGame() {
-        console.log('[START GAME] Starting game...');
-        const numPlayers = document.querySelector('#num-players').value;
-        const boardWidth = document.querySelector('#board-width').value;
-        const boardHeight = document.querySelector('#board-height').value;
-        console.log(`[START GAME] Number of players: ${numPlayers}, Board width: ${boardWidth}, Board height: ${boardHeight}`);
-        initializeGame(numPlayers, boardWidth, boardHeight);
-        document.querySelector('#setup-area').style.display = 'none'; // Hide setup area when game starts
-        document.querySelector('#start-game').style.display = 'none'; // Hide start game button when game starts
-    }
 
     // Function to create the board
     function createBoard(width, height) {
         console.log(`[CREATE BOARD] Creating board with dimensions: ${width}x${height}`);
         const numCards = parseInt(width) * parseInt(height);
-    const numPairs = Math.floor(numCards / 2);
+    const numPairs = Math.floor(numCards / 2); // Ensure we have enough pairs for even number of cards
         cardArray.sort(() => 0.5 - Math.random());
-    if (numPairs > cardArray.length / 2) {
-        generateHigherNumberedCards(numPairs * 2);
-    }
     if (numPairs > cardArray.length / 2) {
         console.error(`[CREATE BOARD] Not enough cards to fill the board. Required pairs: ${numPairs}, Available pairs: ${cardArray.length / 2}`);
             return;
         }
-    const cardsToUse = cardArray.slice(0, numPairs * 2);
-    if (numCards % 2 !== 0) {
-        cardsToUse.pop(); // Leave one card off if the number of requested cards is odd
-    }
+        let cardsToUse = cardArray.slice(0, numPairs * 2);
         grid.style.gridTemplateColumns = `repeat(${width}, auto)`;
         grid.style.gridTemplateRows = `repeat(${height}, auto)`;
     for (let i = 0; i < cardsToUse.length; i++) {
@@ -138,8 +144,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageElement = document.createElement('div');
         messageElement.textContent = message;
         messageElement.classList.add('message');
-        grid.appendChild(messageElement);
-        setTimeout(() => messageElement.remove(), 1000);
+    document.body.appendChild(messageElement); // Append message to body for better visibility
+    setTimeout(() => {
+        messageElement.classList.add('fade-out'); // Add fade-out class for smooth transition
+        setTimeout(() => messageElement.remove(), 500); // Remove element after fade-out
+    }, 1000);
     }
 
     // Flip your card
@@ -156,20 +165,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function generateHigherNumberedCards(numCards) {
-        console.log(`[GENERATE HIGHER NUMBERED CARDS] Generating higher numbered cards to fill ${numCards} slots`);
-        const baseCards = cardArray.slice(0, 10);  // Assuming first 10 cards are base cards
-    let cardIndex = baseCards.length / 2 + 1;
-    while (cardArray.length < numCards) {
-         const hue = (cardIndex * 36) % 360;  // Adjust hue for color variation
-            const newCard = {
-                name: `card${cardIndex}`,
-                img: `hsl(${hue}, 100%, 50%)`  // Generate HSL color
-            };
-            cardArray.push(newCard, newCard);  // Add pairs
-            cardIndex++;
-        }
-    }
+
+
 
     console.log('[INIT] Creating initial board...');
     resetGame();
