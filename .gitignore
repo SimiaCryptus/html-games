@@ -2,3 +2,6 @@
 .skyenet
 .idea/
 html-games.iml
+node_modules/
+/checkers/dist/
+/3dmaze/node_modules/

@@ -3,6 +3,7 @@
 import {handleDragStart, handleTileClick, initializeClickToPlace} from "./dragdrop.js";
 import { selectedTile } from "./dragdrop.js";
 
+const EXCHANGE_TILE_COUNT = 7; // Number of tiles a player can exchange
 const BOARD_SIZE = 15;
 const MIN_WORD_LENGTH = 2; // Define minimum word length for validation
 
@@ -336,7 +337,6 @@ function isAdjacentToExistingTiles(row, col) {
         [row - 1, col], // Up
         [row + 1, col], // Down
         [row, col - 1], // Left
-        [row, col - 1], // Left
         [row, col + 1]  // Right
     ].filter(([r, c]) => r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE); // Ensure positions are within board limits
     let isAdjacent = false;
@@ -532,8 +532,29 @@ document.getElementById('submit-word').addEventListener('click', () => {
 
 document.getElementById('reset-game').addEventListener('click', initBoard); // Reset game functionality
 
+document.getElementById('exchange-tiles').addEventListener('click', () => {
+    logFunctionCall('exchange-tiles click event');
+    exchangeTiles();
+});
+ 
 // Initialize the game and draw tiles on load
 window.onload = () => {
-    console.log('Window onload event triggered');
     initBoard(); // drawTiles is now called inside initBoard
 };
+ 
+// Exchange tiles function
+function exchangeTiles() {
+    console.log('Called exchangeTiles');
+    if (tilesRemaining < EXCHANGE_TILE_COUNT) {
+        console.log('Not enough tiles remaining to exchange.');
+        updateStatusDisplay('Not enough tiles remaining to exchange.');
+        return;
+    }
+    currentPlayerTiles.forEach(tile => {
+        tile.remove(); // Remove tile from the rack
+        tilesRemaining++;
+    });
+    currentPlayerTiles = [];
+    drawTiles(); // Draw new tiles
+    console.log('Tiles exchanged successfully.');
+}

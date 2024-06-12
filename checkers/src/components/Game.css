@@ -1,0 +1,21 @@
+.game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.scoreboard {
+    display: flex;
+    justify-content: space-between;
+    width: 400px;
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.score {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

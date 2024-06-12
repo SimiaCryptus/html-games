@@ -1,0 +1,31 @@
+.piece {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s, opacity 0.3s;
+}
+
+.piece.red {
+    background-color: red;
+}
+
+.piece.black {
+    background-color: black;
+}
+
+.piece.king {
+    border: 2px solid gold;
+}
+
+.crown {
+    font-size: 24px;
+    color: gold;
+}
+
+.piece.selected {
+    width: 40px; /* Ensure the selected piece maintains the same size */
+    height: 40px; /* Ensure the selected piece maintains the same size */
+}

@@ -1,0 +1,13 @@
+.scrabble-board {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+}
+
+.scrabble-board .MuiGrid-item {
+    flex: 0 0 auto;
+}
