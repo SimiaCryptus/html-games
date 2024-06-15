@@ -3,5 +3,9 @@
 .idea/
 html-games.iml
 node_modules/
+ build/
+ .env
+*.log
+*.tmp
 /checkers/dist/
 /3dmaze/node_modules/

@@ -18,7 +18,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "ESLINT_CONFIG_FILE=./.eslintrc.json react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

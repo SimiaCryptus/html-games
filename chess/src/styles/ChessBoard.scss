@@ -1,0 +1,60 @@
+.chessboard {
+  display: grid;
+  grid-template-rows: repeat(8, 1fr);
+  grid-template-columns: repeat(8, 1fr);
+  gap: 1px;
+  width: 100vmin; /* Use 100% of the viewport's smaller dimension */
+  height: 100vmin; /* Use 100% of the viewport's smaller dimension */
+  border: 2px solid #333;
+  margin: 0; /* Remove margin */
+  margin: 0 auto;
+}
+
+.row {
+  display: contents;
+}
+
+.square {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative; /* Add position relative for coordinate display */
+}
+
+.square.even {
+  background-color: #f0d9b5;
+}
+
+.square.odd {
+  background-color: #b58863;
+}
+
+.status {
+  text-align: center;
+  font-size: 1.5em;
+  font-weight: bold;
+  padding: 10px;
+  background-color: #333;
+  color: #fff;
+  border-bottom: 2px solid #444;
+}
+
+.coordinate {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  font-size: 1.0em;
+  color: rgba(0, 0, 0, 0.5); /* Light color for better visibility */
+  pointer-events: none; /* Prevent interaction with the coordinate text */
+}
+
+.square.highlight {
+  background-color: #aaffaa;
+  border: 1px solid #00ff00;
+}
+
+.square.selected {
+  border: 2px solid #ff0000;
+}

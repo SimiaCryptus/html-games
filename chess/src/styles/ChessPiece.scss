@@ -1,0 +1,14 @@
+.chess-piece {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+
+  img {
+    width: 60px;
+    height: 60px;
+    user-select: none; /* Prevents the image from being draggable */
+  }
+}

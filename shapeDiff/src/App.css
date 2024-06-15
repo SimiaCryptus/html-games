@@ -1,104 +1,137 @@
 .App {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
 }
 
 .App-logo {
-  height: 40vmin;
-  pointer-events: none;
+    height: 40vmin;
+    pointer-events: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+    .App-logo {
+        animation: App-logo-spin infinite 20s linear;
+    }
 }
 
 .App-header {
-  display: flex;
-  flex-direction: column;
-  background-color: #1e1e1e;
-  color: white;
-  padding: 20px;
-  align-items: center;
+    display: flex;
+    flex-direction: column;
+    background-color: #4A90E2;
+    color: white;
+    padding: 20px;
+    align-items: center;
+}
+
+.score, .timer {
+    font-size: 1.2em;
+    margin-top: 10px;
+    color: #ffcc00;
 }
 
 .App-link {
-  color: #61dafb;
+    color: #61dafb;
 }
 
- .App-main {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto 1fr;
-  gap: 20px;
-  padding: 20px;
-  height: 100%;
-  width: 100%;
-  box-sizing: border-box;
- }
+.App-main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 20px;
+    padding: 20px;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+}
 
- .App-main > div {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #282c34;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
- }
+.App-main > div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #7B61FF;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
 
- .App-footer {
-   background-color: #20232a;
-   color: white;
-   padding: 10px;
-   text-align: center;
- }
+.App-footer {
+    background-color: #20232a;
+    background-color: #FF61A6;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
 
- .instructions {
-   font-size: 1.5em;
-   margin-bottom: 20px;
-  text-align: center;
-  color: #61dafb;
- }
+.instructions {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #ffcc00;
+}
 
- .choices-container {
-   display: flex;
-   flex-wrap: wrap;
-   justify-content: center;
-  gap: 20px;
- }
+.choices-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
 
- .choice-item {
-   cursor: pointer;
-   margin: 10px;
-   border: 2px solid transparent;
-   transition: border-color 0.3s;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
- }
+.choice-item {
+    cursor: pointer;
+    margin: 10px;
+    border: 2px solid transparent;
+    transition: border-color 0.3s;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
 
- .choice-item:hover {
-   border-color: #61dafb;
- }
- 
- .selection-result {
-   font-size: 1.2em;
-   margin-top: 20px;
-   color: #61dafb;
-   text-align: center;
- }
- 
+.choice-item:hover {
+    border-color: #FFD700;
+}
+
+.choice-item.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.selection-result {
+    font-size: 1.2em;
+    margin-top: 20px;
+    color: #ffcc00;
+    text-align: center;
+}
+
 @keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.main-canvas {
+    width: 100%;
+    height: 75vh;
+}
+
+.choice-canvas {
+    width: 150px;
+    height: 75vh;
+}
+
+@media (max-width: 768px) {
+    .App-main {
+        grid-template-columns: 1fr;
+    }
+
+    .choice-canvas {
+        width: 100px;
+        height: 75vh;
+    }
 }

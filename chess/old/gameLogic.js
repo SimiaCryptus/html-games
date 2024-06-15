@@ -7,6 +7,24 @@ class ChessGame {
         this.gameOver = false;
         this.status = "White's turn";
         this.moveLog = [];
+        this.gameId = null; // Add gameId to track the game session
+        this.playerColor = 'white'; // Add playerColor to track the player's color
+        this.opponentMoveCallback = null; // Callback for opponent's move
+        this.isOnlineGame = false; // Flag to check if the game is online
+        this.opponentMoveInterval = null; // Interval to poll for opponent's move
+        this.lastMoveTime = null; // Track the time of the last move
+    }
+
+    setGameId(gameId) {
+        this.gameId = gameId;
+    }
+
+    setPlayerColor(color) {
+        this.playerColor = color;
+    }
+
+    setOpponentMoveCallback(callback) {
+        this.opponentMoveCallback = callback;
     }
 
     getGameState() {
@@ -15,7 +33,10 @@ class ChessGame {
             currentTurn: this.currentTurn,
             moveLog: this.moveLog,
             status: this.status,
-            gameOver: this.gameOver
+             gameOver: this.gameOver,
+             gameId: this.gameId, // Include gameId in the game state
+             playerColor: this.playerColor, // Include playerColor in the game state
+            lastMoveTime: this.lastMoveTime // Include lastMoveTime in the game state
         };
     }
 
@@ -27,6 +48,12 @@ class ChessGame {
         this.gameOver = state.gameOver;
         this.status = `${this.currentTurn === 'white' ? 'White' : 'Black'}'s turn`;
         this.moveLog = state.moveLog;
+        this.gameId = state.gameId; // Set gameId from the state
+        this.playerColor = state.playerColor; // Set playerColor from the state
+        this.lastMoveTime = state.lastMoveTime; // Set lastMoveTime from the state
+        if (this.opponentMoveCallback) {
+            this.opponentMoveCallback();
+        }
     }
 
     initializeBoard() {
@@ -89,6 +116,14 @@ class ChessGame {
         }
         console.table(this.board.map(row => row.map(piece => piece ? piece : '  ')));
 
+        // Update the last move time
+        this.lastMoveTime = new Date().toISOString();
+
+        // Send the updated game state to the server
+        if (this.isOnlineGame && this.gameId) {
+            sendGameState(this.getGameState());
+        }
+
         return true;
     }
 
@@ -141,5 +176,58 @@ class ChessGame {
         const row = 8 - parseInt(position[1]);
         const col = position.charCodeAt(0) - 'a'.charCodeAt(0);
         return [row, col];
+    }
+
+    startPollingForOpponentMove() {
+        if (this.opponentMoveInterval) {
+            clearInterval(this.opponentMoveInterval);
+        }
+        this.opponentMoveInterval = setInterval(async () => {
+            const gameState = await receiveGameState(this.gameId);
+            if (gameState && gameState.currentTurn !== this.currentTurn && gameState.lastMoveTime !== this.lastMoveTime) {
+                this.setGameState(gameState);
+                if (this.opponentMoveCallback) {
+                    this.opponentMoveCallback();
+                }
+            }
+        }, 3000); // Poll every 3 seconds
+    }
+
+    stopPollingForOpponentMove() {
+        if (this.opponentMoveInterval) {
+            clearInterval(this.opponentMoveInterval);
+            this.opponentMoveInterval = null;
+        }
+    }
+}
+
+// Function to send the game state to the server
+async function sendGameState(gameState) {
+    const response = await fetch(`https://httprelay.io/${gameState.gameId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(gameState)
+    });
+    if (!response.ok) {
+        console.error('Failed to send game state:', response.statusText);
+    }
+}
+
+// Function to receive the game state from the server
+async function receiveGameState(gameId) {
+    const response = await fetch(`https://httprelay.io/${gameId}`, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        }
+    });
+    if (response.ok) {
+        const gameState = await response.json();
+        return gameState;
+    } else {
+        console.error('Failed to receive game state:', response.statusText);
+        return null;
     }
 }
