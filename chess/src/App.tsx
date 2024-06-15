@@ -62,9 +62,6 @@ const App: React.FC = () => {
                 <button id="text-move-button" onClick={handleOpenTextMoveModal}>Text Move</button>
                 <button id="online-play-button" onClick={handleOpenOnlinePlayModal}>Online Play</button>
                 <button id="move-log-button" onClick={handleOpenMoveLogModal}>View Move Log</button>
-                <button id="save-load-button">Save/Load</button>
-                <button id="text-move-button">Text Move</button>
-                <button id="online-play-button">Online Play</button>
             </div>
             <div id="game-container">
                 <ChessBoard/>
