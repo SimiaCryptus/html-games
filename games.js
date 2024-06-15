@@ -28,7 +28,7 @@ const games = [
     },
     {
         title: "Chess",
-        url: "chess/index.html"
+        url: "chess/build/index.html"
     },
     {
         title: "Othello",
