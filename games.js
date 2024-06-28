@@ -31,6 +31,10 @@ const games = [
         url: "chess/build/index.html"
     },
     {
+        title: "3D Chess",
+        url: "chess3d/build/index.html"
+    },
+    {
         title: "Othello",
         url: "othello/index.html"
     },
