@@ -4,6 +4,8 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {Text} from '@react-three/drei';
 import ChessPiece from './ChessPiece.tsx';
 
+ // ... (rest of the imports and constants)
+ 
 extend({OrbitControls});
 extend({Text});
 
@@ -191,6 +193,10 @@ interface ChessBoardProps {
 }
 
 const ChessBoard: React.FC<ChessBoardProps> = ({currentTurn, switchTurn, onPieceCapture}) => {
+     // ... (existing state variables)
+    const [animatingPiece, setAnimatingPiece] = useState(null);
+
+     // ... (existing functions)
     const [gameOver, setGameOver] = useState(false);
     console.log('Rendering ChessBoard component');
     const [selectedPiece, setSelectedPiece] = useState(null);
@@ -219,7 +225,6 @@ const ChessBoard: React.FC<ChessBoardProps> = ({currentTurn, switchTurn, onPiece
     };
 
     const handleSquareClick = (i, j) => {
-
         console.log(`Square clicked: [${i}, ${j}]`);
         if (selectedPiece) {
             if (!possibleMoves.some(possibleMove => isSamePosition(possibleMove, [i, j]))) {
@@ -231,15 +236,27 @@ const ChessBoard: React.FC<ChessBoardProps> = ({currentTurn, switchTurn, onPiece
                 piece.color !== selectedPiece.color
             );
 
-            const newPositions = positions.map(piece => {
-                if (isSamePosition(piece.position, selectedPiece.position)) {
-                    return {...piece, position: [i, CENTERING_FACTOR, j]};
-                }
-                if (capturedPiece && isSamePosition(piece.position, capturedPiece.position)) {
-                    return null;
-                }
-                return piece;
-            }).filter(Boolean);
+            setAnimatingPiece({...selectedPiece, targetPosition: [i, CENTERING_FACTOR, j]});
+
+            setTimeout(() => {
+                const newPositions = positions.map(piece => {
+                    if (isSamePosition(piece.position, selectedPiece.position)) {
+                        return {...piece, position: [i, CENTERING_FACTOR, j]};
+                    }
+                    if (capturedPiece && isSamePosition(piece.position, capturedPiece.position)) {
+                        return null;
+                    }
+                    return piece;
+                }).filter(Boolean);
+
+                setPositions(newPositions);
+                setSelectedPiece(null);
+                setPossibleMoves([]);
+                setBoardKey(boardKey + 1);
+                console.log(`Turn switched from ${currentTurn}`);
+                switchTurn();
+                setAnimatingPiece(null);
+            }, 500); // Wait for animation to complete
 
             if (capturedPiece) {
                 console.log(`Piece captured: ${capturedPiece.type} at position: ${JSON.stringify(capturedPiece.position)}`);
@@ -249,12 +266,6 @@ const ChessBoard: React.FC<ChessBoardProps> = ({currentTurn, switchTurn, onPiece
                 }
             }
 
-            setPositions(newPositions);
-            setSelectedPiece(null);
-            setPossibleMoves([]);
-            setBoardKey(boardKey + 1); // Trigger re-render by updating the key
-            console.log(`Turn switched from ${currentTurn}`);
-            switchTurn(); // Switch turn after a move
         }
     };
 
@@ -266,11 +277,19 @@ const ChessBoard: React.FC<ChessBoardProps> = ({currentTurn, switchTurn, onPiece
             </group>
             {positions.map((piece, index) => (
                 <React.Fragment key={index}>
-                    {console.log(`Rendering chess piece of type: ${piece.type} at position: ${JSON.stringify(piece.position)}`)}
-                    <ChessPiece key={index} type={piece.type} position={piece.position} color={piece.color}
-                                onClick={() => handlePieceClick(piece)} isSelected={selectedPiece === piece}/>
+                    <ChessPiece
+                        key={index}
+                        type={piece.type}
+                        position={piece.position}
+                        color={piece.color}
+                        onClick={() => handlePieceClick(piece)}
+                        isSelected={selectedPiece === piece}
+                        isAnimating={animatingPiece && isSamePosition(animatingPiece.position, piece.position)}
+                        targetPosition={animatingPiece && isSamePosition(animatingPiece.position, piece.position) ? animatingPiece.targetPosition : null}
+                    />
                 </React.Fragment>
             ))}
+            {/* ... (rest of the JSX) */}
         <Text position={[4, 5, 4]} fontSize={1} color="white" anchorX="center" anchorY="middle">
             {gameOver ? `GAME OVER - ${currentTurn === 'white' ? 'BLACK' : 'WHITE'} WINS!` : ``}
         </Text>
