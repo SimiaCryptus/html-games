@@ -57,7 +57,7 @@ const ChessPiece: React.FC<ChessPieceProps> = ({
         loadModel(pieceModels[type])
             .then((model) => {
                 console.log(`ChessPiece: Model loaded successfully for type: ${type}`);
-                
+
                 // Measure the bounding box of the model
                 const boundingBox = new Box3().setFromObject(model);
                 const size = new Vector3();

@@ -50,16 +50,17 @@ class ErrorBoundary extends Component {
             return (
                 <div>
                     <h2>Something went wrong.</h2>
-                    <details style={{ whiteSpace: 'pre-wrap' }}>
+                    <details style={{whiteSpace: 'pre-wrap'}}>
                         <summary>Error Details</summary>
                         <p>
                             <strong>Error:</strong> {this.state.error && (this.state.error.message || this.state.error.toString())}
                         </p>
-                        <br />
+                        <br/>
                         <p>
-                            <strong>Component Stack:</strong> {this.state.errorInfo && this.state.errorInfo.componentStack}
+                            <strong>Component
+                                Stack:</strong> {this.state.errorInfo && this.state.errorInfo.componentStack}
                         </p>
-                        <br />
+                        <br/>
                         <p>
                             <strong>Error Stack:</strong> {this.state.error && this.state.error.stack}
                         </p>

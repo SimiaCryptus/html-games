@@ -5,7 +5,7 @@ import {Text} from '@react-three/drei';
 import ChessPiece from './ChessPiece.tsx';
 import {convertFromAscii, convertToAscii, validateAsciiArt} from '../utils/asciiConverter.ts';
 import {MoveHistory} from '../utils/moveHistory.ts';
-import { DEBUG } from '../config.js';
+import {DEBUG} from '../config.js';
 
 // ... (rest of the imports and code)
 extend({OrbitControls});
@@ -190,9 +190,10 @@ interface ChessBoardProps {
     currentTurn: 'white' | 'black';
     switchTurn: () => void;
     resetGame: () => void;
-    onBoardStateChange: (positions: any[]) => void;
+    onBoardStateChange: (positions: { type: string, position: [number, number, number], color: string }[]) => void;
     moveHistory: MoveHistory;
 }
+
 
 const ChessBoard = forwardRef<any, ChessBoardProps>(({
                                                          currentTurn,
@@ -202,7 +203,14 @@ const ChessBoard = forwardRef<any, ChessBoardProps>(({
                                                          onBoardStateChange,
                                                          moveHistory
                                                      }, ref) => {
-    console.log('Rendering ChessBoard component', { currentTurn, switchTurn, onPieceCapture, resetGame, onBoardStateChange, moveHistory });
+    console.log('Rendering ChessBoard component', {
+        currentTurn,
+        switchTurn,
+        onPieceCapture,
+        resetGame,
+        onBoardStateChange,
+        moveHistory
+    });
 
     const getBoardStateAsAscii = (): string => {
         return convertToAscii(positions);
@@ -211,23 +219,37 @@ const ChessBoard = forwardRef<any, ChessBoardProps>(({
     const setBoardStateFromAscii = (asciiArt: string): void => {
         if (validateAsciiArt(asciiArt)) {
             const newPositions = convertFromAscii(asciiArt);
-            setPositions(newPositions);
-            setSelectedPiece(null);
-            setPossibleMoves([]);
-            setBoardKey(boardKey + 1);
-            onBoardStateChange(newPositions);
+            updateBoardState(newPositions);
         } else {
             console.error('Invalid ASCII art format');
         }
     };
 
+    const updateBoardState = (newPositions: any[]) => {
+        setPositions(newPositions);
+        setSelectedPiece(null);
+        setPossibleMoves([]);
+        setGameOver(false);
+        setAnimatingPiece(null);
+        setBoardKey(prevKey => prevKey + 1);
+        onBoardStateChange(newPositions);
+        moveHistory.clear();
+        switchTurn();
+    };
+
     useEffect(() => {
         if (DEBUG) {
-            console.log('ChessBoard mounted. Props:', { currentTurn, switchTurn, onPieceCapture, resetGame, onBoardStateChange, moveHistory });
+            console.log('ChessBoard mounted. Props:', {
+                currentTurn,
+                switchTurn,
+                onPieceCapture,
+                resetGame,
+                onBoardStateChange,
+                moveHistory
+            });
         }
     }, []);
 
-    // ... (rest of the component code)
     const [animatingPiece, setAnimatingPiece] = useState<any>(null);
     const [gameOver, setGameOver] = useState<boolean>(false);
     const [selectedPiece, setSelectedPiece] = useState<any>(null);
@@ -245,12 +267,8 @@ const ChessBoard = forwardRef<any, ChessBoardProps>(({
     };
 
     const handleResetGame = () => {
-        setPositions(initialPositions);
-        setSelectedPiece(null);
-        setPossibleMoves([]);
-        setGameOver(false);
+        updateBoardState(initialPositions);
         resetGame();
-        setBoardKey(prevKey => prevKey + 1);
     };
 
     const handleSquareClick = (i, j) => {

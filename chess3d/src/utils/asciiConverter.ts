@@ -40,10 +40,10 @@ export function convertToAscii(positions: ChessPiece[]): string {
         .split('\n')
         .map((line, index) => `${8 - index} ${line} ${8 - index}`)
         .join('\n')}\n${borderLine}\n${columnLabels}`;
-    
+
     console.log('Generated ASCII art:');
     console.log(result);
-    
+
     return result;
 }
 

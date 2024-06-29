@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, {useEffect, useRef} from 'react';
 
 interface ModalProps {
     isOpen: boolean;
@@ -47,8 +47,8 @@ const Modal: React.FC<ModalProps> = ({isOpen, onClose, children, modalId = 'defa
 
     return (
         <div className="modal-overlay" onClick={handleOverlayClick}>
-            <div 
-                className="modal-content" 
+            <div
+                className="modal-content"
                 onClick={(e) => {
                     e.stopPropagation();
                     console.debug(`Modal ${modalId}: Content clicked, propagation stopped`);

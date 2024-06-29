@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, {useCallback, useEffect} from 'react';
 
 interface MenuIconProps {
     onClick: () => void;
@@ -19,15 +19,15 @@ const MenuIcon: React.FC<MenuIconProps> = ({onClick}) => {
         };
     }, []);
 
-    console.log('MenuIcon: Rendering component', { onClick });
+    console.log('MenuIcon: Rendering component', {onClick});
 
     return (
-        <button 
-            className="menu-icon" 
-            onClick={handleClick} 
+        <button
+            className="menu-icon"
+            onClick={handleClick}
             aria-label="Open menu"
-            onMouseEnter={() => console.log('MenuIcon: Mouse entered button', { timeStamp: new Date().toISOString() })}
-            onMouseLeave={() => console.log('MenuIcon: Mouse left button', { timeStamp: new Date().toISOString() })}
+            onMouseEnter={() => console.log('MenuIcon: Mouse entered button', {timeStamp: new Date().toISOString()})}
+            onMouseLeave={() => console.log('MenuIcon: Mouse left button', {timeStamp: new Date().toISOString()})}
             onFocus={() => console.log('MenuIcon: Button focused')}
             onBlur={() => console.log('MenuIcon: Button blurred')}
         >
@@ -51,7 +51,7 @@ const MenuIcon: React.FC<MenuIconProps> = ({onClick}) => {
     );
 };
 
-console.log('MenuIcon: Component defined', { componentName: MenuIcon.name });
+console.log('MenuIcon: Component defined', {componentName: MenuIcon.name});
 
 console.log('MenuIcon: Exporting component');
 export default MenuIcon;

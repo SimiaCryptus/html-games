@@ -1,7 +1,7 @@
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader';
 import {STLLoader} from 'three/examples/jsm/loaders/STLLoader';
 import * as THREE from 'three';
-import {Mesh, BufferGeometry} from 'three';
+import {BufferGeometry, Mesh} from 'three';
 
 const logModelDetails = (model: THREE.Object3D | BufferGeometry) => {
     console.log('[logModelDetails] Starting to log model details');

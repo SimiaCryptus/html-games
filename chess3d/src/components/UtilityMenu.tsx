@@ -50,7 +50,6 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
         }
     };
 
-    // ... (rest of the component code)
     const handleReset = () => {
         console.log('Resetting game...');
         resetGame();
@@ -91,17 +90,19 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
                     {moveHistory && moveHistory.length > 0 ? (
                         moveHistory.map((move, index) => {
                             console.debug(`Rendering move ${index + 1}:`, move);
-                            return <li key={index}>{move}</li>;
+                            return <li key={index}>{JSON.stringify(move)}</li>;
                         })
                     ) : (
                         <li>No moves yet</li>
+
                     )}
                 </ul>
             </div>
             <button className="close-button" onClick={() => {
                 console.log('Closing utility menu');
                 onClose();
-            }}>Close</button>
+            }}>Close
+            </button>
         </div>
     );
 };

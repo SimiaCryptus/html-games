@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useMemo } from 'react';
+import React, {useCallback, useEffect, useMemo} from 'react';
 import ChessPiece from './ChessPiece.tsx';
 
 interface PieceGraveyardProps {
