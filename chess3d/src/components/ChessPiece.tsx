@@ -4,7 +4,7 @@ import {loadModel} from '../utils/loadModel.ts';
 import * as THREE from 'three';
 import {Box3, Vector3} from 'three';
 import {BASE_PATH} from '../config';
-import { useSpring, animated } from '@react-spring/three';
+import {animated, useSpring} from '@react-spring/three';
 
 interface ChessPieceProps extends MeshProps {
     position: [number, number, number];
@@ -16,7 +16,6 @@ interface ChessPieceProps extends MeshProps {
     targetPosition: [number, number, number] | null;
 }
 
- // ... (rest of the constants)
 const pieceModels = {
     pawn: `${BASE_PATH}/assets/pawn.stl`,
     bishop: `${BASE_PATH}/assets/bishop.stl`,
@@ -28,16 +27,23 @@ const pieceModels = {
 
 const PAWN_SCALE_FACTOR = 0.65;
 
-const ChessPiece: React.FC<ChessPieceProps> = ({position, type, color, onClick, isSelected, isAnimating, targetPosition}) => {
+const ChessPiece: React.FC<ChessPieceProps> = ({
+                                                   position,
+                                                   type,
+                                                   color,
+                                                   onClick,
+                                                   isSelected,
+                                                   isAnimating,
+                                                   targetPosition
+                                               }) => {
     const [model, setModel] = useState(null);
     const [error, setError] = useState(null);
 
-    const { position: animatedPosition } = useSpring({
+    const {position: animatedPosition} = useSpring({
         position: isAnimating && targetPosition ? targetPosition : position,
-        config: { mass: 1, tension: 180, friction: 12 }
+        config: {mass: 1, tension: 180, friction: 12}
     });
 
-     // ... (rest of the useEffect and error handling)
     if (!type) {
         console.error('ChessPiece component requires a type prop');
         return null;
@@ -75,13 +81,13 @@ const ChessPiece: React.FC<ChessPieceProps> = ({position, type, color, onClick, 
 
                 // Apply color material
                 const material = new THREE.MeshPhysicalMaterial({
-    color: isSelected ? '#ffd700' : color === 'white' ? '#e6d0b1' : '#b48764',
+                    color: isSelected ? '#ffd700' : color === 'white' ? '#e6d0b1' : '#b48764',
                     metalness: 0.5,
                     roughness: 0.5,
-    clearcoat: 1.0,
-    envMapIntensity: 0.8,
-    emissive: isSelected ? '#ffd700' : '#000000',
-    emissiveIntensity: isSelected ? 0.2 : 0
+                    clearcoat: 1.0,
+                    envMapIntensity: 0.8,
+                    emissive: isSelected ? '#ffd700' : '#000000',
+                    emissiveIntensity: isSelected ? 0.2 : 0
                 });
                 model.traverse((child) => {
                     if (child instanceof THREE.Mesh) {
@@ -98,8 +104,6 @@ const ChessPiece: React.FC<ChessPieceProps> = ({position, type, color, onClick, 
                 setError(err);
             });
     }, [type, color, isSelected]);
-
-    // ... rest of the component remains unchanged
     if (error) {
         console.warn(`Rendering fallback for chess piece of type: ${type} due to error`);
         return <mesh position={position} onClick={onClick}>

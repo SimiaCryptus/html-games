@@ -7,6 +7,7 @@ import PieceGraveyard from './PieceGraveyard.tsx';
 const ChessGame: React.FC = () => {
     console.log('Rendering ChessGame component');
     const [capturedPieces, setCapturedPieces] = useState<{ type: string, color: string }[]>([]);
+    const [gameKey, setGameKey] = useState(0);
 
     const handlePieceCapture = (piece: { type: string, color: string }) => {
         console.log(`Piece captured: ${piece.type} of color ${piece.color}`);
@@ -23,6 +24,12 @@ const ChessGame: React.FC = () => {
         setCurrentTurn(currentTurn === 'white' ? 'black' : 'white');
     };
 
+    const resetGame = () => {
+        setCapturedPieces([]);
+        setCurrentTurn('white');
+        setGameKey(prevKey => prevKey + 1);
+    };
+
     return (
         <div className="chess-container" style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
     <div className="turn-indicator">Current Turn: <span style={{color: currentTurn === 'white' ? '#e6d0b1' : '#b48764'}}>{currentTurn}</span></div>
@@ -31,10 +38,12 @@ const ChessGame: React.FC = () => {
             <pointLight position={[10, 10, 10]} intensity={1.5}/>
             <fog attach="fog" args={['#34495e', 0, 40]} />
             <color attach="background" args={['#34495e']} />
+                <group key={gameKey}>
                 <ChessBoard
                     onPieceCapture={handlePieceCapture}
                     currentTurn={currentTurn}
                     switchTurn={switchTurn}
+                    resetGame={resetGame}
                 />
                 <PieceGraveyard capturedPieces={capturedPieces}/>
                 <OrbitControls
@@ -47,6 +56,7 @@ const ChessGame: React.FC = () => {
                 enableDamping
                 dampingFactor={0.05}
                 />
+                </group>
             </Canvas>
         </div>
     );

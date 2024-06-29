@@ -4,8 +4,6 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {Text} from '@react-three/drei';
 import ChessPiece from './ChessPiece.tsx';
 
- // ... (rest of the imports and constants)
- 
 extend({OrbitControls});
 extend({Text});
 
@@ -190,13 +188,11 @@ interface ChessBoardProps {
     onPieceCapture: (piece: { type: string, color: string }) => void;
     currentTurn: 'white' | 'black';
     switchTurn: () => void;
+    resetGame: () => void;
 }
 
-const ChessBoard: React.FC<ChessBoardProps> = ({currentTurn, switchTurn, onPieceCapture}) => {
-     // ... (existing state variables)
+const ChessBoard: React.FC<ChessBoardProps> = ({currentTurn, switchTurn, onPieceCapture, resetGame}) => {
     const [animatingPiece, setAnimatingPiece] = useState(null);
-
-     // ... (existing functions)
     const [gameOver, setGameOver] = useState(false);
     console.log('Rendering ChessBoard component');
     const [selectedPiece, setSelectedPiece] = useState(null);
@@ -216,11 +212,12 @@ const ChessBoard: React.FC<ChessBoardProps> = ({currentTurn, switchTurn, onPiece
         setBoardKey(boardKey + 1); // Trigger re-render by updating the key
     };
 
-    const resetGame = () => {
+    const handleResetGame = () => {
         setPositions(initialPositions);
         setSelectedPiece(null);
         setPossibleMoves([]);
         setGameOver(false);
+        resetGame();
         setBoardKey(boardKey + 1);
     };
 
@@ -294,7 +291,7 @@ const ChessBoard: React.FC<ChessBoardProps> = ({currentTurn, switchTurn, onPiece
             {gameOver ? `GAME OVER - ${currentTurn === 'white' ? 'BLACK' : 'WHITE'} WINS!` : ``}
         </Text>
         {gameOver && (
-            <Text position={[4, 4, 4]} fontSize={0.5} color="white" anchorX="center" anchorY="middle" onClick={resetGame}>
+            <Text position={[4, 4, 4]} fontSize={0.5} color="white" anchorX="center" anchorY="middle" onClick={handleResetGame}>
                 Click here to reset the game
             </Text>
         )}
