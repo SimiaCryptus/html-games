@@ -3,6 +3,7 @@ import {MeshProps} from '@react-three/fiber';
 import {loadModel} from '../utils/loadModel.ts';
 import * as THREE from 'three';
 import {Box3, Vector3} from 'three';
+import {BASE_PATH} from '../config';
 
 interface ChessPieceProps extends MeshProps {
     position: [number, number, number];
@@ -13,12 +14,12 @@ interface ChessPieceProps extends MeshProps {
 }
 
 const pieceModels = {
-    pawn: '/assets/pawn.stl',
-    bishop: '/assets/bishop.stl',
-    king: '/assets/king.stl',
-    knight: '/assets/knight.stl',
-    queen: '/assets/queen.stl',
-    rook: '/assets/rook.stl',
+    pawn: `${BASE_PATH}/assets/pawn.stl`,
+    bishop: `${BASE_PATH}/assets/bishop.stl`,
+    king: `${BASE_PATH}/assets/king.stl`,
+    knight: `${BASE_PATH}/assets/knight.stl`,
+    queen: `${BASE_PATH}/assets/queen.stl`,
+    rook: `${BASE_PATH}/assets/rook.stl`,
 };
 
 const PAWN_SCALE_FACTOR = 0.65;
