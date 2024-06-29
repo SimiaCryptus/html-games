@@ -3,35 +3,15 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "homepage": "/intellij-aicoder/chess3d/build/index.html",
+  "homepage": ".",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1", 
+    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npx react-scripts start",
-    "build": "cross-env GENERATE_SOURCEMAP=false PUBLIC_URL='.' npx react-scripts build",
+    "build": "npx react-scripts build",
     "eject": "npx react-scripts eject"
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "@react-spring/three": "^9.7.3",
-    "@react-three/drei": "^9.107.2",
-    "@react-three/fiber": "^8.16.8",
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
-    "path-browserify": "^1.0.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "three": "^0.165.0",
-    "typescript": "^4.9.5",
-    "worker-loader": "^3.0.8"
-  },
-  "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "cross-env": "^7.0.3",
-    "react-app-rewired": "^2.2.1",
-    "react-scripts": "5.0.1",
-    "replace-in-file": "^6.3.5"
-  },
   "browserslist": {
     "production": [
       ">0.2%",
@@ -43,5 +23,20 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "dependencies": {
+    "@react-spring/three": "^9.7.3",
+    "@react-three/drei": "^9.107.3",
+    "@react-three/fiber": "^8.16.8",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.166.0",
+    "typescript": "^5.5.2"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "react-scripts": "5.0.1"
   }
 }

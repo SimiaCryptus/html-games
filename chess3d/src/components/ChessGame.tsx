@@ -13,7 +13,7 @@ interface ChessGameProps {
     basePath: string;
  }
 
-const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, basePath}) => {
+export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, basePath}) => {
     console.log('[ChessGame] Rendering component');
 
     const [error, setError] = useState<Error | null>(null);
