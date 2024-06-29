@@ -272,7 +272,7 @@ const ChessBoard: React.FC<ChessBoardProps> = ({currentTurn, switchTurn, onPiece
                 </React.Fragment>
             ))}
         <Text position={[4, 5, 4]} fontSize={1} color="white" anchorX="center" anchorY="middle">
-            {gameOver ? `GAME OVER - ${currentTurn === 'white' ? 'BLACK' : 'WHITE'} WINS!` : `${currentTurn.toUpperCase()}'S TURN`}
+            {gameOver ? `GAME OVER - ${currentTurn === 'white' ? 'BLACK' : 'WHITE'} WINS!` : ``}
         </Text>
         {gameOver && (
             <Text position={[4, 4, 4]} fontSize={0.5} color="white" anchorX="center" anchorY="middle" onClick={resetGame}>
