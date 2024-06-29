@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "homepage": ".",
+  "homepage": "/intellij-aicoder/chess3d/build/index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"Error: no test specified\" && exit 1", 
     "start": "npx react-scripts start",
-    "build": "cross-env GENERATE_SOURCEMAP=false npx react-scripts build",
+    "build": "cross-env GENERATE_SOURCEMAP=false PUBLIC_URL='.' npx react-scripts build",
     "eject": "npx react-scripts eject"
   },
   "author": "",
@@ -18,6 +18,7 @@
     "@react-three/fiber": "^8.16.8",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "path-browserify": "^1.0.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "three": "^0.165.0",
