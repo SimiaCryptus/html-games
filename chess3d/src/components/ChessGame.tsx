@@ -3,10 +3,11 @@ import {Canvas} from '@react-three/fiber';
 import {OrbitControls} from '@react-three/drei';
 import ChessBoard from './ChessBoard.tsx';
 import PieceGraveyard from './PieceGraveyard.tsx';
-import {Move, MoveHistory} from '../utils/moveHistory.ts';
+import {Move, MoveHistory, ChessPiece} from '../utils/moveHistory.ts';
 import ErrorBoundary from './ErrorBoundary.jsx';
 import UtilityMenuProps from './UtilityMenu.tsx';
 
+ // ... (rest of the imports and component definition)
 interface ChessGameProps {
     openUtilityMenu: () => void;
     onError: (error: Error) => void;
@@ -15,6 +16,8 @@ interface ChessGameProps {
 }
 
 export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, basePath, chessGameRef}) => {
+     // ... (existing state declarations)
+
     console.log('[ChessGame] Rendering component');
 
     const [error, setError] = useState<Error | null>(null);
@@ -28,8 +31,10 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
         color: string
     }[]>([]);
     const [currentTurn, setCurrentTurn] = useState<'white' | 'black'>('white');
-    const moveHistoryRef = useRef(new MoveHistory());
+    const [moveHistory, setMoveHistory] = useState<MoveHistory>(new MoveHistory());
 
+     // ... (existing useEffect hooks and other functions)
+     // ... (existing useEffect hooks)
     useEffect(() => {
         console.log('[ChessGame] Component mounted');
         setIsLoading(false);
@@ -66,27 +71,31 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
 
     const handleMove = (move: Move) => {
         console.log('[ChessGame] Handling move:', move);
-        moveHistoryRef.current.addMove(move);
-        // TODO: Implement move handling logic
+        setMoveHistory(prevHistory => {
+            const newHistory = new MoveHistory();
+            newHistory.moves = [...prevHistory.moves, move];
+            return newHistory;
+        });
+        switchTurn();
     };
 
     const handleUndo = () => {
         console.log('[ChessGame] Attempting to undo last move');
-        const lastMove = moveHistoryRef.current.undoLastMove();
-        if (lastMove) {
-            console.log('[ChessGame] Undoing move:', lastMove);
-            // TODO: Implement undo logic
-        } else {
-            console.log('[ChessGame] No moves to undo');
-        }
+        setMoveHistory(prevHistory => {
+            const newHistory = new MoveHistory();
+            newHistory.moves = prevHistory.moves.slice(0, -1);
+            return newHistory;
+        });
+        switchTurn();
     };
 
     const handleResetGame = () => {
         console.log('[ChessGame] Resetting game');
-        moveHistoryRef.current.clear();
+        setMoveHistory(new MoveHistory());
         resetGame();
     }
 
+     // ... (rest of the component logic)
 
     const handlePieceCapture = (piece: { type: string, color: string }) => {
         console.log('[ChessGame] Piece captured:', piece);
@@ -108,20 +117,23 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
         setCapturedPieces([]);
         setCurrentTurn('white');
         setGameKey(prevKey => prevKey + 1);
-        moveHistoryRef.current.clear();
+        setMoveHistory(new MoveHistory());
     };
 
-    console.log('[ChessGame] About to render Canvas');
+     // ... (rest of the component)
 
     chessGameRef.current = {
         resetGame: handleResetGame,
         getBoardState: () => boardState,
         setBoardState: setBoardState,
         undoMove: handleUndo,
-        moveHistory: moveHistoryRef.current,
+        moveHistory: moveHistory,
         onClose: openUtilityMenu
     };
+
+     // ... (rest of the component)
     return (
+         // ... (existing JSX)
 
         <div className="chess-container" style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
             <div className="turn-indicator">Current Turn: <span
@@ -155,8 +167,10 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
                                 switchTurn={switchTurn}
                                 resetGame={resetGame}
                                 onBoardStateChange={handleBoardStateChange}
-                                moveHistory={moveHistoryRef.current}
+            moveHistory={moveHistory}
+            onMove={handleMove}
                             />
+         // ... (rest of the JSX)
                             <PieceGraveyard capturedPieces={capturedPieces}/>
                             <OrbitControls
                                 target={[4, 0, 4]}

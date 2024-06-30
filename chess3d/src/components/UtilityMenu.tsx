@@ -1,14 +1,13 @@
 import React, {useState} from 'react';
 import {convertFromAscii, convertToAscii} from '../utils/asciiConverter.ts';
-import {Move} from '../utils/moveHistory.ts';
+import {MoveHistory} from '../utils/moveHistory.ts';
 
-// ... (rest of the imports and component definition)
 interface UtilityMenuProps {
     resetGame: () => void;
     getBoardState: () => string[][];
     setBoardState: (state: string[][]) => void;
     undoMove: () => void;
-    moveHistory: Move[] | undefined;
+    moveHistory: MoveHistory;
     onClose: () => void;
 }
 
@@ -20,6 +19,7 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
                                                      moveHistory,
                                                      onClose,
                                                  }) => {
+
     const [asciiArt, setAsciiArt] = useState<string>('');
 
     const handleExport = () => {
@@ -69,6 +69,7 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
     console.log('Rendering UtilityMenu component');
     return (
         <div className="utility-menu modal-content">
+             {/* ... (existing JSX) */}
             <h2>Utility Menu</h2>
             <button onClick={handleReset}>Reset Game</button>
             <button onClick={handleExport}>Export Board</button>
@@ -87,17 +88,16 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
             <div className="move-log">
                 <h3>Move Log</h3>
                 <ul>
-                    {moveHistory && moveHistory.length > 0 ? (
-                        moveHistory.map((move, index) => {
-                            console.debug(`Rendering move ${index + 1}:`, move);
-                            return <li key={index}>{JSON.stringify(move)}</li>;
-                        })
+                    {moveHistory.getMoveCount() > 0 ? (
+                        moveHistory.getMoveHistory().map((move, index) => (
+                            <li key={index}>{moveHistory.formatMove(move)}</li>
+                        ))
                     ) : (
                         <li>No moves yet</li>
-
                     )}
                 </ul>
             </div>
+             {/* ... (rest of the JSX) */}
             <button className="close-button" onClick={() => {
                 console.log('Closing utility menu');
                 onClose();

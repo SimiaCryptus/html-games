@@ -31,7 +31,6 @@ const App = () => {
 
     const handleChessGameError = useCallback((error) => {
         console.error('[App] Error in ChessGame:', error);
-        setChessGameError(error);
         handleError(error);
     }, [handleError]);
 
@@ -60,7 +59,7 @@ const App = () => {
                         chessGameRef.current?.setBoardState(state);
                     }}
                     undoMove={() => chessGameRef.current?.handleUndo()}
-                    moveHistory={[]}
+                    moveHistory={chessGameRef.current?.moveHistory || []}
                     onClose={closeModal}
                 />
             </Modal>

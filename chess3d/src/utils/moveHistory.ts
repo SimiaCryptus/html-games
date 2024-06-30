@@ -12,9 +12,10 @@ interface Move {
 }
 
 class MoveHistory {
-    private moves: Move[] = [];
+    public moves: Move[] = [];
     private readonly className = 'MoveHistory';
 
+     // ... (existing methods)
     constructor() {
         console.log(`${this.className} initialized`);
     }
@@ -73,7 +74,7 @@ class MoveHistory {
         return ascii;
     }
 
-    private formatMove(move: Move): string {
+    public formatMove(move: Move): string {
         const from = `${String.fromCharCode(97 + move.from[0])}${move.from[2] + 1}`;
         const to = `${String.fromCharCode(97 + move.to[0])}${move.to[2] + 1}`;
         const captureInfo = move.capturedPiece ? ` x ${move.capturedPiece.type}` : '';
