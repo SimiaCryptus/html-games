@@ -36,13 +36,14 @@ export function calculateNewBoardState(moveHistory: MoveHistory): ChessPiece[] {
 
         // Update the piece position
         const pieceIndex = boardState.findIndex(
-            piece => piece.position[0] === move.from[0] && piece.position[1] === move.from[2]
+            piece => piece.position[0] === move.from[0] && piece.position[1] === move.from[1]
         );
         if (pieceIndex === -1) {
             throw new InvalidMoveError(`No piece found at position ${move.from} for move at index ${i}`);
         }
 
-        boardState[pieceIndex].position = [move.to[0], move.to[2], 0];
+        let movingPiece = boardState[pieceIndex];
+        movingPiece.position = [move.to[0], move.to[1], 0];
         console.log(`Moved piece from ${move.from} to ${move.to}`);
 
         // Remove captured piece if any

@@ -1,4 +1,5 @@
 import React, {forwardRef, useCallback, useEffect, useState} from 'react';
+// ... (other imports remain the same)
 // ... (other imports)
 import {extend, useThree} from '@react-three/fiber';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
@@ -23,10 +24,10 @@ const isSamePosition = (pos1, pos2) => {
 
 const calculatePossibleMoves = (piece, positions) => {
     let moves = [];
-    const [x, , z] = piece.position;
+    const [x, z,] = piece.position;
     const isValidMove = (nx, nz) => nx >= 0 && nx < 8 && nz >= 0 && nz < 8;
-    const isOccupied = (nx, nz) => positions.some(p => isSamePosition(p.position, [nx, CENTERING_FACTOR, nz]));
-    const isOpponent = (nx, nz) => positions.some(p => p.color !== piece.color && isSamePosition(p.position, [nx, CENTERING_FACTOR, nz]));
+    const isOccupied = (nx, nz) => positions.some(p => p.position[0] === nx && p.position[2] === nz);
+    const isOpponent = (nx, nz) => positions.some(p => p.color !== piece.color && p.position[0] === nx && p.position[2] === nz);
 
     const addMove = (nx, nz) => {
         if (isValidMove(nx, nz) && (!isOccupied(nx, nz) || isOpponent(nx, nz))) {
@@ -109,7 +110,7 @@ const createChessBoard = (selectedPiece, possibleMoves, handleSquareClick) => {
         for (let j = 0; j < 8; j++) {
             const color = (i + j) % 2 === 0 ? 'white' : 'black';
             const isPossibleMove = possibleMoves.some(move => move[0] === i && move[1] === j);
-            const isSelected = selectedPiece && selectedPiece.position[0] === i && selectedPiece.position[2] === j;
+            const isSelected = selectedPiece && selectedPiece.position[0] === i && selectedPiece.position[1] === j;
             const materialColor = isSelected ? SELECTED_COLOR : (isPossibleMove ? HIGHLIGHT_COLOR : (color === 'white' ? '#e6d0b1' : '#b48764'));
             squares.push(
                 <mesh position={[i, 0, j]} key={`${i}-${j}`} onClick={() => handleSquareClick(i, j)}>
@@ -122,45 +123,6 @@ const createChessBoard = (selectedPiece, possibleMoves, handleSquareClick) => {
     }
     return squares;
 };
-
-const initialPositions = [
-    // White pieces
-    {type: 'rook', position: [0, 0.5, 0], color: 'white'},
-    {type: 'knight', position: [1, 0.5, 0], color: 'white'},
-    {type: 'bishop', position: [2, 0.5, 0], color: 'white'},
-    {type: 'queen', position: [3, 0.5, 0], color: 'white'},
-    {type: 'king', position: [4, 0.5, 0], color: 'white'},
-    {type: 'bishop', position: [5, 0.5, 0], color: 'white'},
-    {type: 'knight', position: [6, 0.5, 0], color: 'white'},
-    {type: 'rook', position: [7, 0.5, 0], color: 'white'},
-    // White pawns
-    {type: 'pawn', position: [0, 0.5, 1], color: 'white'},
-    {type: 'pawn', position: [1, 0.5, 1], color: 'white'},
-    {type: 'pawn', position: [2, 0.5, 1], color: 'white'},
-    {type: 'pawn', position: [3, 0.5, 1], color: 'white'},
-    {type: 'pawn', position: [4, 0.5, 1], color: 'white'},
-    {type: 'pawn', position: [5, 0.5, 1], color: 'white'},
-    {type: 'pawn', position: [6, 0.5, 1], color: 'white'},
-    {type: 'pawn', position: [7, 0.5, 1], color: 'white'},
-    // Black pieces
-    {type: 'rook', position: [0, 0.5, 7], color: 'black'},
-    {type: 'knight', position: [1, 0.5, 7], color: 'black'},
-    {type: 'bishop', position: [2, 0.5, 7], color: 'black'},
-    {type: 'queen', position: [3, 0.5, 7], color: 'black'},
-    {type: 'king', position: [4, 0.5, 7], color: 'black'},
-    {type: 'bishop', position: [5, 0.5, 7], color: 'black'},
-    {type: 'knight', position: [6, 0.5, 7], color: 'black'},
-    {type: 'rook', position: [7, 0.5, 7], color: 'black'},
-    // Black pawns
-    {type: 'pawn', position: [0, 0.5, 6], color: 'black'},
-    {type: 'pawn', position: [1, 0.5, 6], color: 'black'},
-    {type: 'pawn', position: [2, 0.5, 6], color: 'black'},
-    {type: 'pawn', position: [3, 0.5, 6], color: 'black'},
-    {type: 'pawn', position: [4, 0.5, 6], color: 'black'},
-    {type: 'pawn', position: [5, 0.5, 6], color: 'black'},
-    {type: 'pawn', position: [6, 0.5, 6], color: 'black'},
-    {type: 'pawn', position: [7, 0.5, 6], color: 'black'},
-];
 
 const Controls: React.FC = () => {
     const {camera, gl} = useThree();
@@ -193,8 +155,9 @@ interface ChessBoardProps {
     resetGame: () => void;
     onBoardStateChange: (positions: { type: string, position: [number, number, number], color: string }[]) => void;
     moveHistory: MoveHistory;
+    boardState: { type: string, position: [number, number, number], color: string }[];
+    onMove: (move: Move) => void;
 }
-
 
 const ChessBoard = forwardRef<any, ChessBoardProps>(({
                                                          currentTurn,
@@ -202,7 +165,9 @@ const ChessBoard = forwardRef<any, ChessBoardProps>(({
                                                          onPieceCapture,
                                                          resetGame,
                                                          onBoardStateChange,
-                                                         moveHistory
+                                                         moveHistory,
+                                                         boardState,
+                                                         onMove
                                                      }, ref) => {
 
     console.log('Rendering ChessBoard component', {
@@ -257,7 +222,7 @@ const ChessBoard = forwardRef<any, ChessBoardProps>(({
     const [selectedPiece, setSelectedPiece] = useState<any>(null);
     const [possibleMoves, setPossibleMoves] = useState<[number, number][]>([]);
     const [boardKey, setBoardKey] = useState<number>(0);
-    const [positions, setPositions] = useState<any[]>(initialPositions);
+    const [positions, setPositions] = useState<any[]>(boardState);
     const [undoStack, setUndoStack] = useState<any[]>([]);
     const [redoStack, setRedoStack] = useState<any[]>([]);
 
@@ -271,54 +236,35 @@ const ChessBoard = forwardRef<any, ChessBoardProps>(({
     };
 
     const handleResetGame = () => {
-        updateBoardState(initialPositions);
         resetGame();
     };
 
     const handleSquareClick = (i, j) => {
         if (selectedPiece) {
-            if (!possibleMoves.some(possibleMove => isSamePosition(possibleMove, [i, j]))) {
-                return;
-            }
-            if (!possibleMoves.some(possibleMove => isSamePosition(possibleMove, [i, j]))) {
+            if (!possibleMoves.some(possibleMove => possibleMove[0] === i && possibleMove[1] === j)) {
                 return;
             }
             const capturedPiece = positions.find(piece =>
-                isSamePosition(piece.position, [i, CENTERING_FACTOR, j]) &&
+                piece.position[0] === i && piece.position[2] === j &&
                 piece.color !== selectedPiece.color
             ) || null;
 
-            setAnimatingPiece({...selectedPiece, targetPosition: [i, CENTERING_FACTOR, j]});
+            setAnimatingPiece({...selectedPiece, targetPosition: [i, 0.5, j]});
 
-            setTimeout(() => {
-                const newPositions = positions.map(piece => {
-                    if (isSamePosition(piece.position, selectedPiece.position)) {
-                        return {...piece, position: [i, CENTERING_FACTOR, j]};
-                    }
-                    if (capturedPiece && isSamePosition(piece.position, capturedPiece.position)) {
-                        return null;
-                    }
-                    return piece;
-                }).filter(Boolean);
+            // setTimeout(() => {
+            // }, 500);
 
-                setPositions(newPositions);
-                setSelectedPiece(null);
-                setPossibleMoves([]);
-                switchTurn();
-                setAnimatingPiece(null);
-                if (onBoardStateChange) {
-                    onBoardStateChange(newPositions);
-                }
-                const move = {
-                    piece: selectedPiece,
-                    from: selectedPiece.position,
-                    to: [i, CENTERING_FACTOR, j],
-                    capturedPiece: capturedPiece
-                };
-                moveHistory.addMove(move);
-                setUndoStack(prevStack => [...prevStack, move]);
-                setRedoStack([]); // Clear redo stack on new move
-            }, 500);
+            setSelectedPiece(null);
+            setPossibleMoves([]);
+            // setAnimatingPiece(null);
+
+            const move = {
+                piece: selectedPiece,
+                from: selectedPiece.position,
+                to: [i, j, 0],
+                capturedPiece: capturedPiece
+            };
+            onMove(move);
 
             if (capturedPiece) {
                 onPieceCapture(capturedPiece);
@@ -333,22 +279,14 @@ const ChessBoard = forwardRef<any, ChessBoardProps>(({
         if (undoStack.length === 0) return;
 
         const lastMove = undoStack[undoStack.length - 1];
-        const newPositions = positions.map(piece => {
-            if (isSamePosition(piece.position, lastMove.to)) {
-                return {...piece, position: lastMove.from};
-            }
-            if (lastMove.capturedPiece && isSamePosition(piece.position, lastMove.capturedPiece.position)) {
-                return lastMove.capturedPiece;
-            }
-            return piece;
-        });
+        moveHistory.undoLastMove();
+        const newPositions = convertFromAscii(getBoardStateAsAscii());
 
         setPositions(newPositions);
         setUndoStack(prevStack => prevStack.slice(0, -1));
         setRedoStack(prevStack => [...prevStack, lastMove]);
         switchTurn();
         onBoardStateChange(newPositions);
-        moveHistory.clear();
     }, [undoStack, positions, switchTurn, onBoardStateChange, moveHistory, setUndoStack, setRedoStack]);
 
     const handleRedo = useCallback(() => {
@@ -376,8 +314,6 @@ const ChessBoard = forwardRef<any, ChessBoardProps>(({
     React.useImperativeHandle(ref, () => ({
         getBoardStateAsAscii,
         setBoardStateFromAscii,
-        handleUndo,
-        handleRedo
     }));
 
     return (
@@ -391,7 +327,7 @@ const ChessBoard = forwardRef<any, ChessBoardProps>(({
                     <ChessPiece
                         key={index}
                         type={piece.type}
-                        position={piece.position}
+                        position={[piece.position[0], 0.5, piece.position[1]]} // <- needed to correct the position
                         color={piece.color}
                         onClick={() => handlePieceClick(piece)}
                         isSelected={selectedPiece === piece}

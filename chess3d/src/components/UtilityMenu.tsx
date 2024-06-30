@@ -3,7 +3,6 @@ import {convertFromAscii, convertToAscii} from '../utils/asciiConverter.ts';
 import {MoveHistory} from '../utils/moveHistory.ts';
 import {ErrorMessage} from './ErrorMessage.tsx';
 
-
 interface UtilityMenuProps {
     resetGame: () => void;
     getBoardState: () => any[];
@@ -21,9 +20,8 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
                                                      moveHistory,
                                                      onClose,
                                                  }) => {
-    const [, forceUpdate] = useState({});
+    const [, setUpdateTrigger] = useState({});
 
-    // ... (existing code)
     const [asciiArt, setAsciiArt] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
 
@@ -69,14 +67,15 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
     const handleUndo = () => {
         console.log('Undoing last move...');
         undoMove();
-        forceUpdate({});
+        const updatedBoardState = getBoardState();
+        setAsciiArt(convertToAscii(updatedBoardState));
+        setUpdateTrigger({}); // Trigger re-render
         console.log('Move undone');
     };
 
     const currentMoves = moveHistory.getMoveHistory();
 
     return (
-        // ... (existing JSX)
         <div className="utility-menu modal-content">
             <h2>Utility Menu</h2>
             <button onClick={handleReset}>Reset Game</button>
@@ -98,15 +97,12 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
             <div className="move-log">
                 <h3>Move Log</h3>
                 <ul>
-                    {currentMoves.length > 0 ? (
-                        currentMoves.map((move, index) => (
-                            <li key={index}>
-                                {index + 1}. {moveHistory.formatMove(move)}
-                            </li>
+                    {currentMoves.length > 0
+                        ? currentMoves.map((move, index) => (
+                            <li key={index}>{index + 1}. {moveHistory.formatMove(move)}</li>
                         ))
-                    ) : (
-                        <li>No moves yet</li>
-                    )}
+                        : <li>No moves yet</li>
+                    }
                 </ul>
             </div>
         </div>

@@ -8,7 +8,8 @@ export interface Move {
 }
 
 class MoveHistory {
-    public moves: Move[] = [];
+    private moves: Move[] = [];
+    private undoneMoves: Move[] = [];
     private readonly className = 'MoveHistory';
 
     constructor(moves: Move[] = []) {
@@ -18,6 +19,7 @@ class MoveHistory {
 
     addMove(move: Move): void {
         this.moves.push(move);
+        this.undoneMoves = [];
         console.info(`${this.className}: Move added - ${this.formatMove(move)}`);
         console.debug(`${this.className}: Current move count: ${this.moves.length}`);
     }
@@ -30,7 +32,36 @@ class MoveHistory {
     clear(): void {
         const previousCount = this.moves.length;
         this.moves = [];
+        this.undoneMoves = [];
         console.info(`${this.className}: Move history cleared. Previous move count: ${previousCount}`);
+    }
+
+    undoLastMove(): [Move, MoveHistory] | null {
+        if (this.moves.length > 0) {
+            const undoneMove = this.moves.pop()!;
+            this.undoneMoves.push(undoneMove);
+            console.info(`${this.className}: Last move undone - ${this.formatMove(undoneMove)}`);
+            return [undoneMove, new MoveHistory([...this.moves])];
+        }
+        return null;
+    }
+
+    redoMove(): [Move, MoveHistory] | null {
+        if (this.undoneMoves.length > 0) {
+            const redoneMove = this.undoneMoves.pop()!;
+            this.moves.push(redoneMove);
+            console.info(`${this.className}: Move redone - ${this.formatMove(redoneMove)}`);
+            return [redoneMove, new MoveHistory([...this.moves])];
+        }
+        return null;
+    }
+
+    canUndo(): boolean {
+        return this.moves.length > 0;
+    }
+
+    canRedo(): boolean {
+        return this.undoneMoves.length > 0;
     }
 
     public formatMove(move: Move): string {

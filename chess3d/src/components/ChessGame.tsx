@@ -59,12 +59,12 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
     const handleMove = (move: Move) => {
         console.log('[ChessGame] Handling move:', move);
         setMoveHistory(prevHistory => {
-            const newHistory = new MoveHistory([...prevHistory.moves, move]);
-            setBoardState(calculateNewBoardState(newHistory));
-            setUndoStack(prevStack => [...prevStack, move]);
-            setRedoStack([]); // Clear redo stack on new move
+            const newHistory = new MoveHistory(prevHistory.getMoveHistory());
+            newHistory.addMove(move);
             return newHistory;
         });
+        let newBoardState = calculateNewBoardState(moveHistory);
+        setBoardState(prevState => newBoardState);
         switchTurn();
     };
 
@@ -72,9 +72,13 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
         console.log('[ChessGame] Attempting to undo last move');
         if (undoStack.length > 0) {
             const lastMove = undoStack[undoStack.length - 1];
-            const newMoveHistory = new MoveHistory(moveHistory.moves.slice(0, -1));
-            const newBoardState = calculateNewBoardState(newMoveHistory);
-            setMoveHistory(newMoveHistory);
+            const newBoardState = calculateNewBoardState(moveHistory, true);
+            setMoveHistory(prevHistory => {
+                prevHistory.undoLastMove();
+                const updatedHistory = new MoveHistory(prevHistory.getMoveHistory());
+                console.log('[ChessGame] Updated move history:', updatedHistory.getMoveHistory());
+                return updatedHistory;
+            });
             setBoardState(newBoardState);
             setCurrentTurn(lastMove.piece.color === 'white' ? 'black' : 'white');
             if (lastMove.capturedPiece) {
@@ -82,8 +86,6 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
             }
             setUndoStack(prevStack => prevStack.slice(0, -1));
             setRedoStack(prevStack => [...prevStack, lastMove]);
-            // Trigger a re-render of the ChessBoard
-            setGameKey(prevKey => prevKey + 1);
         }
     };
 
@@ -92,8 +94,11 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
         if (redoStack.length > 0) {
             const nextMove = redoStack[redoStack.length - 1];
             setMoveHistory(prevHistory => {
-                const newHistory = new MoveHistory([...prevHistory.moves, nextMove]);
-                const newBoardState = calculateNewBoardState(newHistory);
+                const newHistory = new MoveHistory(prevHistory.getMoveHistory());
+                newHistory.redoMove(nextMove);
+                setBoardState(calculateNewBoardState(newHistory));
+                prevHistory.redoMove(nextMove);
+                const newBoardState = calculateNewBoardState(prevHistory);
                 setBoardState(newBoardState);
                 setCurrentTurn(nextMove.piece.color === 'white' ? 'black' : 'white');
                 if (nextMove.capturedPiece) {
