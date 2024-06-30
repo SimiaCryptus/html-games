@@ -24,6 +24,10 @@ class MoveHistory {
         console.debug(`${this.className}: Current move count: ${this.moves.length}`);
     }
 
+    getLastMove(): Move | null {
+        return this.moves.length > 0 ? this.moves[this.moves.length - 1] : null;
+    }
+
     getMoveHistory(): Move[] {
         console.debug(`${this.className}: Retrieving move history. Total moves: ${this.moves.length}`);
         return [...this.moves];
@@ -65,8 +69,8 @@ class MoveHistory {
     }
 
     public formatMove(move: Move): string {
-        const from = `${String.fromCharCode(97 + move.from[0])}${move.from[2] + 1}`;
-        const to = `${String.fromCharCode(97 + move.to[0])}${move.to[2] + 1}`;
+        const from = `${String.fromCharCode(97 + move.from[0])}${move.from[1] + 1}`;
+        const to = `${String.fromCharCode(97 + move.to[0])}${move.to[1] + 1}`;
         const captureInfo = move.capturedPiece ? ` x ${move.capturedPiece.type}` : '';
         return `${move.piece.color} ${move.piece.type} ${from}-${to}${captureInfo}`;
     }

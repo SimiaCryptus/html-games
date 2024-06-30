@@ -11,13 +11,40 @@ class InvalidMoveError extends Error {
 function isValidPosition(position: number[]): boolean {
     return position.length === 3 &&
         position[0] >= 0 && position[0] < 8 &&
-        position[1] >= 0 && position[1] < 8 &&
-        position[2] === 0;
+        position[1] >= 0 && position[1] < 8;
 }
 
 function isValidMove(move: Move): boolean {
-    return isValidPosition([move.from[0], move.from[2], 0]) &&
-        isValidPosition([move.to[0], move.to[2], 0]);
+    return isValidPosition([move.from[0], move.from[1]]) &&
+        isValidPosition([move.to[0], move.to[1]]);
+}
+
+export function applyMoveToBoard(boardState: ChessPiece[], move: Move): ChessPiece[] {
+    // Update the piece position
+    const pieceIndex = boardState.findIndex(
+        piece => piece.position[0] === move.from[0] && piece.position[1] === move.from[1]
+    );
+    if (pieceIndex === -1) {
+        throw new InvalidMoveError(`No piece found at position ${move.from}`);
+    }
+
+    let movingPiece = boardState[pieceIndex];
+    movingPiece.position = [move.to[0], move.to[1]];
+    console.log(`Moved piece from ${move.from} to ${move.to}`);
+
+    // Remove captured piece if any
+    if (move.capturedPiece) {
+        const capturedPieceIndex = boardState.findIndex(
+            piece => piece.position[0] === move.to[0] && piece.position[1] === move.to[1]
+        );
+        if (capturedPieceIndex === -1) {
+            throw new InvalidMoveError(`No piece found at capture position ${move.to}`);
+        }
+        boardState.splice(capturedPieceIndex, 1);
+        console.log(`Captured piece removed at ${move.to}`);
+    }
+
+    return boardState;
 }
 
 export function calculateNewBoardState(moveHistory: MoveHistory): ChessPiece[] {
@@ -43,13 +70,13 @@ export function calculateNewBoardState(moveHistory: MoveHistory): ChessPiece[] {
         }
 
         let movingPiece = boardState[pieceIndex];
-        movingPiece.position = [move.to[0], move.to[1], 0];
+        movingPiece.position = [move.to[0], move.to[1]];
         console.log(`Moved piece from ${move.from} to ${move.to}`);
 
         // Remove captured piece if any
         if (move.capturedPiece) {
             const capturedPieceIndex = boardState.findIndex(
-                piece => piece.position[0] === move.to[0] && piece.position[1] === move.to[2]
+                piece => piece.position[0] === move.to[0] && piece.position[1] === move.to[1]
             );
             if (capturedPieceIndex === -1) {
                 throw new InvalidMoveError(`No piece found at capture position ${move.to} for move at index ${i}`);
@@ -75,23 +102,23 @@ export function calculateNewBoardState(moveHistory: MoveHistory): ChessPiece[] {
 export function getInitialBoardState(): ChessPiece[] {
     // Return the complete initial setup of the chess board
     return [
-        {type: 'rook', position: [0, 0, 0], color: 'white'},
-        {type: 'knight', position: [1, 0, 0], color: 'white'},
-        {type: 'bishop', position: [2, 0, 0], color: 'white'},
-        {type: 'queen', position: [3, 0, 0], color: 'white'},
-        {type: 'king', position: [4, 0, 0], color: 'white'},
-        {type: 'bishop', position: [5, 0, 0], color: 'white'},
-        {type: 'knight', position: [6, 0, 0], color: 'white'},
-        {type: 'rook', position: [7, 0, 0], color: 'white'},
-        ...Array(8).fill(null).map((_, i) => ({type: 'pawn', position: [i, 1, 0], color: 'white'})),
-        ...Array(8).fill(null).map((_, i) => ({type: 'pawn', position: [i, 6, 0], color: 'black'})),
-        {type: 'rook', position: [0, 7, 0], color: 'black'},
-        {type: 'knight', position: [1, 7, 0], color: 'black'},
-        {type: 'bishop', position: [2, 7, 0], color: 'black'},
-        {type: 'queen', position: [3, 7, 0], color: 'black'},
-        {type: 'king', position: [4, 7, 0], color: 'black'},
-        {type: 'bishop', position: [5, 7, 0], color: 'black'},
-        {type: 'knight', position: [6, 7, 0], color: 'black'},
-        {type: 'rook', position: [7, 7, 0], color: 'black'},
+        {type: 'rook', position: [0, 0], color: 'white'},
+        {type: 'knight', position: [1, 0], color: 'white'},
+        {type: 'bishop', position: [2, 0], color: 'white'},
+        {type: 'queen', position: [3, 0], color: 'white'},
+        {type: 'king', position: [4, 0], color: 'white'},
+        {type: 'bishop', position: [5, 0], color: 'white'},
+        {type: 'knight', position: [6, 0], color: 'white'},
+        {type: 'rook', position: [7, 0], color: 'white'},
+        ...Array(8).fill(null).map((_, i) => ({type: 'pawn', position: [i, 1], color: 'white'})),
+        ...Array(8).fill(null).map((_, i) => ({type: 'pawn', position: [i, 6], color: 'black'})),
+        {type: 'rook', position: [0, 7], color: 'black'},
+        {type: 'knight', position: [1, 7], color: 'black'},
+        {type: 'bishop', position: [2, 7], color: 'black'},
+        {type: 'queen', position: [3, 7], color: 'black'},
+        {type: 'king', position: [4, 7], color: 'black'},
+        {type: 'bishop', position: [5, 7], color: 'black'},
+        {type: 'knight', position: [6, 7], color: 'black'},
+        {type: 'rook', position: [7, 7], color: 'black'},
     ];
 }

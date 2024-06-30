@@ -6,7 +6,7 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {Text} from '@react-three/drei';
 import ChessPiece from './ChessPiece.tsx';
 import {convertFromAscii, convertToAscii, validateAsciiArt} from '../utils/asciiConverter.ts';
-import {MoveHistory} from '../utils/moveHistory.ts';
+import {Move, MoveHistory} from '../utils/moveHistory.ts';
 import {DEBUG} from '../config.js';
 
 
@@ -24,21 +24,21 @@ const isSamePosition = (pos1, pos2) => {
 
 const calculatePossibleMoves = (piece, positions) => {
     let moves = [];
-    const [x, z,] = piece.position;
-    const isValidMove = (nx, nz) => nx >= 0 && nx < 8 && nz >= 0 && nz < 8;
-    const isOccupied = (nx, nz) => positions.some(p => p.position[0] === nx && p.position[2] === nz);
-    const isOpponent = (nx, nz) => positions.some(p => p.color !== piece.color && p.position[0] === nx && p.position[2] === nz);
+    const [x, y,] = piece.position;
+    const isValidMove = (nx, ny) => nx >= 0 && nx < 8 && ny >= 0 && ny < 8;
+    const isOccupied = (nx, ny) => positions.some(p => p.position[0] === nx && p.position[1] === ny);
+    const isOpponent = (nx, ny) => positions.some(p => p.color !== piece.color && p.position[0] === nx && p.position[1] === ny);
 
-    const addMove = (nx, nz) => {
-        if (isValidMove(nx, nz) && (!isOccupied(nx, nz) || isOpponent(nx, nz))) {
-            moves.push([nx, nz]);
+    const addMove = (nx, ny) => {
+        if (isValidMove(nx, ny) && (!isOccupied(nx, ny) || isOpponent(nx, ny))) {
+            moves.push([nx, ny]);
         }
     };
 
-    const addMovesInDirection = (dx, dz) => {
+    const addMovesInDirection = (dx, dy) => {
         for (let i = 1; i < 8; i++) {
             const nx = x + i * dx;
-            const nz = z + i * dz;
+            const nz = y + i * dy;
             if (!isValidMove(nx, nz)) break;
             if (isOccupied(nx, nz)) {
                 if (isOpponent(nx, nz)) {
@@ -54,14 +54,14 @@ const calculatePossibleMoves = (piece, positions) => {
         case 'pawn':
             const direction = piece.color === 'white' ? 1 : -1;
             const startRank = piece.color === 'white' ? 1 : 6;
-            if (!isOccupied(x, z + direction)) {
-                addMove(x, z + direction);
-                if (z === startRank && !isOccupied(x, z + 2 * direction)) {
-                    addMove(x, z + 2 * direction);
+            if (!isOccupied(x, y + direction)) {
+                addMove(x, y + direction);
+                if (y === startRank && !isOccupied(x, y + 2 * direction)) {
+                    addMove(x, y + 2 * direction);
                 }
             }
-            if (isOpponent(x - 1, z + direction)) addMove(x - 1, z + direction);
-            if (isOpponent(x + 1, z + direction)) addMove(x + 1, z + direction);
+            if (isOpponent(x - 1, y + direction)) addMove(x - 1, y + direction);
+            if (isOpponent(x + 1, y + direction)) addMove(x + 1, y + direction);
             break;
         case 'rook':
             addMovesInDirection(1, 0);
@@ -70,8 +70,8 @@ const calculatePossibleMoves = (piece, positions) => {
             addMovesInDirection(0, -1);
             break;
         case 'knight':
-            [[2, 1], [2, -1], [-2, 1], [-2, -1], [1, 2], [1, -2], [-1, 2], [-1, -2]].forEach(([dx, dz]) => {
-                addMove(x + dx, z + dz);
+            [[2, 1], [2, -1], [-2, 1], [-2, -1], [1, 2], [1, -2], [-1, 2], [-1, -2]].forEach(([dx, dy]) => {
+                addMove(x + dx, y + dy);
             });
             break;
         case 'bishop':
@@ -91,8 +91,8 @@ const calculatePossibleMoves = (piece, positions) => {
             addMovesInDirection(-1, 1);
             break;
         case 'king':
-            [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]].forEach(([dx, dz]) => {
-                addMove(x + dx, z + dz);
+            [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]].forEach(([dx, dy]) => {
+                addMove(x + dx, y + dy);
             });
             break;
         default:
@@ -245,7 +245,7 @@ const ChessBoard = forwardRef<any, ChessBoardProps>(({
                 return;
             }
             const capturedPiece = positions.find(piece =>
-                piece.position[0] === i && piece.position[2] === j &&
+                piece.position[0] === i && piece.position[1] === j &&
                 piece.color !== selectedPiece.color
             ) || null;
 
@@ -261,7 +261,7 @@ const ChessBoard = forwardRef<any, ChessBoardProps>(({
             const move = {
                 piece: selectedPiece,
                 from: selectedPiece.position,
-                to: [i, j, 0],
+                to: [i, j],
                 capturedPiece: capturedPiece
             };
             onMove(move);
