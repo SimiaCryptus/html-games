@@ -8,7 +8,7 @@ export interface Move {
 }
 
 class MoveHistory {
-     private moves: Move[] = [];
+    private moves: Move[] = [];
     private undoneMoves: Move[] = [];
     private readonly className = 'MoveHistory';
     private initialState: ChessPiece[] = [];
@@ -79,13 +79,6 @@ class MoveHistory {
         return this.undoneMoves.length > 0;
     }
 
-    private formatMove(move: Move): string {
-        const from = `${String.fromCharCode(97 + move.from[0])}${move.from[1] + 1}`;
-        const to = `${String.fromCharCode(97 + move.to[0])}${move.to[1] + 1}`;
-        const captureInfo = move.capturedPiece ? ` x ${move.capturedPiece.type}` : '';
-        return `${move.piece.color} ${move.piece.type} ${from}-${to}${captureInfo}`;
-    }
-
     clone(): MoveHistory {
         const clonedHistory = new MoveHistory(this.initialState);
         clonedHistory.moves = [...this.moves];
@@ -113,18 +106,25 @@ class MoveHistory {
         return currentState;
     }
 
+    getCurrentBoardState() {
+        return this.getCurrentState();
+    }
+
+    private formatMove(move: Move): string {
+        const from = `${String.fromCharCode(97 + move.from[0])}${move.from[1] + 1}`;
+        const to = `${String.fromCharCode(97 + move.to[0])}${move.to[1] + 1}`;
+        const captureInfo = move.capturedPiece ? ` x ${move.capturedPiece.type}` : '';
+        return `${move.piece.color} ${move.piece.type} ${from}-${to}${captureInfo}`;
+    }
+
     private applyMove(state: ChessPiece[], move: Move): ChessPiece[] {
-        const newState = state.filter(piece => 
-            piece.position[0] !== move.from[0] || 
-            piece.position[1] !== move.from[1] || 
+        const newState = state.filter(piece =>
+            piece.position[0] !== move.from[0] ||
+            piece.position[1] !== move.from[1] ||
             piece.position[2] !== move.from[2]
         );
         newState.push({...move.piece, position: move.to});
         return newState;
-    }
-
-    getCurrentBoardState() {
-        return this.getCurrentState();
     }
 }
 

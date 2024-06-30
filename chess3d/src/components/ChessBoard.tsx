@@ -262,23 +262,23 @@ const ChessBoard = forwardRef<any, ChessBoardProps>(({
             const move = {
                 piece: selectedPiece,
                 from: selectedPiece.position,
-                to: [i, j, 0],
+                to: [i, j],
                 capturedPiece: capturedPiece
             };
 
-           const newPositions = positions.map(piece => {
-               if (isSamePosition(piece.position, move.from)) {
-                   return {...piece, position: move.to};
-               }
-               if (move.capturedPiece && isSamePosition(piece.position, move.capturedPiece.position)) {
-                   return null;
-               }
-               return piece;
-           }).filter(Boolean);
+            const newPositions = positions.map(piece => {
+                if (isSamePosition(piece.position, move.from)) {
+                    return {...piece, position: move.to};
+                }
+                if (move.capturedPiece && isSamePosition(piece.position, move.capturedPiece.position)) {
+                    return null;
+                }
+                return piece;
+            }).filter(Boolean);
 
-           setPositions(newPositions);
-           onBoardStateChange(newPositions);
-           onMove(move);
+            setPositions(newPositions);
+            onBoardStateChange(newPositions);
+            onMove(move);
 
             if (capturedPiece) {
                 onPieceCapture(capturedPiece);
@@ -290,33 +290,33 @@ const ChessBoard = forwardRef<any, ChessBoardProps>(({
     };
 
     const handleUndo = useCallback(() => {
-       const lastMove = moveHistory.undoLastMove();
-       if (!lastMove) return;
+        const lastMove = moveHistory.undoLastMove();
+        if (!lastMove) return;
 
-       const newPositions = positions.map(piece => {
-           if (isSamePosition(piece.position, lastMove.to)) {
-               return {...piece, position: lastMove.from};
-           }
-           if (lastMove.capturedPiece && isSamePosition(lastMove.capturedPiece.position, lastMove.to)) {
-               return lastMove.capturedPiece;
-           }
-           return piece;
-       });
+        const newPositions = positions.map(piece => {
+            if (isSamePosition(piece.position, lastMove.to)) {
+                return {...piece, position: lastMove.from};
+            }
+            if (lastMove.capturedPiece && isSamePosition(lastMove.capturedPiece.position, lastMove.to)) {
+                return lastMove.capturedPiece;
+            }
+            return piece;
+        });
 
         setPositions(newPositions);
         switchTurn();
         onBoardStateChange(newPositions);
-   }, [positions, switchTurn, onBoardStateChange, moveHistory]);
+    }, [positions, switchTurn, onBoardStateChange, moveHistory]);
 
     const handleRedo = useCallback(() => {
-       const redoneMove = moveHistory.redoMove();
-       if (!redoneMove) return;
+        const redoneMove = moveHistory.redoMove();
+        if (!redoneMove) return;
 
         const newPositions = positions.map(piece => {
-           if (isSamePosition(piece.position, redoneMove.from)) {
-               return {...piece, position: redoneMove.to};
+            if (isSamePosition(piece.position, redoneMove.from)) {
+                return {...piece, position: redoneMove.to};
             }
-           if (redoneMove.capturedPiece && isSamePosition(piece.position, redoneMove.capturedPiece.position)) {
+            if (redoneMove.capturedPiece && isSamePosition(piece.position, redoneMove.capturedPiece.position)) {
                 return null;
             }
             return piece;
@@ -325,7 +325,7 @@ const ChessBoard = forwardRef<any, ChessBoardProps>(({
         setPositions(newPositions);
         switchTurn();
         onBoardStateChange(newPositions);
-   }, [positions, switchTurn, onBoardStateChange, moveHistory]);
+    }, [positions, switchTurn, onBoardStateChange, moveHistory]);
 
     React.useImperativeHandle(ref, () => ({
         getBoardStateAsAscii,

@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {convertFromAscii, convertToAscii} from '../utils/asciiConverter.ts';
+import {convertFromAscii} from '../utils/asciiConverter.ts';
 import {MoveHistory} from '../utils/moveHistory.ts';
 import {ErrorMessage} from './ErrorMessage.tsx';
 
@@ -38,7 +38,7 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
     const handleExport = () => {
         console.log('Exporting board state...');
         try {
-        const ascii = chessGameRef.current.getAsciiRepresentation();
+            const ascii = chessGameRef.current.getAsciiRepresentation();
             console.log('Board state converted to ASCII');
             console.debug('ASCII representation:', ascii);
             setAsciiArt(ascii);
@@ -94,10 +94,9 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
         console.log('Undoing last move...');
         try {
             undoMove();
-            const updatedBoardState = getBoardState();
-            setAsciiArt(convertToAscii(updatedBoardState));
-            setUpdateTrigger({}); // Trigger re-render
-            console.log('Move undone');
+            // const updatedBoardState = getBoardState();
+            // chessGameRef.current?.setBoardState(updatedBoardState);
+            // console.log('Move undone');
             setError(null);
         } catch (error) {
             console.error('Error undoing move:', error);
@@ -109,10 +108,9 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
         console.log('Redoing last undone move...');
         try {
             redoMove();
-            const updatedBoardState = getBoardState();
-            setAsciiArt(convertToAscii(updatedBoardState));
-            setUpdateTrigger({}); // Trigger re-render
-            console.log('Move redone');
+            // const updatedBoardState = getBoardState();
+            // chessGameRef.current.setBoardState(updatedBoardState);
+            // console.log('Move redone');
             setError(null);
         } catch (error) {
             console.error('Error redoing move:', error);

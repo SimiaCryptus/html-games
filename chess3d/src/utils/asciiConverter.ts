@@ -61,9 +61,9 @@ export function convertToAscii(positions: ChessPiece[], currentTurn: 'white' | '
     const asciiArt = board.map((row) => row.join(' ')).join('\n');
 
     const result = `${BORDER_LINE}\n${asciiArt
-        .split('\n')
-        .map((line, index) => `${8 - index} ${line} ${8 - index}`)
-        .join('\n')}\n${BORDER_LINE}\n${COLUMN_LABELS}\n` +
+            .split('\n')
+            .map((line, index) => `${8 - index} ${line} ${8 - index}`)
+            .join('\n')}\n${BORDER_LINE}\n${COLUMN_LABELS}\n` +
         `Current turn: ${currentTurn}`;
 
     console.log('Generated ASCII art:');
@@ -91,9 +91,9 @@ export function convertFromAscii(asciiArt: string): ChessPiece[] {
                     console.error(`Invalid character '${char}' at position [${colIndex}, ${7 - rowIndex}]`);
                     return;
                 }
-                piece.position = [7 - colIndex, 7 - rowIndex];
+                piece.position = [colIndex, 7 - rowIndex];
                 pieces.push(piece);
-                console.log(`Found ${piece.color} ${piece.type} at position [${7 - colIndex}, ${7 - rowIndex}]`);
+                console.log(`Found ${piece.color} ${piece.type} at position [${colIndex}, ${7 - rowIndex}]`);
             }
         });
     });

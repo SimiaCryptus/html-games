@@ -1,6 +1,6 @@
 import {ChessPiece, Move, MoveHistory} from './moveHistory';
 
- // ... (existing code remains unchanged)
+// ... (existing code remains unchanged)
 // Custom error class for invalid moves
 class InvalidMoveError extends Error {
     constructor(message: string) {
@@ -24,7 +24,7 @@ function isValidMove(move: Move): boolean {
 
 export function createBoardStateFromImport(importedState: ChessPiece[]): ChessPiece[] {
     console.log('Creating board state from imported state');
-    
+
     if (importedState.length < 2) {
         console.error('Invalid imported state: Too few pieces', importedState);
         throw new Error('Invalid imported state: Too few pieces');
@@ -50,29 +50,29 @@ export function createBoardStateFromImport(importedState: ChessPiece[]): ChessPi
 
 export function applyMoveToBoard(boardState: ChessPiece[], move: Move): ChessPiece[] {
     const newBoardState = [...boardState];
-    
+
     // Find and update the moving piece
     const movingPieceIndex = newBoardState.findIndex(
         piece => piece.position[0] === move.from[0] && piece.position[1] === move.from[1] && piece.type === move.piece.type
     );
-    
+
     if (movingPieceIndex === -1) {
         throw new Error(`No piece found at position [${move.from}]`);
     }
-    
+
     newBoardState[movingPieceIndex] = {...newBoardState[movingPieceIndex], position: move.to};
-    
+
     // Remove captured piece if any
     if (move.capturedPiece) {
         const capturedPieceIndex = newBoardState.findIndex(
             piece => piece.position[0] === move.to[0] && piece.position[1] === move.to[1] && piece.type === move.capturedPiece.type
         );
-        
+
         if (capturedPieceIndex !== -1) {
             newBoardState.splice(capturedPieceIndex, 1);
         }
     }
-    
+
     return newBoardState;
 }
 
@@ -109,8 +109,8 @@ export function calculateNewBoardState(moveHistory: MoveHistory): ChessPiece[] {
     return boardState;
 }
 
- // ... (rest of the file remains unchanged)
- // ... rest of the file remains unchanged
+// ... (rest of the file remains unchanged)
+// ... rest of the file remains unchanged
 export function getInitialBoardState(): ChessPiece[] {
     // Return the complete initial setup of the chess board
     return [

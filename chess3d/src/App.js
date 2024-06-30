@@ -59,17 +59,18 @@ const App = () => {
                         chessGameRef.current?.setBoardState(state);
                     }}
                     undoMove={() => chessGameRef.current?.undoMove()}
+                    redoMove={() => chessGameRef.current?.redoMove()}
                     moveHistory={chessGameRef.current?.moveHistory || []}
                     setMoveHistory={(moveHistory) => {
                         chessGameRef.current?.setMoveHistory(moveHistory);
-                    } }
+                    }}
                     onClose={closeModal}
                     setCurrentTurn={(currentTurn) => {
                         chessGameRef.current?.setCurrentTurn(currentTurn);
-                    } }
+                    }}
                     setCapturedPieces={(capturedPieces) => {
                         chessGameRef.current?.setCapturedPieces(capturedPieces);
-                    } }
+                    }}
                     chessGameRef={chessGameRef}
                 />
             </Modal>
