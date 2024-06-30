@@ -47,9 +47,9 @@ export function convertToAscii(positions: ChessPiece[]): string {
     const board: string[][] = Array(8).fill(null).map(() => Array(8).fill('.'));
 
     positions.forEach((piece) => {
-        const [x, , z] = piece.position;
-        board[7 - z][x] = getPieceAscii(piece.color, piece.type);
-        console.log(`Placed ${piece.color} ${piece.type} at position [${x}, ${z}]`);
+        const [x, y] = piece.position;
+        board[7 - y][x] = getPieceAscii(piece.color, piece.type);
+        console.log(`Placed ${piece.color} ${piece.type} at position [${x}, ${y}]`);
     });
 
     const asciiArt = board.map((row) => row.join(' ')).join('\n');

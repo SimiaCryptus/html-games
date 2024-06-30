@@ -8,13 +8,13 @@ export interface Move {
 }
 
 class MoveHistory {
-    private moves: Move[] = [];
+     private moves: Move[] = [];
     private undoneMoves: Move[] = [];
     private readonly className = 'MoveHistory';
 
     constructor(moves: Move[] = []) {
         console.log(`${this.className} initialized with ${moves.length} moves`);
-        this.moves = moves;
+         this.moves = [...moves];
     }
 
     addMove(move: Move): void {
@@ -40,22 +40,22 @@ class MoveHistory {
         console.info(`${this.className}: Move history cleared. Previous move count: ${previousCount}`);
     }
 
-    undoLastMove(): [Move, MoveHistory] | null {
+    undoLastMove(): Move | null {
         if (this.moves.length > 0) {
             const undoneMove = this.moves.pop()!;
             this.undoneMoves.push(undoneMove);
             console.info(`${this.className}: Last move undone - ${this.formatMove(undoneMove)}`);
-            return [undoneMove, new MoveHistory([...this.moves])];
+            return undoneMove;
         }
         return null;
     }
 
-    redoMove(): [Move, MoveHistory] | null {
+    redoMove(): Move | null {
         if (this.undoneMoves.length > 0) {
             const redoneMove = this.undoneMoves.pop()!;
             this.moves.push(redoneMove);
             console.info(`${this.className}: Move redone - ${this.formatMove(redoneMove)}`);
-            return [redoneMove, new MoveHistory([...this.moves])];
+            return redoneMove;
         }
         return null;
     }
@@ -68,11 +68,26 @@ class MoveHistory {
         return this.undoneMoves.length > 0;
     }
 
-    public formatMove(move: Move): string {
+    private formatMove(move: Move): string {
         const from = `${String.fromCharCode(97 + move.from[0])}${move.from[1] + 1}`;
         const to = `${String.fromCharCode(97 + move.to[0])}${move.to[1] + 1}`;
         const captureInfo = move.capturedPiece ? ` x ${move.capturedPiece.type}` : '';
         return `${move.piece.color} ${move.piece.type} ${from}-${to}${captureInfo}`;
+    }
+
+    clone(): MoveHistory {
+        const clonedHistory = new MoveHistory();
+        clonedHistory.moves = [...this.moves];
+        clonedHistory.undoneMoves = [...this.undoneMoves];
+        return clonedHistory;
+    }
+
+    getMovesCount(): number {
+        return this.moves.length;
+    }
+
+    getUndoneMovesCount(): number {
+        return this.undoneMoves.length;
     }
 }
 

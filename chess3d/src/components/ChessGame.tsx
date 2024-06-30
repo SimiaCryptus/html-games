@@ -6,7 +6,7 @@ import PieceGraveyard from './PieceGraveyard.tsx';
 import {ChessPiece, Move, MoveHistory} from '../utils/moveHistory.ts';
 import ErrorBoundary from './ErrorBoundary.jsx';
 import UtilityMenuProps from './UtilityMenu.tsx';
-import {applyMoveToBoard, getInitialBoardState} from '../utils/boardStateUtils.ts';
+import {getInitialBoardState} from '../utils/boardStateUtils.ts';
 
 // ... (rest of the imports and interface definitions remain unchanged)
 interface ChessGameProps {
@@ -17,6 +17,7 @@ interface ChessGameProps {
 }
 
 export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, basePath, chessGameRef}) => {
+    // ... (other state declarations remain unchanged)
     // ... (state declarations and other functions remain unchanged)
 
     console.log('[ChessGame] Rendering component');
@@ -27,9 +28,8 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
     const [boardState, setBoardState] = useState<ChessPiece[]>(getInitialBoardState());
     const [currentTurn, setCurrentTurn] = useState<'white' | 'black'>('white');
     const [moveHistory, setMoveHistory] = useState<MoveHistory>(new MoveHistory());
-    const [undoStack, setUndoStack] = useState<Move[]>([]);
-    const [redoStack, setRedoStack] = useState<Move[]>([]);
 
+    // ... (other functions remain unchanged)
     useEffect(() => {
         console.log('[ChessGame] Component mounted');
         return () => {
@@ -60,30 +60,59 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
 
     const handleMove = (move: Move) => {
         console.log('[ChessGame] Handling move:', move);
-        setMoveHistory(prevHistory => {
-            const newHistory = new MoveHistory(prevHistory.getMoveHistory());
+        setMoveHistory((prevHistory) => {
+            const newHistory = prevHistory.clone();
             newHistory.addMove(move);
             return newHistory;
         });
-        //setBoardState(prevState => applyMoveToBoard(prevState, move));
+        setBoardState(prevState => {
+            // ... (board state update logic remains unchanged)
+            const newState = [...prevState];
+            const movingPieceIndex = newState.findIndex(p =>
+                p.position[0] === move.from[0] &&
+                p.position[1] === move.from[1] &&
+                p.position[2] === move.from[2] &&
+                p.type === move.piece.type &&
+                p.color === move.piece.color
+            );
+            if (movingPieceIndex !== -1) {
+                newState[movingPieceIndex] = {...newState[movingPieceIndex], position: move.to};
+            }
+            // Remove captured piece if any
+            if (move.capturedPiece) {
+                const capturedIndex = newState.findIndex(p =>
+                    p.position[0] === move.to[0] &&
+                    p.position[1] === move.to[1] &&
+                    p.position[2] === move.to[2] &&
+                    p.type === move.capturedPiece.type &&
+                    p.color === move.capturedPiece.color
+                );
+                if (capturedIndex !== -1) {
+                    newState.splice(capturedIndex, 1);
+                }
+            }
+            return newState;
+        });
         switchTurn();
-        if (move.capturedPiece) {
+        if (move.capturedPiece && move.capturedPiece.type) {
             handlePieceCapture(move.capturedPiece);
         }
     };
 
     const handleUndo = () => {
         console.log('[ChessGame] Attempting to undo last move');
-        setMoveHistory(prevHistory => {
-            const result = prevHistory.undoLastMove();
+        setMoveHistory((prevHistory) => {
+            const newHistory = prevHistory.clone();
+            const result = newHistory.undoLastMove();
             if (result) {
-                const [lastMove, newHistory] = result;
+                const lastMove = result;
                 setBoardState(prevState => {
+                    // ... (board state update logic remains unchanged)
                     // Reverse the move
                     const newState = [...prevState];
                     const pieceIndex = newState.findIndex(p => p.position[0] === lastMove.to[0] && p.position[1] === lastMove.to[1]);
                     if (pieceIndex !== -1) {
-                        newState[pieceIndex].position = lastMove.from;
+                        newState[pieceIndex] = {...newState[pieceIndex], position: lastMove.from};
                     }
                     if (lastMove.capturedPiece) {
                         newState.push({...lastMove.capturedPiece, position: lastMove.to});
@@ -92,33 +121,27 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
                     return newState;
                 });
                 setCurrentTurn(lastMove.piece.color === 'white' ? 'black' : 'white');
-                setUndoStack(prevStack => [...prevStack, lastMove]);
-                setRedoStack([]);
                 return newHistory;
             }
-            return prevHistory;
+            return newHistory;
         });
     };
 
     const handleRedo = () => {
         console.log('[ChessGame] Attempting to redo last undone move');
-        if (undoStack.length > 0) {
-            const lastMove = undoStack[undoStack.length - 1];
-            setMoveHistory(prevHistory => {
-                const newHistory = new MoveHistory(prevHistory.getMoveHistory());
-                newHistory.addMove(lastMove);
-                setBoardState(prevState => applyMoveToBoard(prevState, lastMove));
-                setCurrentTurn(lastMove.piece.color === 'white' ? 'black' : 'white');
-                if (lastMove.capturedPiece) {
-                    handlePieceCapture(lastMove.capturedPiece);
-                }
-                setUndoStack(prevStack => prevStack.slice(0, -1));
-                setRedoStack(prevStack => [...prevStack, lastMove]);
+        setMoveHistory((prevHistory) => {
+            const newHistory = prevHistory.clone();
+            const result = newHistory.redoMove();
+            if (result) {
+                const redoneMove = result;
+                handleMove(redoneMove);
                 return newHistory;
-            });
-        }
+            }
+            return newHistory;
+        });
     };
 
+    // ... (rest of the component remains unchanged)
     const handlePieceCapture = (piece: { type: string, color: string }) => {
         console.log('[ChessGame] Piece captured:', piece);
         setCapturedPieces(prevCapturedPieces => {

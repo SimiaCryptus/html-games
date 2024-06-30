@@ -1,6 +1,4 @@
 import React, {forwardRef, useCallback, useEffect, useState} from 'react';
-// ... (other imports remain the same)
-// ... (other imports)
 import {extend, useThree} from '@react-three/fiber';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {Text} from '@react-three/drei';
@@ -251,6 +249,9 @@ const ChessBoard = forwardRef<any, ChessBoardProps>(({
 
             setAnimatingPiece({...selectedPiece, targetPosition: [i, 0.5, j]});
 
+            setSelectedPiece(null);
+            setPossibleMoves([]);
+
             // setTimeout(() => {
             // }, 500);
 
@@ -261,10 +262,23 @@ const ChessBoard = forwardRef<any, ChessBoardProps>(({
             const move = {
                 piece: selectedPiece,
                 from: selectedPiece.position,
-                to: [i, j],
+                to: [i, j, 0],
                 capturedPiece: capturedPiece
             };
-            onMove(move);
+
+           const newPositions = positions.map(piece => {
+               if (isSamePosition(piece.position, move.from)) {
+                   return {...piece, position: move.to};
+               }
+               if (move.capturedPiece && isSamePosition(piece.position, move.capturedPiece.position)) {
+                   return null;
+               }
+               return piece;
+           }).filter(Boolean);
+
+           setPositions(newPositions);
+           onBoardStateChange(newPositions);
+           onMove(move);
 
             if (capturedPiece) {
                 onPieceCapture(capturedPiece);
@@ -272,44 +286,48 @@ const ChessBoard = forwardRef<any, ChessBoardProps>(({
                     setGameOver(true);
                 }
             }
+
+           switchTurn();
         }
     };
 
     const handleUndo = useCallback(() => {
-        if (undoStack.length === 0) return;
+       const lastMove = moveHistory.undoLastMove();
+       if (!lastMove) return;
 
-        const lastMove = undoStack[undoStack.length - 1];
-        moveHistory.undoLastMove();
-        const newPositions = convertFromAscii(getBoardStateAsAscii());
+       const newPositions = positions.map(piece => {
+           if (isSamePosition(piece.position, lastMove.to)) {
+               return {...piece, position: lastMove.from};
+           }
+           if (lastMove.capturedPiece && isSamePosition(lastMove.capturedPiece.position, lastMove.to)) {
+               return lastMove.capturedPiece;
+           }
+           return piece;
+       });
 
         setPositions(newPositions);
-        setUndoStack(prevStack => prevStack.slice(0, -1));
-        setRedoStack(prevStack => [...prevStack, lastMove]);
         switchTurn();
         onBoardStateChange(newPositions);
-    }, [undoStack, positions, switchTurn, onBoardStateChange, moveHistory, setUndoStack, setRedoStack]);
+   }, [positions, switchTurn, onBoardStateChange, moveHistory]);
 
     const handleRedo = useCallback(() => {
-        if (redoStack.length === 0) return;
+       const redoneMove = moveHistory.redoMove();
+       if (!redoneMove) return;
 
-        const nextMove = redoStack[redoStack.length - 1];
         const newPositions = positions.map(piece => {
-            if (isSamePosition(piece.position, nextMove.from)) {
-                return {...piece, position: nextMove.to};
+           if (isSamePosition(piece.position, redoneMove.from)) {
+               return {...piece, position: redoneMove.to};
             }
-            if (nextMove.capturedPiece && isSamePosition(piece.position, nextMove.capturedPiece.position)) {
+           if (redoneMove.capturedPiece && isSamePosition(piece.position, redoneMove.capturedPiece.position)) {
                 return null;
             }
             return piece;
         }).filter(Boolean);
 
         setPositions(newPositions);
-        setRedoStack(prevStack => prevStack.slice(0, -1));
-        setUndoStack(prevStack => [...prevStack, nextMove]);
         switchTurn();
         onBoardStateChange(newPositions);
-        moveHistory.redoMove();
-    }, [redoStack, positions, switchTurn, onBoardStateChange, moveHistory, setUndoStack, setRedoStack]);
+   }, [positions, switchTurn, onBoardStateChange, moveHistory]);
 
     React.useImperativeHandle(ref, () => ({
         getBoardStateAsAscii,

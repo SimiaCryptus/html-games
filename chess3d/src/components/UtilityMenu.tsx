@@ -8,6 +8,7 @@ interface UtilityMenuProps {
     getBoardState: () => any[];
     setBoardState: (state: any[]) => void;
     undoMove: () => void;
+    redoMove: () => void;
     moveHistory: MoveHistory;
     onClose: () => void;
 }
@@ -17,11 +18,11 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
                                                      getBoardState,
                                                      setBoardState,
                                                      undoMove,
+    redoMove,
                                                      moveHistory,
                                                      onClose,
                                                  }) => {
     const [, setUpdateTrigger] = useState({});
-
     const [asciiArt, setAsciiArt] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
 
@@ -66,11 +67,32 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
 
     const handleUndo = () => {
         console.log('Undoing last move...');
-        undoMove();
-        const updatedBoardState = getBoardState();
-        setAsciiArt(convertToAscii(updatedBoardState));
-        setUpdateTrigger({}); // Trigger re-render
-        console.log('Move undone');
+        try {
+            undoMove();
+            const updatedBoardState = getBoardState();
+            setAsciiArt(convertToAscii(updatedBoardState));
+            setUpdateTrigger({}); // Trigger re-render
+            console.log('Move undone');
+            setError(null);
+        } catch (error) {
+            console.error('Error undoing move:', error);
+            setError('Failed to undo move. No more moves to undo.');
+        }
+    };
+
+    const handleRedo = () => {
+        console.log('Redoing last undone move...');
+        try {
+            redoMove();
+            const updatedBoardState = getBoardState();
+            setAsciiArt(convertToAscii(updatedBoardState));
+            setUpdateTrigger({}); // Trigger re-render
+            console.log('Move redone');
+            setError(null);
+        } catch (error) {
+            console.error('Error redoing move:', error);
+            setError('Failed to redo move. No more moves to redo.');
+        }
     };
 
     const currentMoves = moveHistory.getMoveHistory();
@@ -82,6 +104,7 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
             <button onClick={handleExport}>Export Board</button>
             <button onClick={handleImport}>Import Board</button>
             <button onClick={handleUndo}>Undo Move</button>
+            <button onClick={handleRedo}>Redo Move</button>
             <textarea
                 value={asciiArt}
                 onChange={(e) => {
@@ -99,7 +122,7 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
                 <ul>
                     {currentMoves.length > 0
                         ? currentMoves.map((move, index) => (
-                            <li key={index}>{index + 1}. {moveHistory.formatMove(move)}</li>
+                            <li key={index}>{index + 1}. {move.piece.color} {move.piece.type} {move.from.join(',')} to {move.to.join(',')}</li>
                         ))
                         : <li>No moves yet</li>
                     }
