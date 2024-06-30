@@ -4,6 +4,9 @@ import {MoveHistory} from '../utils/moveHistory.ts';
 
 interface UtilityMenuProps {
     resetGame: () => void;
+    getBoardState: () => any[];
+    setBoardState: (state: any[]) => void;
+    undoMove: () => void;
     getBoardState: () => string[][];
     setBoardState: (state: string[][]) => void;
     undoMove: () => void;
@@ -19,6 +22,7 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
                                                      moveHistory,
                                                      onClose,
                                                  }) => {
+     // ... (existing code)
 
     const [asciiArt, setAsciiArt] = useState<string>('');
 
@@ -62,14 +66,13 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
         console.log('Undoing last move...');
         undoMove();
         console.log('Move undone');
-        onClose();
-        console.log('Utility menu closed');
     };
 
-    console.log('Rendering UtilityMenu component');
+     // ... (rest of the component)
+
     return (
         <div className="utility-menu modal-content">
-             {/* ... (existing JSX) */}
+            {/* ... (existing JSX) */}
             <h2>Utility Menu</h2>
             <button onClick={handleReset}>Reset Game</button>
             <button onClick={handleExport}>Export Board</button>
@@ -90,14 +93,16 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
                 <ul>
                     {moveHistory.getMoveCount() > 0 ? (
                         moveHistory.getMoveHistory().map((move, index) => (
-                            <li key={index}>{moveHistory.formatMove(move)}</li>
+                            <li key={index}>
+                                {index + 1}. {moveHistory.formatMove(move)}
+                            </li>
                         ))
                     ) : (
                         <li>No moves yet</li>
                     )}
                 </ul>
             </div>
-             {/* ... (rest of the JSX) */}
+            {/* ... (rest of the JSX) */}
             <button className="close-button" onClick={() => {
                 console.log('Closing utility menu');
                 onClose();

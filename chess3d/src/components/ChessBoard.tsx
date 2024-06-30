@@ -7,7 +7,8 @@ import {convertFromAscii, convertToAscii, validateAsciiArt} from '../utils/ascii
 import {MoveHistory} from '../utils/moveHistory.ts';
 import {DEBUG} from '../config.js';
 
-// ... (rest of the imports and code)
+
+
 extend({OrbitControls});
 extend({Text});
 

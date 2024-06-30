@@ -1,10 +1,10 @@
-interface ChessPiece {
+export interface ChessPiece {
     type: string;
     color: string;
     position: [number, number, number];
 }
 
-interface Move {
+export interface Move {
     piece: ChessPiece;
     from: [number, number, number];
     to: [number, number, number];
@@ -15,11 +15,12 @@ class MoveHistory {
     public moves: Move[] = [];
     private readonly className = 'MoveHistory';
 
-     // ... (existing methods)
-    constructor() {
-        console.log(`${this.className} initialized`);
+    constructor(moves: Move[] = []) {
+        console.log(`${this.className} initialized with ${moves.length} moves`);
+        this.moves = moves;
     }
 
+    // ... (other methods)
     addMove(move: Move): void {
         this.moves.push(move);
         console.info(`${this.className}: Move added - ${this.formatMove(move)}`);
@@ -28,6 +29,7 @@ class MoveHistory {
 
     undoLastMove(): Move | undefined {
         const move = this.moves.pop();
+        console.log(`${this.className}: Undoing last move`, move);
         if (move) {
             console.info(`${this.className}: Last move undone - ${this.formatMove(move)}`);
             console.debug(`${this.className}: Current move count: ${this.moves.length}`);
@@ -36,6 +38,12 @@ class MoveHistory {
         }
         return move;
     }
+
+    // Add a new method to get the last move without removing it
+    getLastMove(): Move | undefined {
+        return this.moves[this.moves.length - 1];
+    }
+
 
     getMoveHistory(): Move[] {
         console.debug(`${this.className}: Retrieving move history. Total moves: ${this.moves.length}`);

@@ -1,4 +1,4 @@
-import React, {Suspense, useEffect, useRef, useState} from 'react';
+import React, {Suspense, useEffect, useState} from 'react';
 import {Canvas} from '@react-three/fiber';
 import {OrbitControls} from '@react-three/drei';
 import ChessBoard from './ChessBoard.tsx';
@@ -6,8 +6,8 @@ import PieceGraveyard from './PieceGraveyard.tsx';
 import {Move, MoveHistory, ChessPiece} from '../utils/moveHistory.ts';
 import ErrorBoundary from './ErrorBoundary.jsx';
 import UtilityMenuProps from './UtilityMenu.tsx';
+import {calculateNewBoardState, getInitialBoardState} from '../utils/boardStateUtils.ts';
 
- // ... (rest of the imports and component definition)
 interface ChessGameProps {
     openUtilityMenu: () => void;
     onError: (error: Error) => void;
@@ -16,28 +16,18 @@ interface ChessGameProps {
 }
 
 export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, basePath, chessGameRef}) => {
-     // ... (existing state declarations)
 
     console.log('[ChessGame] Rendering component');
 
     const [error, setError] = useState<Error | null>(null);
-
-    const [isLoading, setIsLoading] = useState(true);
     const [capturedPieces, setCapturedPieces] = useState<{ type: string, color: string }[]>([]);
     const [gameKey, setGameKey] = useState(0);
-    const [boardState, setBoardState] = useState<{
-        type: string,
-        position: [number, number, number],
-        color: string
-    }[]>([]);
+    const [boardState, setBoardState] = useState<ChessPiece[]>(getInitialBoardState());
     const [currentTurn, setCurrentTurn] = useState<'white' | 'black'>('white');
     const [moveHistory, setMoveHistory] = useState<MoveHistory>(new MoveHistory());
 
-     // ... (existing useEffect hooks and other functions)
-     // ... (existing useEffect hooks)
     useEffect(() => {
         console.log('[ChessGame] Component mounted');
-        setIsLoading(false);
         return () => {
             console.log('[ChessGame] Component unmounted');
         };
@@ -59,11 +49,6 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
         setBoardState(newPositions);
     };
 
-    if (isLoading) {
-        console.log('[ChessGame] Still loading...');
-        return <div>Loading ChessGame...</div>;
-    }
-
     if (error) {
         console.error('[ChessGame] Rendering error state:', error.message);
         return <div>Error: {error.message}</div>;
@@ -72,8 +57,8 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
     const handleMove = (move: Move) => {
         console.log('[ChessGame] Handling move:', move);
         setMoveHistory(prevHistory => {
-            const newHistory = new MoveHistory();
-            newHistory.moves = [...prevHistory.moves, move];
+            const newHistory = new MoveHistory([...prevHistory.moves, move]);
+            setBoardState(calculateNewBoardState(newHistory));
             return newHistory;
         });
         switchTurn();
@@ -82,20 +67,19 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
     const handleUndo = () => {
         console.log('[ChessGame] Attempting to undo last move');
         setMoveHistory(prevHistory => {
-            const newHistory = new MoveHistory();
-            newHistory.moves = prevHistory.moves.slice(0, -1);
+            const newHistory = new MoveHistory([...prevHistory.moves]);
+            const undoneMove = newHistory.undoLastMove();
+            if (undoneMove) {
+                const newBoardState = calculateNewBoardState(newHistory);
+                setBoardState(newBoardState);
+                setCurrentTurn(undoneMove.piece.color === 'white' ? 'white' : 'black');
+                if (undoneMove.capturedPiece) {
+                    setCapturedPieces(prev => prev.filter((_, index) => index !== prev.length - 1));
+                }
+            }
             return newHistory;
         });
-        switchTurn();
     };
-
-    const handleResetGame = () => {
-        console.log('[ChessGame] Resetting game');
-        setMoveHistory(new MoveHistory());
-        resetGame();
-    }
-
-     // ... (rest of the component logic)
 
     const handlePieceCapture = (piece: { type: string, color: string }) => {
         console.log('[ChessGame] Piece captured:', piece);
@@ -117,10 +101,11 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
         setCapturedPieces([]);
         setCurrentTurn('white');
         setGameKey(prevKey => prevKey + 1);
-        setMoveHistory(new MoveHistory());
-    };
+        setBoardState(getInitialBoardState());
+         setMoveHistory(new MoveHistory());
+     };
 
-     // ... (rest of the component)
+    const handleResetGame = resetGame;
 
     chessGameRef.current = {
         resetGame: handleResetGame,
@@ -131,9 +116,7 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
         onClose: openUtilityMenu
     };
 
-     // ... (rest of the component)
     return (
-         // ... (existing JSX)
 
         <div className="chess-container" style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
             <div className="turn-indicator">Current Turn: <span
@@ -167,10 +150,11 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
                                 switchTurn={switchTurn}
                                 resetGame={resetGame}
                                 onBoardStateChange={handleBoardStateChange}
-            moveHistory={moveHistory}
-            onMove={handleMove}
+                                moveHistory={moveHistory}
+                                boardState={boardState}
+                                onMove={handleMove}
                             />
-         // ... (rest of the JSX)
+                            // ... (rest of the JSX)
                             <PieceGraveyard capturedPieces={capturedPieces}/>
                             <OrbitControls
                                 target={[4, 0, 4]}

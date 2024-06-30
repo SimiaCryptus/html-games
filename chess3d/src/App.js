@@ -58,7 +58,7 @@ const App = () => {
                     setBoardState={(state) => {
                         chessGameRef.current?.setBoardState(state);
                     }}
-                    undoMove={() => chessGameRef.current?.handleUndo()}
+                    undoMove={() => chessGameRef.current?.undoMove()}
                     moveHistory={chessGameRef.current?.moveHistory || []}
                     onClose={closeModal}
                 />
