@@ -1,6 +1,6 @@
 import ChessPiece from "../components/ChessPiece.tsx";
 
-const pieceToAscii: { [key: string]: { [key: string]: string } } = {
+const PIECE_MAPPINGS = {
     white: {
         king: '♔',
         queen: '♕',
@@ -19,6 +19,26 @@ const pieceToAscii: { [key: string]: { [key: string]: string } } = {
     },
 };
 
+const ASCII_TO_PIECE = Object.entries(PIECE_MAPPINGS).reduce((acc, [color, pieces]) => {
+    Object.entries(pieces).forEach(([type, ascii]) => {
+        acc[ascii] = {type, color};
+    });
+    return acc;
+}, {} as { [key: string]: { type: string; color: string } });
+
+const VALID_CHARS = new Set(['.', ...Object.values(PIECE_MAPPINGS.white), ...Object.values(PIECE_MAPPINGS.black)]);
+
+const BORDER_LINE = '  ' + '-'.repeat(15);
+const COLUMN_LABELS = '  a b c d e f g h';
+
+function getPieceAscii(color: string, type: string): string {
+    return PIECE_MAPPINGS[color][type];
+}
+
+function getPieceFromAscii(ascii: string): { type: string; color: string } | null {
+    return ASCII_TO_PIECE[ascii] || null;
+}
+
 // Convert board state to ASCII art
 export function convertToAscii(positions: ChessPiece[]): string {
     console.log('Converting board state to ASCII art');
@@ -28,18 +48,16 @@ export function convertToAscii(positions: ChessPiece[]): string {
 
     positions.forEach((piece) => {
         const [x, , z] = piece.position;
-        board[7 - z][x] = pieceToAscii[piece.color][piece.type];
+        board[7 - z][x] = getPieceAscii(piece.color, piece.type);
         console.log(`Placed ${piece.color} ${piece.type} at position [${x}, ${z}]`);
     });
 
     const asciiArt = board.map((row) => row.join(' ')).join('\n');
-    const borderLine = '  ' + '-'.repeat(15);
-    const columnLabels = '  a b c d e f g h';
 
-    const result = `${borderLine}\n${asciiArt
+    const result = `${BORDER_LINE}\n${asciiArt
         .split('\n')
         .map((line, index) => `${8 - index} ${line} ${8 - index}`)
-        .join('\n')}\n${borderLine}\n${columnLabels}`;
+        .join('\n')}\n${BORDER_LINE}\n${COLUMN_LABELS}`;
 
     console.log('Generated ASCII art:');
     console.log(result);
@@ -56,23 +74,13 @@ export function convertFromAscii(asciiArt: string): ChessPiece[] {
     const lines = asciiArt.trim().split('\n');
     const positions: ChessPiece[] = [];
 
-    const asciiToPiece: { [key: string]: { type: string; color: string } } = {};
-    Object.entries(pieceToAscii).forEach(([color, pieces]) => {
-        Object.entries(pieces).forEach(([type, ascii]) => {
-            asciiToPiece[ascii] = {type, color};
-        });
-    });
-
     lines.slice(1, -2).forEach((line, rowIndex) => {
         const row = line.trim().split(' ').slice(1, -1);
         row.forEach((char, colIndex) => {
             if (char !== '.') {
-                const {type, color} = asciiToPiece[char];
-                const piece = {
-                    type,
-                    color,
-                    position: [colIndex, 0.5, 7 - rowIndex],
-                };
+                const piece = getPieceFromAscii(char);
+                if (!piece) return;
+                const {type, color} = piece;
                 positions.push(piece);
                 console.log(`Found ${color} ${type} at position [${colIndex}, ${7 - rowIndex}]`);
             }
@@ -95,13 +103,10 @@ export function validateAsciiArt(asciiArt: string): boolean {
         return false;
     }
 
-    const borderLine = '  ' + '-'.repeat(15);
-    if (lines[0] !== borderLine || lines[9] !== borderLine) {
+    if (lines[0] !== BORDER_LINE || lines[9] !== BORDER_LINE) {
         console.error('Invalid border lines in ASCII art');
         return false;
     }
-
-    const validChars = new Set(['.', ...Object.values(pieceToAscii.white), ...Object.values(pieceToAscii.black)]);
 
     for (let i = 1; i <= 8; i++) {
         const parts = lines[i].trim().split(' ');
@@ -114,7 +119,7 @@ export function validateAsciiArt(asciiArt: string): boolean {
             return false;
         }
         for (let j = 1; j <= 8; j++) {
-            if (!validChars.has(parts[j])) {
+            if (!VALID_CHARS.has(parts[j])) {
                 console.error(`Invalid character '${parts[j]}' at position [${j - 1}, ${i - 1}]`);
                 return false;
             }
@@ -123,11 +128,4 @@ export function validateAsciiArt(asciiArt: string): boolean {
 
     console.log('ASCII art format is valid');
     return true;
-}
-
-// Helper function to log the current board state
-export function logBoardState(positions: ChessPiece[]): void {
-    console.log('Current board state:');
-    const asciiArt = convertToAscii(positions);
-    console.log(asciiArt);
 }

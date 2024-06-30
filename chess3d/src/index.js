@@ -1,7 +1,7 @@
 import React from 'react';
 import App from './App';
 import './index.css';
-import { DEBUG } from './config';
+import {DEBUG} from './config';
 
 import {createRoot} from 'react-dom/client';
 
@@ -28,7 +28,7 @@ performance.mark('chess3d-init-start');
 const startTime = performance.now();
 
 // Add global error handler
-window.onerror = function(message, source, lineno, colno, error) {
+window.onerror = function (message, source, lineno, colno, error) {
     logError('Global error:', message, 'at', source, lineno, colno);
     logError('Error object:', error);
     // TODO: Send this error to your error tracking service
@@ -36,7 +36,7 @@ window.onerror = function(message, source, lineno, colno, error) {
 };
 
 // Add unhandled promise rejection handler
-window.onunhandledrejection = function(event) {
+window.onunhandledrejection = function (event) {
     logError('Unhandled promise rejection:', event.reason);
     // TODO: Send this error to your error tracking service
     console.trace('Rejection stack trace:');
@@ -63,14 +63,15 @@ try {
                 <App/>
             </React.StrictMode>
         ) : (
-            <React.Profiler id="Chess3D App" onRender={(id, phase, actualDuration, baseDuration, startTime, commitTime) => {
-                log(`Component ${id} ${phase}:`, 
-                    `\nActual duration: ${actualDuration.toFixed(2)}ms`,
-                    `\nBase duration: ${baseDuration.toFixed(2)}ms`,
-                    `\nStart time: ${startTime.toFixed(2)}ms`,
-                    `\nCommit time: ${commitTime.toFixed(2)}ms`
-                );
-            }}>
+            <React.Profiler id="Chess3D App"
+                            onRender={(id, phase, actualDuration, baseDuration, startTime, commitTime) => {
+                                log(`Component ${id} ${phase}:`,
+                                    `\nActual duration: ${actualDuration.toFixed(2)}ms`,
+                                    `\nBase duration: ${baseDuration.toFixed(2)}ms`,
+                                    `\nStart time: ${startTime.toFixed(2)}ms`,
+                                    `\nCommit time: ${commitTime.toFixed(2)}ms`
+                                );
+                            }}>
                 <App/>
             </React.Profiler>
         )

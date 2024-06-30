@@ -1,14 +1,13 @@
 import React, {useState} from 'react';
 import {convertFromAscii, convertToAscii} from '../utils/asciiConverter.ts';
 import {MoveHistory} from '../utils/moveHistory.ts';
+import {ErrorMessage} from './ErrorMessage.tsx';
+
 
 interface UtilityMenuProps {
     resetGame: () => void;
     getBoardState: () => any[];
     setBoardState: (state: any[]) => void;
-    undoMove: () => void;
-    getBoardState: () => string[][];
-    setBoardState: (state: string[][]) => void;
     undoMove: () => void;
     moveHistory: MoveHistory;
     onClose: () => void;
@@ -22,35 +21,41 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
                                                      moveHistory,
                                                      onClose,
                                                  }) => {
-     // ... (existing code)
+    const [, forceUpdate] = useState({});
 
+    // ... (existing code)
     const [asciiArt, setAsciiArt] = useState<string>('');
+    const [error, setError] = useState<string | null>(null);
 
     const handleExport = () => {
         console.log('Exporting board state...');
-        const boardState = getBoardState();
-        console.debug('Current board state:', boardState);
-        const ascii = convertToAscii(boardState);
-        console.log('Board state converted to ASCII');
-        console.debug('ASCII representation:', ascii);
-        setAsciiArt(ascii);
-        console.log('ASCII art set in state');
+        try {
+            const boardState = getBoardState();
+            const ascii = convertToAscii(boardState);
+            console.log('Board state converted to ASCII');
+            console.debug('ASCII representation:', ascii);
+            setAsciiArt(ascii);
+            console.log('Board state exported successfully');
+            setError(null);
+        } catch (error) {
+            console.error('Error exporting board state:', error);
+            setError('Failed to export board state. Please try again.');
+        }
     };
 
     const handleImport = () => {
         console.log('Importing board state...');
         try {
-            console.debug('Attempting to convert ASCII to board state:', asciiArt);
             const boardState = convertFromAscii(asciiArt);
             console.log('ASCII successfully converted to board state');
             console.debug('Converted board state:', boardState);
             setBoardState(boardState);
             console.log('Board state updated');
+            setError(null);
             onClose();
-            console.log('Utility menu closed');
         } catch (error) {
             console.error('Error importing board state:', error);
-            alert('Invalid ASCII art format. Please check your input.');
+            setError('Invalid ASCII art format. Please check your input.');
         }
     };
 
@@ -59,20 +64,20 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
         resetGame();
         console.log('Game reset complete');
         onClose();
-        console.log('Utility menu closed');
     };
 
     const handleUndo = () => {
         console.log('Undoing last move...');
         undoMove();
+        forceUpdate({});
         console.log('Move undone');
     };
 
-     // ... (rest of the component)
+    const currentMoves = moveHistory.getMoveHistory();
 
     return (
+        // ... (existing JSX)
         <div className="utility-menu modal-content">
-            {/* ... (existing JSX) */}
             <h2>Utility Menu</h2>
             <button onClick={handleReset}>Reset Game</button>
             <button onClick={handleExport}>Export Board</button>
@@ -83,16 +88,18 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
                 onChange={(e) => {
                     console.log('ASCII art input changed');
                     setAsciiArt(e.target.value);
+                    setError(null);
                 }}
                 placeholder="Paste ASCII art here to import board state"
                 rows={10}
                 cols={50}
             />
+            {error && <ErrorMessage message={error}/>}
             <div className="move-log">
                 <h3>Move Log</h3>
                 <ul>
-                    {moveHistory.getMoveCount() > 0 ? (
-                        moveHistory.getMoveHistory().map((move, index) => (
+                    {currentMoves.length > 0 ? (
+                        currentMoves.map((move, index) => (
                             <li key={index}>
                                 {index + 1}. {moveHistory.formatMove(move)}
                             </li>
@@ -102,15 +109,8 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
                     )}
                 </ul>
             </div>
-            {/* ... (rest of the JSX) */}
-            <button className="close-button" onClick={() => {
-                console.log('Closing utility menu');
-                onClose();
-            }}>Close
-            </button>
         </div>
     );
 };
 
-console.log('UtilityMenu component defined');
 export default UtilityMenu;

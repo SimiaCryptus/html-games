@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import React, {memo, useCallback, useEffect, useRef} from 'react';
 
 interface ModalProps {
     isOpen: boolean;
@@ -7,7 +7,7 @@ interface ModalProps {
     modalId?: string;
 }
 
-const Modal: React.FC<ModalProps> = ({isOpen, onClose, children, modalId = 'default'}) => {
+const Modal: React.FC<ModalProps> = memo(({isOpen, onClose, children, modalId = 'default'}) => {
     const renderCount = useRef(0);
 
     console.log(`Modal ${modalId}: Component rendering. isOpen: ${isOpen}`);
@@ -27,15 +27,20 @@ const Modal: React.FC<ModalProps> = ({isOpen, onClose, children, modalId = 'defa
         };
     }, [isOpen, modalId]);
 
-    const handleClose = () => {
+    const handleClose = useCallback(() => {
         console.warn(`Modal ${modalId}: Close button clicked`);
         onClose();
-    };
+    }, [modalId, onClose]);
 
-    const handleOverlayClick = () => {
+    const handleOverlayClick = useCallback(() => {
         console.warn(`Modal ${modalId}: Overlay clicked`);
         onClose();
-    };
+    }, [modalId, onClose]);
+
+    const handleContentClick = useCallback((e: React.MouseEvent) => {
+        e.stopPropagation();
+        console.debug(`Modal ${modalId}: Content clicked, propagation stopped`);
+    }, [modalId]);
 
     if (!isOpen) {
         console.log(`Modal ${modalId}: Not rendering (closed)`);
@@ -49,10 +54,7 @@ const Modal: React.FC<ModalProps> = ({isOpen, onClose, children, modalId = 'defa
         <div className="modal-overlay" onClick={handleOverlayClick}>
             <div
                 className="modal-content"
-                onClick={(e) => {
-                    e.stopPropagation();
-                    console.debug(`Modal ${modalId}: Content clicked, propagation stopped`);
-                }}
+                onClick={handleContentClick}
             >
                 <button className="modal-close" onClick={handleClose}>
                     &times;
@@ -62,7 +64,7 @@ const Modal: React.FC<ModalProps> = ({isOpen, onClose, children, modalId = 'defa
             </div>
         </div>
     );
-};
+});
 
 console.info('Modal component defined');
 export default Modal;

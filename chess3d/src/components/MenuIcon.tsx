@@ -1,35 +1,56 @@
-import React, {useCallback, useEffect} from 'react';
+import React from 'react';
+
+interface ThemeColors {
+    stroke: string;
+    background: string;
+    hover: string;
+}
+
+type ThemeOption = 'light' | 'dark' | 'custom';
 
 interface MenuIconProps {
     onClick: () => void;
+    theme?: ThemeOption;
+    customColors?: ThemeColors;
 }
 
-const MenuIcon: React.FC<MenuIconProps> = ({onClick}) => {
-    console.log('MenuIcon: Component function called');
-
-    const handleClick = useCallback(() => {
-        console.log('MenuIcon: Button clicked, calling onClick prop');
+const MenuIcon: React.FC<MenuIconProps> = React.memo(({onClick, theme = 'light', customColors}) => {
+    const handleClick = () => {
         onClick();
-    }, [onClick]);
+    };
 
-    useEffect(() => {
-        console.log('MenuIcon: Component mounted');
-        return () => {
-            console.log('MenuIcon: Component will unmount');
-        };
-    }, []);
+    const getThemeColors = (): ThemeColors => {
+        switch (theme) {
+            case 'light':
+                return {stroke: '#000000', background: '#FFFFFF', hover: '#F0F0F0'};
+            case 'dark':
+                return {stroke: '#FFFFFF', background: '#333333', hover: '#444444'};
+            case 'custom':
+                return customColors || {stroke: '#000000', background: '#FFFFFF', hover: '#F0F0F0'};
+            default:
+                return {stroke: '#000000', background: '#FFFFFF', hover: '#F0F0F0'};
+        }
+    };
 
-    console.log('MenuIcon: Rendering component', {onClick});
+    const colors = getThemeColors();
+
+    const buttonStyle: React.CSSProperties = {
+        backgroundColor: colors.background,
+        border: 'none',
+        borderRadius: '4px',
+        padding: '8px',
+        cursor: 'pointer',
+        transition: 'background-color 0.3s ease',
+    };
 
     return (
         <button
             className="menu-icon"
             onClick={handleClick}
             aria-label="Open menu"
-            onMouseEnter={() => console.log('MenuIcon: Mouse entered button', {timeStamp: new Date().toISOString()})}
-            onMouseLeave={() => console.log('MenuIcon: Mouse left button', {timeStamp: new Date().toISOString()})}
-            onFocus={() => console.log('MenuIcon: Button focused')}
-            onBlur={() => console.log('MenuIcon: Button blurred')}
+            style={buttonStyle}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = colors.hover)}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = colors.background)}
         >
             <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -37,7 +58,7 @@ const MenuIcon: React.FC<MenuIconProps> = ({onClick}) => {
                 height="24"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="currentColor"
+                stroke={colors.stroke}
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -46,13 +67,8 @@ const MenuIcon: React.FC<MenuIconProps> = ({onClick}) => {
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <line x1="3" y1="18" x2="21" y2="18"></line>
             </svg>
-            {console.log('MenuIcon: SVG rendered')}
         </button>
     );
-};
+});
 
-console.log('MenuIcon: Component defined', {componentName: MenuIcon.name});
-
-console.log('MenuIcon: Exporting component');
 export default MenuIcon;
-console.log('MenuIcon: Component exported');

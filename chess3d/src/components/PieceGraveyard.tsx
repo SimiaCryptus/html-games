@@ -1,72 +1,48 @@
-import React, {useCallback, useEffect, useMemo} from 'react';
+import React, {useMemo} from 'react';
 import ChessPiece from './ChessPiece.tsx';
 
 interface PieceGraveyardProps {
     capturedPieces: { type: string, color: string }[];
 }
 
-const PieceGraveyard: React.FC<PieceGraveyardProps> = ({capturedPieces}) => {
-    const logPieceDetails = useCallback((pieces: { type: string, color: string }[], color: string) => {
-        console.group(`${color} captured pieces (${pieces.length})`);
-        pieces.forEach((piece, index) => {
-            console.log(`${index + 1}. ${piece.color} ${piece.type}`);
-        });
-        console.groupEnd();
-    }, []);
+const PIECE_SPACING = 0.75;
+const GRAVEYARD_SCALE = 0.3;
+const PIECES_PER_ROW = 4;
 
+const GRAVEYARD_POSITIONS = {
+    white: [0, -1.5, 0],
+    black: [7, -1.5, 7]
+} as const;
+
+const calculatePosition = (index: number, color: string): [number, number, number] => [
+    color === 'white'
+        ? (index % PIECES_PER_ROW) * PIECE_SPACING
+        : -(index % PIECES_PER_ROW) * PIECE_SPACING,
+    Math.floor(index / PIECES_PER_ROW) * PIECE_SPACING,
+    color === 'white'
+        ? 0
+        : -Math.floor(index / PIECES_PER_ROW) * PIECE_SPACING
+];
+
+const PieceGraveyard: React.FC<PieceGraveyardProps> = ({capturedPieces}) => {
     const whiteCapturedPieces = useMemo(() => capturedPieces.filter(piece => piece.color === 'white'), [capturedPieces]);
     const blackCapturedPieces = useMemo(() => capturedPieces.filter(piece => piece.color === 'black'), [capturedPieces]);
 
-    useEffect(() => {
-        console.group('Captured pieces updated');
-        console.log('Total captured pieces:', capturedPieces.length);
-        console.log('White captured pieces:', whiteCapturedPieces.length);
-        console.log('Black captured pieces:', blackCapturedPieces.length);
-        logPieceDetails(whiteCapturedPieces, 'White');
-        logPieceDetails(blackCapturedPieces, 'Black');
-        console.groupEnd();
-    }, [capturedPieces, whiteCapturedPieces, blackCapturedPieces, logPieceDetails]);
-
-    const renderPieces = useCallback((pieces: { type: string, color: string }[], color: string) => (
-        <group position={color === 'white' ? [0, -1.5, 0] : [7, -1.5, 7]}>
+    const renderPieces = (pieces: { type: string, color: string }[], color: 'white' | 'black') => (
+        <group position={GRAVEYARD_POSITIONS[color]}>
             {pieces.map((piece, index) => {
-                const position = [
-                    color === 'white'
-                        ? index % 4 * 0.75
-                        : -(index % 4) * 0.75,
-                    Math.floor(index / 4) * 0.75,
-                    color === 'white'
-                        ? 0
-                        : -Math.floor(index / 4) * 0.75
-                ];
-                console.log(`Rendering ${piece.color} ${piece.type} at position:`, position);
+                const position = calculatePosition(index, color);
                 return <ChessPiece
                     key={index}
                     type={piece.type}
                     color={piece.color}
                     position={position}
-                    scale={[0.3, 0.3, 0.3]}
-                    onClick={() => {
-                        console.log(`Clicked on captured ${piece.color} ${piece.type} at index ${index}`, {
-                            position,
-                            scale: [0.3, 0.3, 0.3]
-                        });
-                    }}
+                    scale={[GRAVEYARD_SCALE, GRAVEYARD_SCALE, GRAVEYARD_SCALE]}
                     isSelected={false}
                 />
             })}
         </group>
-    ), []);
-
-    useEffect(() => {
-        console.log('PieceGraveyard rendered', {
-            whiteCapturedPieces: whiteCapturedPieces.length,
-            blackCapturedPieces: blackCapturedPieces.length
-        });
-        return () => {
-            console.log('PieceGraveyard unmounted');
-        };
-    }, [whiteCapturedPieces, blackCapturedPieces]);
+    );
 
     return (
         <group>
@@ -76,4 +52,4 @@ const PieceGraveyard: React.FC<PieceGraveyardProps> = ({capturedPieces}) => {
     );
 };
 
-export default PieceGraveyard;
+export default React.memo(PieceGraveyard);

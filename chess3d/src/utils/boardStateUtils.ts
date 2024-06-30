@@ -1,4 +1,24 @@
-import {MoveHistory, ChessPiece} from './moveHistory';
+import {ChessPiece, Move, MoveHistory} from './moveHistory';
+
+// Custom error class for invalid moves
+class InvalidMoveError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'InvalidMoveError';
+    }
+}
+
+function isValidPosition(position: number[]): boolean {
+    return position.length === 3 &&
+        position[0] >= 0 && position[0] < 8 &&
+        position[1] >= 0 && position[1] < 8 &&
+        position[2] === 0;
+}
+
+function isValidMove(move: Move): boolean {
+    return isValidPosition([move.from[0], move.from[2], 0]) &&
+        isValidPosition([move.to[0], move.to[2], 0]);
+}
 
 export function calculateNewBoardState(moveHistory: MoveHistory): ChessPiece[] {
     // Initialize the board to its starting position
@@ -7,23 +27,44 @@ export function calculateNewBoardState(moveHistory: MoveHistory): ChessPiece[] {
     console.log('Calculating new board state from move history:', moveHistory.moves);
 
     // Apply each move in the history to the board state
-    for (const move of moveHistory.moves) {
+    for (let i = 0; i < moveHistory.moves.length; i++) {
+        const move = moveHistory.moves[i];
+
+        if (!isValidMove(move)) {
+            throw new InvalidMoveError(`Invalid move at index ${i}: ${JSON.stringify(move)}`);
+        }
+
         // Update the piece position
         const pieceIndex = boardState.findIndex(
             piece => piece.position[0] === move.from[0] && piece.position[1] === move.from[2]
         );
-        if (pieceIndex !== -1) {
-            boardState[pieceIndex].position = [move.to[0], move.to[2], 0];
-            console.log(`Moved piece from ${move.from} to ${move.to}`);
+        if (pieceIndex === -1) {
+            throw new InvalidMoveError(`No piece found at position ${move.from} for move at index ${i}`);
         }
+
+        boardState[pieceIndex].position = [move.to[0], move.to[2], 0];
+        console.log(`Moved piece from ${move.from} to ${move.to}`);
 
         // Remove captured piece if any
         if (move.capturedPiece) {
-            boardState = boardState.filter(
-                piece => !(piece.position[0] === move.from[0] && piece.position[1] === move.from[2])
+            const capturedPieceIndex = boardState.findIndex(
+                piece => piece.position[0] === move.to[0] && piece.position[1] === move.to[2]
             );
+            if (capturedPieceIndex === -1) {
+                throw new InvalidMoveError(`No piece found at capture position ${move.to} for move at index ${i}`);
+            }
+            boardState.splice(capturedPieceIndex, 1);
             console.log(`Captured piece removed at ${move.to}`);
         }
+    }
+
+    if (boardState.length < 2) {
+        throw new Error('Invalid board state: Too few pieces remaining');
+    }
+
+    const kings = boardState.filter(piece => piece.type === 'king');
+    if (kings.length !== 2) {
+        throw new Error(`Invalid board state: Incorrect number of kings (${kings.length})`);
     }
 
     console.log('New board state calculated:', boardState);
