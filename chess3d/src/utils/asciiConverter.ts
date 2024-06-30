@@ -21,10 +21,10 @@ const PIECE_MAPPINGS = {
 
 const ASCII_TO_PIECE = Object.entries(PIECE_MAPPINGS).reduce((acc, [color, pieces]) => {
     Object.entries(pieces).forEach(([type, ascii]) => {
-        acc[ascii] = {type, color};
+        acc[ascii] = {type, color, position: null};
     });
     return acc;
-}, {} as { [key: string]: { type: string; color: string } });
+}, {} as { [key: string]: { type: string; color: string, position: [number, number] | null } });
 
 const VALID_CHARS = new Set(['.', ...Object.values(PIECE_MAPPINGS.white), ...Object.values(PIECE_MAPPINGS.black)]);
 
@@ -35,14 +35,20 @@ function getPieceAscii(color: string, type: string): string {
     return PIECE_MAPPINGS[color][type];
 }
 
-function getPieceFromAscii(ascii: string): { type: string; color: string } | null {
-    return ASCII_TO_PIECE[ascii] || null;
+function getPieceFromAscii(ascii: string): { type: string; color: string, position: [number, number] | null } | null {
+    let newVar = ASCII_TO_PIECE[ascii] || null;
+    // copy if not null
+    if (newVar !== null) {
+        newVar = {...newVar};
+    }
+    return newVar;
 }
 
 // Convert board state to ASCII art
-export function convertToAscii(positions: ChessPiece[]): string {
+export function convertToAscii(positions: ChessPiece[], currentTurn: 'white' | 'black'): string {
     console.log('Converting board state to ASCII art');
     console.log('Input positions:', positions);
+    console.log('Current turn:', currentTurn);
 
     const board: string[][] = Array(8).fill(null).map(() => Array(8).fill('.'));
 
@@ -57,7 +63,8 @@ export function convertToAscii(positions: ChessPiece[]): string {
     const result = `${BORDER_LINE}\n${asciiArt
         .split('\n')
         .map((line, index) => `${8 - index} ${line} ${8 - index}`)
-        .join('\n')}\n${BORDER_LINE}\n${COLUMN_LABELS}`;
+        .join('\n')}\n${BORDER_LINE}\n${COLUMN_LABELS}\n` +
+        `Current turn: ${currentTurn}`;
 
     console.log('Generated ASCII art:');
     console.log(result);
@@ -72,23 +79,27 @@ export function convertFromAscii(asciiArt: string): ChessPiece[] {
     console.log(asciiArt);
 
     const lines = asciiArt.trim().split('\n');
-    const positions: ChessPiece[] = [];
+    const pieces: ChessPiece[] = [];
+    const rows = lines.slice(1, -2).map((line) => line.trim().split(' ').slice(1, -1));
 
-    lines.slice(1, -2).forEach((line, rowIndex) => {
-        const row = line.trim().split(' ').slice(1, -1);
+    rows.forEach((row, rowIndex) => {
         row.forEach((char, colIndex) => {
             if (char !== '.') {
                 const piece = getPieceFromAscii(char);
-                if (!piece) return;
-                const {type, color} = piece;
-                positions.push(piece);
-                console.log(`Found ${color} ${type} at position [${colIndex}, ${7 - rowIndex}]`);
+
+                if (!piece) {
+                    console.error(`Invalid character '${char}' at position [${colIndex}, ${7 - rowIndex}]`);
+                    return;
+                }
+                piece.position = [7 - colIndex, 7 - rowIndex];
+                pieces.push(piece);
+                console.log(`Found ${piece.color} ${piece.type} at position [${7 - colIndex}, ${7 - rowIndex}]`);
             }
         });
     });
 
-    console.log('Converted positions:', positions);
-    return positions;
+    console.log('Converted positions:', pieces);
+    return pieces;
 }
 
 // Validate ASCII art format

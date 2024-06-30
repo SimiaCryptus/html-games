@@ -1,5 +1,6 @@
 import {ChessPiece, Move, MoveHistory} from './moveHistory';
 
+ // ... (existing code remains unchanged)
 // Custom error class for invalid moves
 class InvalidMoveError extends Error {
     constructor(message: string) {
@@ -9,7 +10,7 @@ class InvalidMoveError extends Error {
 }
 
 function isValidPosition(position: number[]): boolean {
-    return position.length === 2 &&
+    return position &&
         position[0] >= 0 && position[0] < 8 &&
         position[1] >= 0 && position[1] < 8 &&
         Number.isInteger(position[0]) &&
@@ -21,9 +22,63 @@ function isValidMove(move: Move): boolean {
         isValidPosition([move.to[0], move.to[1]]);
 }
 
+export function createBoardStateFromImport(importedState: ChessPiece[]): ChessPiece[] {
+    console.log('Creating board state from imported state');
+    
+    if (importedState.length < 2) {
+        console.error('Invalid imported state: Too few pieces', importedState);
+        throw new Error('Invalid imported state: Too few pieces');
+    }
+
+    const kings = importedState.filter(piece => piece.type === 'king');
+    if (kings.length !== 2) {
+        console.error(`Invalid imported state: Incorrect number of kings (${kings.length})`, importedState);
+        throw new Error(`Invalid imported state: Incorrect number of kings (${kings.length})`);
+    }
+
+    // Validate positions of all pieces
+    for (const piece of importedState) {
+        if (!isValidPosition(piece.position)) {
+            console.error(`Invalid position for piece:`, piece);
+            throw new Error(`Invalid position for ${piece.color} ${piece.type} at [${piece.position}]`);
+        }
+    }
+
+    console.log(`New board state created with ${importedState.length} pieces`);
+    return importedState;
+}
+
+export function applyMoveToBoard(boardState: ChessPiece[], move: Move): ChessPiece[] {
+    const newBoardState = [...boardState];
+    
+    // Find and update the moving piece
+    const movingPieceIndex = newBoardState.findIndex(
+        piece => piece.position[0] === move.from[0] && piece.position[1] === move.from[1] && piece.type === move.piece.type
+    );
+    
+    if (movingPieceIndex === -1) {
+        throw new Error(`No piece found at position [${move.from}]`);
+    }
+    
+    newBoardState[movingPieceIndex] = {...newBoardState[movingPieceIndex], position: move.to};
+    
+    // Remove captured piece if any
+    if (move.capturedPiece) {
+        const capturedPieceIndex = newBoardState.findIndex(
+            piece => piece.position[0] === move.to[0] && piece.position[1] === move.to[1] && piece.type === move.capturedPiece.type
+        );
+        
+        if (capturedPieceIndex !== -1) {
+            newBoardState.splice(capturedPieceIndex, 1);
+        }
+    }
+    
+    return newBoardState;
+}
+
 export function calculateNewBoardState(moveHistory: MoveHistory): ChessPiece[] {
-    // Initialize the board to its starting position
-    let boardState = getInitialBoardState();
+    // Initialize the board to the initial state from move history
+    let boardState = moveHistory.getInitialState();
 
     console.log(`Calculating new board state from ${moveHistory.moves.length} moves`);
 
@@ -36,23 +91,7 @@ export function calculateNewBoardState(moveHistory: MoveHistory): ChessPiece[] {
             throw new InvalidMoveError(`Invalid move at index ${i}`);
         }
 
-        // Update the piece position
-        const movingPiece = boardState.find(
-            piece => piece.position[0] === move.from[0] && piece.position[1] === move.from[1] && piece.type === move.piece
-        );
-        if (!movingPiece) {
-            console.error(`No matching piece found for move at index ${i}:`, move);
-            throw new InvalidMoveError(`No matching piece found for move at index ${i}`);
-        }
-
-        movingPiece.position = [move.to[0], move.to[1]];
-
-        // Remove captured piece if any
-        if (move.capturedPiece) {
-            boardState = boardState.filter(
-                piece => !(piece.position[0] === move.to[0] && piece.position[1] === move.to[1] && piece.type === move.capturedPiece)
-            );
-        }
+        boardState = applyMoveToBoard(boardState, move);
     }
 
     if (boardState.length < 2) {
@@ -70,6 +109,7 @@ export function calculateNewBoardState(moveHistory: MoveHistory): ChessPiece[] {
     return boardState;
 }
 
+ // ... (rest of the file remains unchanged)
  // ... rest of the file remains unchanged
 export function getInitialBoardState(): ChessPiece[] {
     // Return the complete initial setup of the chess board

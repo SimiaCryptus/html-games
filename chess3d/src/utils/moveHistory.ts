@@ -11,10 +11,21 @@ class MoveHistory {
      private moves: Move[] = [];
     private undoneMoves: Move[] = [];
     private readonly className = 'MoveHistory';
+    private initialState: ChessPiece[] = [];
 
-    constructor(moves: Move[] = []) {
-        console.log(`${this.className} initialized with ${moves.length} moves`);
-         this.moves = [...moves];
+    constructor(initialState: ChessPiece[] = []) {
+        console.log(`${this.className} initialized with initial state`);
+        this.initialState = [...initialState];
+    }
+
+    resetWithNewState(newState: ChessPiece[]): void {
+        console.log(`${this.className}: Resetting move history with new initial state`);
+        this.initialState = [...newState];
+        this.clear();
+    }
+
+    getInitialState(): ChessPiece[] {
+        return [...this.initialState];
     }
 
     addMove(move: Move): void {
@@ -41,7 +52,7 @@ class MoveHistory {
     }
 
     undoLastMove(): Move | null {
-        if (this.moves.length > 0) {
+        if (this.canUndo()) {
             const undoneMove = this.moves.pop()!;
             this.undoneMoves.push(undoneMove);
             console.info(`${this.className}: Last move undone - ${this.formatMove(undoneMove)}`);
@@ -51,7 +62,7 @@ class MoveHistory {
     }
 
     redoMove(): Move | null {
-        if (this.undoneMoves.length > 0) {
+        if (this.canRedo()) {
             const redoneMove = this.undoneMoves.pop()!;
             this.moves.push(redoneMove);
             console.info(`${this.className}: Move redone - ${this.formatMove(redoneMove)}`);
@@ -61,7 +72,7 @@ class MoveHistory {
     }
 
     canUndo(): boolean {
-        return this.moves.length > 0;
+        return this.moves.length > 0 || this.initialState.length > 0;
     }
 
     canRedo(): boolean {
@@ -76,7 +87,7 @@ class MoveHistory {
     }
 
     clone(): MoveHistory {
-        const clonedHistory = new MoveHistory();
+        const clonedHistory = new MoveHistory(this.initialState);
         clonedHistory.moves = [...this.moves];
         clonedHistory.undoneMoves = [...this.undoneMoves];
         return clonedHistory;
@@ -88,6 +99,32 @@ class MoveHistory {
 
     getUndoneMovesCount(): number {
         return this.undoneMoves.length;
+    }
+
+    getCurrentState(): ChessPiece[] {
+        if (this.moves.length === 0) {
+            return [...this.initialState];
+        }
+        // Apply all moves to the initial state to get the current state
+        let currentState = [...this.initialState];
+        for (const move of this.moves) {
+            currentState = this.applyMove(currentState, move);
+        }
+        return currentState;
+    }
+
+    private applyMove(state: ChessPiece[], move: Move): ChessPiece[] {
+        const newState = state.filter(piece => 
+            piece.position[0] !== move.from[0] || 
+            piece.position[1] !== move.from[1] || 
+            piece.position[2] !== move.from[2]
+        );
+        newState.push({...move.piece, position: move.to});
+        return newState;
+    }
+
+    getCurrentBoardState() {
+        return this.getCurrentState();
     }
 }
 

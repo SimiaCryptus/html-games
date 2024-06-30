@@ -60,7 +60,17 @@ const App = () => {
                     }}
                     undoMove={() => chessGameRef.current?.undoMove()}
                     moveHistory={chessGameRef.current?.moveHistory || []}
+                    setMoveHistory={(moveHistory) => {
+                        chessGameRef.current?.setMoveHistory(moveHistory);
+                    } }
                     onClose={closeModal}
+                    setCurrentTurn={(currentTurn) => {
+                        chessGameRef.current?.setCurrentTurn(currentTurn);
+                    } }
+                    setCapturedPieces={(capturedPieces) => {
+                        chessGameRef.current?.setCapturedPieces(capturedPieces);
+                    } }
+                    chessGameRef={chessGameRef}
                 />
             </Modal>
         </div>

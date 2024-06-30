@@ -286,8 +286,6 @@ const ChessBoard = forwardRef<any, ChessBoardProps>(({
                     setGameOver(true);
                 }
             }
-
-           switchTurn();
         }
     };
 

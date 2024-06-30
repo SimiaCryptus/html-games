@@ -10,7 +10,11 @@ interface UtilityMenuProps {
     undoMove: () => void;
     redoMove: () => void;
     moveHistory: MoveHistory;
+    setMoveHistory: (history: MoveHistory) => void;
+    setCurrentTurn: (turn: 'white' | 'black') => void;
+    setCapturedPieces: (pieces: any[]) => void;
     onClose: () => void;
+    chessGameRef: React.MutableRefObject<any>;
 }
 
 const UtilityMenu: React.FC<UtilityMenuProps> = ({
@@ -18,10 +22,15 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
                                                      getBoardState,
                                                      setBoardState,
                                                      undoMove,
-    redoMove,
+                                                     redoMove,
                                                      moveHistory,
+                                                     setMoveHistory,
+                                                     setCurrentTurn,
+                                                     setCapturedPieces,
                                                      onClose,
+                                                     chessGameRef
                                                  }) => {
+    // ... (other code remains unchanged)
     const [, setUpdateTrigger] = useState({});
     const [asciiArt, setAsciiArt] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
@@ -29,8 +38,7 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
     const handleExport = () => {
         console.log('Exporting board state...');
         try {
-            const boardState = getBoardState();
-            const ascii = convertToAscii(boardState);
+        const ascii = chessGameRef.current.getAsciiRepresentation();
             console.log('Board state converted to ASCII');
             console.debug('ASCII representation:', ascii);
             setAsciiArt(ascii);
@@ -49,7 +57,21 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
             console.log('ASCII successfully converted to board state');
             console.debug('Converted board state:', boardState);
             setBoardState(boardState);
-            console.log('Board state updated');
+
+            // Create new move history with the imported state as initial state
+            const newMoveHistory = new MoveHistory();
+            newMoveHistory.resetWithNewState(boardState);
+            setMoveHistory(newMoveHistory);
+
+            const currentPlayerRegex = /Current turn: (white|black)/;
+            const currentPlayer = asciiArt.match(currentPlayerRegex)![1] as 'white' | 'black';
+            setCurrentTurn(currentPlayer);
+
+            // Clear captured pieces
+            setCapturedPieces([]);
+
+            console.log('Board state updated, move history reset, and game state initialized');
+
             setError(null);
             onClose();
         } catch (error) {
@@ -61,7 +83,10 @@ const UtilityMenu: React.FC<UtilityMenuProps> = ({
     const handleReset = () => {
         console.log('Resetting game...');
         resetGame();
-        console.log('Game reset complete');
+        // Reset move history
+        const newMoveHistory = new MoveHistory();
+        setMoveHistory(newMoveHistory);
+        console.log('Game reset complete and move history cleared');
         onClose();
     };
 

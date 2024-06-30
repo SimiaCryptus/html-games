@@ -6,7 +6,8 @@ import PieceGraveyard from './PieceGraveyard.tsx';
 import {ChessPiece, Move, MoveHistory} from '../utils/moveHistory.ts';
 import ErrorBoundary from './ErrorBoundary.jsx';
 import UtilityMenuProps from './UtilityMenu.tsx';
-import {getInitialBoardState} from '../utils/boardStateUtils.ts';
+import {createBoardStateFromImport, getInitialBoardState} from '../utils/boardStateUtils.ts';
+import {convertToAscii} from '../utils/asciiConverter.ts';
 
 // ... (rest of the imports and interface definitions remain unchanged)
 interface ChessGameProps {
@@ -18,6 +19,7 @@ interface ChessGameProps {
 
 export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, basePath, chessGameRef}) => {
     // ... (other state declarations remain unchanged)
+
     // ... (state declarations and other functions remain unchanged)
 
     console.log('[ChessGame] Rendering component');
@@ -26,10 +28,30 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
     const [capturedPieces, setCapturedPieces] = useState<{ type: string, color: string }[]>([]);
     const [gameKey, setGameKey] = useState(0);
     const [boardState, setBoardState] = useState<ChessPiece[]>(getInitialBoardState());
-    const [currentTurn, setCurrentTurn] = useState<'white' | 'black'>('white');
-    const [moveHistory, setMoveHistory] = useState<MoveHistory>(new MoveHistory());
+    const [currentTurn, setCurrentTurn] = useState<'white' | 'black'>(() => {
+        console.log('Initializing currentTurn');
+        return 'white';
+    });
+ 
+     // ... (rest of the component code)
+    const [moveHistory, setMoveHistory] = useState<MoveHistory>(() => {
+        const history = new MoveHistory();
+        history.resetWithNewState(getInitialBoardState());
+        return history;
+    });
 
-    // ... (other functions remain unchanged)
+    const handleImport = (newBoardState: ChessPiece[]) => {
+        console.log('[ChessGame] Importing new board state');
+        const validatedBoardState = createBoardStateFromImport(newBoardState);
+        setBoardState(validatedBoardState);
+        const newMoveHistory = new MoveHistory();
+        newMoveHistory.resetWithNewState(validatedBoardState);
+        setMoveHistory(newMoveHistory);
+        setCurrentTurn('white');
+        setCapturedPieces([]);
+        setGameKey(prevKey => prevKey + 1); // Force re-render of ChessBoard
+    };
+
     useEffect(() => {
         console.log('[ChessGame] Component mounted');
         return () => {
@@ -106,21 +128,11 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
             const result = newHistory.undoLastMove();
             if (result) {
                 const lastMove = result;
-                setBoardState(prevState => {
-                    // ... (board state update logic remains unchanged)
-                    // Reverse the move
-                    const newState = [...prevState];
-                    const pieceIndex = newState.findIndex(p => p.position[0] === lastMove.to[0] && p.position[1] === lastMove.to[1]);
-                    if (pieceIndex !== -1) {
-                        newState[pieceIndex] = {...newState[pieceIndex], position: lastMove.from};
-                    }
-                    if (lastMove.capturedPiece) {
-                        newState.push({...lastMove.capturedPiece, position: lastMove.to});
-                        setCapturedPieces(prev => prev.slice(0, -1));
-                    }
-                    return newState;
-                });
+                setBoardState(newHistory.getCurrentBoardState());
                 setCurrentTurn(lastMove.piece.color === 'white' ? 'black' : 'white');
+                if (lastMove.capturedPiece) {
+                    setCapturedPieces(prev => prev.slice(0, -1));
+                }
                 return newHistory;
             }
             return newHistory;
@@ -134,7 +146,11 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
             const result = newHistory.redoMove();
             if (result) {
                 const redoneMove = result;
-                handleMove(redoneMove);
+                setBoardState(newHistory.getCurrentBoardState());
+                setCurrentTurn(redoneMove.piece.color === 'white' ? 'black' : 'white');
+                if (redoneMove.capturedPiece) {
+                    handlePieceCapture(redoneMove.capturedPiece);
+                }
                 return newHistory;
             }
             return newHistory;
@@ -153,7 +169,11 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
 
     const switchTurn = () => {
         console.log('[ChessGame] Switching turn');
-        setCurrentTurn(currentTurn === 'white' ? 'black' : 'white');
+        setCurrentTurn(prevTurn => {
+            const newTurn = prevTurn === 'white' ? 'black' : 'white';
+            console.log('[ChessGame] New turn:', newTurn);
+            return newTurn;
+        });
     };
 
     const resetGame = () => {
@@ -170,14 +190,22 @@ export const ChessGame: React.FC<ChessGameProps> = ({openUtilityMenu, onError, b
     chessGameRef.current = {
         resetGame: handleResetGame,
         getBoardState: () => boardState,
-        setBoardState: setBoardState,
+        setBoardState: handleImport,
         undoMove: handleUndo,
         redoMove: handleRedo,
         moveHistory: moveHistory,
+        setMoveHistory: setMoveHistory,
+        setCurrentTurn: setCurrentTurn,
+        setCapturedPieces: setCapturedPieces,
+    getAsciiRepresentation: () => {
+        console.log('Getting ASCII representation. Current turn:', currentTurn);
+        return convertToAscii(boardState, currentTurn || 'white');
+    },
         onClose: openUtilityMenu
     };
 
     return (
+        // ... (JSX remains unchanged)
         <div className="chess-container" style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
             <div className="turn-indicator">Current Turn: <span
                 style={{color: currentTurn === 'white' ? '#e6d0b1' : '#b48764'}}>{currentTurn}</span></div>
